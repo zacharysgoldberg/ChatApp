@@ -20,6 +20,6 @@ RUN dotnet publish -c Release -o /app/publish
 # [Create the final runtime image]
 FROM mcr.microsoft.com/dotnet/aspnet:7.0
 WORKDIR /API
-COPY --from=build /app/publish .
+COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "API.dll"]
 

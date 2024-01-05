@@ -1,7 +1,7 @@
 version: "3.9"
 
 services:
-  # sqlServer:
+  # sql_server:
   #   image: mcr.microsoft.com/mssql/server:2022-latest
   #   container_name: sqlServer
   #   environment:
@@ -20,4 +20,4 @@ services:
     # volumes:
     #   - /API/chatapp.db:/API/chatapp.db
     # depends_on:
-    #   - sqlServer
+    #   - sql_server
