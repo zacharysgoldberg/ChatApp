@@ -1,11 +1,23 @@
 version: "3.9"
 
 services:
-  database:
-    image: mcr.microsoft.com/mssql/server:2022-latest
-    container_name: sql_server
-    environment:
-      - SA_PASSWORD=Goldie25!
-      - ACCEPT_EULA=Y
+  # sqlServer:
+  #   image: mcr.microsoft.com/mssql/server:2022-latest
+  #   container_name: sqlServer
+  #   environment:
+  #     - SA_PASSWORD=Goldie25!
+  #     - ACCEPT_EULA=Y
+  #     # - DefaultConnection=Server=localhost;Database=chatapp_db;User Id=SA;Password=Goldie25!;TrustServerCertificate=True
+  #   ports:
+  #     - "1433:1433"
+  #   volumes:
+  #     - /database:/database
+
+  api:
+    build: ./API
     ports:
-      - "1433:1433"
+      - "8080:80"
+    # volumes:
+    #   - /API/chatapp.db:/API/chatapp.db
+    # depends_on:
+    #   - sqlServer

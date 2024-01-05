@@ -1,23 +1,25 @@
-FROM mcr.microsoft.com/dotnet/aspnet:7.0 AS base
-WORKDIR /API
-EXPOSE 80
-EXPOSE 81
-
-# Use the SDK image to build the application
+# [Use the SDK image to build the application]
 FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 WORKDIR /API
+EXPOSE 80
+
+COPY *.sln ./
 COPY *.csproj ./
 RUN dotnet restore
+# [Copy everything else]
 COPY . ./
 WORKDIR /API
-RUN dotnet build -c Release -o /app/build
 
-# Publish the application
-FROM build AS publish
+# [Build app]
+FROM build as publish
 RUN dotnet publish -c Release -o /app/publish
+# RUN dotnet tool install --global dotnet-ef --version 7.0.14
+# ENV PATH="$PATH:/root/.dotnet/tools"
+# RUN dotnet ef database update
 
-# Create the final runtime image
-FROM base AS final
+# [Create the final runtime image]
+FROM mcr.microsoft.com/dotnet/aspnet:7.0
 WORKDIR /API
-COPY --from=publish /app/publish .
+COPY --from=build /app/publish .
 ENTRYPOINT ["dotnet", "API.dll"]
+
