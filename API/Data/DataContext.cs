@@ -9,5 +9,7 @@ public class DataContext : DbContext
 
     }
 
-    public DbSet<Entities.AppUser> Users {get; set;}
+    public DbSet<Entities.AppUser>      Users {get; set;}
+    // public DbSet<Entities.Message>      Messages {get; set;}
+    // public DbSet<Entities.GroupMessage> GroupMessages {get; set;}
 }
