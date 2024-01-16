@@ -23,7 +23,7 @@ namespace API.Controllers
         }
 
         [HttpPost("register")] // POST /api/account/register?username=dave&password=pwd
-        public async Task<ActionResult<UserDTO>> Register(RegisterDto registerDto)
+        public async Task<ActionResult<UserDTO>> Register(RegisterDTO registerDto)
         {
             if(await UserExists(registerDto.Username))
                 return BadRequest("Username is already in use");
