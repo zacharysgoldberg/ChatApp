@@ -1,33 +1,35 @@
-﻿using API.Data;
-using API.Entities;
+﻿using API.Entities;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace API.Controllers
 {
-    [Authorize]
+    [Authorize] // (AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)
     public class UsersController : BaseApiController
     {
-        private readonly DataContext _context;
-        public UsersController(DataContext context)
+        private readonly UserManager<AppUser> _userManager;
+
+        public UsersController(UserManager<AppUser> userManager)
         {
-            _context = context;
+            _userManager = userManager;
         }
 
         [AllowAnonymous]
-        [HttpGet]
+        [HttpGet] // GET /api/users
         public async Task<ActionResult<IEnumerable<AppUser>>> GetUsers()
         {
-            var users = await _context.Users.ToListAsync();
+            var users = await _userManager.Users.ToListAsync();
             
             return users;
         }
         
-        [HttpGet("{id}")] // /api/users/2
+        [HttpGet("{id}")] // GET /api/users/1
         public async Task<ActionResult<AppUser>> GetUser(int id)
         {
-            var user = await _context.Users.FindAsync(id);
+            var user = await _userManager.Users.FirstOrDefaultAsync(user => user.Id == id);
 
             return user;
         }

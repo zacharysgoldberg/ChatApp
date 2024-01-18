@@ -1,15 +1,22 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using API.Entities;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 
 namespace API.Data;
 
-public class DataContext : DbContext
+public class ApplicationDbContext : IdentityDbContext<AppUser, IdentityRole<int>, int>
 {
-    public DataContext(DbContextOptions<DataContext> options) : base(options)
+    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
     {
 
     }
 
-    public DbSet<Entities.AppUser>      Users {get; set;}
+    protected override void OnModelCreating(ModelBuilder builder)
+    {
+            base.OnModelCreating(builder);
+    }
+    
     // public DbSet<Entities.Message>      Messages {get; set;}
     // public DbSet<Entities.GroupMessage> GroupMessages {get; set;}
 }

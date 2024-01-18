@@ -1,4 +1,5 @@
-﻿using System.Security.Cryptography;
+﻿using System.Collections;
+using System.Security.Cryptography;
 using System.Text;
 
 // using API.Controllers;
@@ -6,6 +7,7 @@ using API.Data;
 using API.DTOs;
 using API.Entities;
 using API.Interfaces;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,68 +15,79 @@ namespace API.Controllers
 {
     public class AccountController : BaseApiController
     {
-        private readonly DataContext _context;
         private readonly ITokenService _tokenService;
+        private readonly UserManager<AppUser> _userManager;
 
-        public AccountController(DataContext context, ITokenService tokenService)
+        public AccountController(ITokenService             tokenService, 
+                                 UserManager<AppUser>      userManager)
         {
-            _context = context;
             _tokenService = tokenService;
+            _userManager  = userManager;
         }
 
         [HttpPost("register")] // POST /api/account/register?username=dave&password=pwd
-        public async Task<ActionResult<UserDTO>> Register(RegisterDTO registerDto)
+        public async Task<ActionResult> Register(RegisterDTO registerDto)
         {
-            if(await UserExists(registerDto.Username))
-                return BadRequest("Username is already in use");
+            if(await UserExists(registerDto.Email.ToLower()))
+                return BadRequest("Email is already in use");
 
-            using var hmac = new HMACSHA512();
-
-            var user = new AppUser
+            AppUser user = new AppUser
             {
-                UserName = registerDto.Username.ToLower(),
-                PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(registerDto.Password)),
-                PasswordSalt = hmac.Key
+                Email = registerDto.Email.ToLower(),
+                UserName = registerDto.Email.ToLower(),
+                SecurityStamp = Guid.NewGuid().ToString(),
             };
 
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
+            var result = await _userManager.CreateAsync(user, registerDto.Password);
 
-            return new UserDTO
+            if (!result.Succeeded)
             {
-                Username = user.UserName,
-                Token = _tokenService.CreateToken(user)
-            };
+                Console.WriteLine("----------------\n");
+                foreach(var error in result.Errors)
+                {
+                    Console.WriteLine(error.Description);
+                }
+                    
+                return BadRequest("User creation failed! Please check user details and try again.");
+            }
+            
+            return Ok("User creation successful!");
         }
 
         [HttpPost("login")]
         public async Task<ActionResult<UserDTO>> Login(LoginDTO loginDTO)
         {
-            var user = await _context.Users.SingleOrDefaultAsync(x => x.UserName == loginDTO.Username);
+            var user = await _userManager.FindByNameAsync(loginDTO.Username.ToLower());
 
-            if(user == null)
-                return Unauthorized("Invalid Username");
-
-            using var hmac = new HMACSHA512(user.PasswordSalt);
-            
-            var computedHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(loginDTO.Password));
-
-            for(int i = 0; i < computedHash.Length; i++)
+            if(user != null && await _userManager.CheckPasswordAsync(user, loginDTO.Password))
             {
-                if(computedHash[i] != user.PasswordHash[i])
-                    return Unauthorized("Invalid Password");
+                return new UserDTO
+                {
+                    Username = user.UserName,
+                    Token = _tokenService.CreateToken(user)
+                };
             }
 
-            return new UserDTO
-            {
-                Username = user.UserName,
-                Token = _tokenService.CreateToken(user)
-            };
+            return Unauthorized("Invalid Username or Password");
         }
 
-        private async Task<bool> UserExists(string username)
+        /*
+        [HttpPost]
+        public async Task<IActionResult> Logout()
         {
-            return await _context.Users.AnyAsync(x => x.UserName == username);
+            // Cancel or Remove JWT from user 
+        
+            return NoContent();
+        }
+        */
+
+        private async Task<bool> UserExists(string email)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+
+            if (user != null)
+                return true;
+            return false;
         }
     }
 }

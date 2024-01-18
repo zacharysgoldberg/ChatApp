@@ -1,8 +1,10 @@
+using API.Data;
 using API.Extensions;
+using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Add startup services to the container.
 
 builder.Services.AddControllers();
 
@@ -10,6 +12,7 @@ builder.Services.AddApplicationServices(builder.Configuration);
 
 builder.Services.AddIdentityServices(builder.Configuration);
 
+// Use Middleware
 var app = builder.Build();
 
 // Confugure the HTTP request pipeline

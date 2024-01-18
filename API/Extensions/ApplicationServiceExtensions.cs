@@ -13,7 +13,7 @@ public static class ApplicationServiceExtensions
 
         // System.Console.WriteLine($"---------\n\n{connectionString}\n\n---------" );
         // ADO.NET (SQL authentication) - UseSqlServer
-        services.AddDbContext<API.Data.DataContext>(opt => 
+        services.AddDbContext<Data.ApplicationDbContext>(opt => 
         { 
             opt.UseSqlite(connectionString);
         });
