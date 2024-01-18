@@ -19,7 +19,7 @@ public static class IdentityServiceExtensions
 
         services.AddAuthentication( options => 
         {
-            options.DefaultAuthenticateScheme = 
+            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
             options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
             options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
         })  
