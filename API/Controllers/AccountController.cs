@@ -1,15 +1,11 @@
-﻿using System.Collections;
-using System.Security.Cryptography;
-using System.Text;
-
-// using API.Controllers;
-using API.Data;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using API.DTOs;
 using API.Entities;
 using API.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace API.Controllers
 {
@@ -17,14 +13,18 @@ namespace API.Controllers
     {
         private readonly ITokenService _tokenService;
         private readonly UserManager<AppUser> _userManager;
+        private readonly IConfiguration _config;
 
         public AccountController(ITokenService             tokenService, 
-                                 UserManager<AppUser>      userManager)
+                                 UserManager<AppUser>      userManager,
+                                 IConfiguration            configuration)
         {
             _tokenService = tokenService;
             _userManager  = userManager;
+            _config = configuration;
         }
 
+        // Create new user
         [HttpPost("register")] // POST /api/account/register?username=dave&password=pwd
         public async Task<ActionResult> Register(RegisterDTO registerDto)
         {
@@ -54,32 +54,97 @@ namespace API.Controllers
             return Ok("User creation successful!");
         }
 
+        // Sign user in and return a JWT and Refresh token
         [HttpPost("login")]
         public async Task<ActionResult<UserDTO>> Login(LoginDTO loginDTO)
         {
-            var user = await _userManager.FindByNameAsync(loginDTO.Username.ToLower());
+            AppUser user = await _userManager.FindByNameAsync(loginDTO.Username.ToLower());
+            
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, loginDTO.Username),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            };
+
+            string accessToken = _tokenService.GenerateAccessToken(claims);
+            string refreshToken = _tokenService.GenerateRefreshToken();
+
+            _ = int.TryParse(_config["JWT:RefreshTokenValidityInDays"],
+                out int refreshTokenValidityInDays);
+
+            user.RefreshToken = refreshToken;
+            user.RefreshTokenExpiryTime = DateTime.Now.AddDays(refreshTokenValidityInDays);
+
+            await _userManager.UpdateAsync(user);
 
             if(user != null && await _userManager.CheckPasswordAsync(user, loginDTO.Password))
             {
                 return new UserDTO
                 {
                     Username = user.UserName,
-                    Token = _tokenService.CreateToken(user)
+                    AccessToken = accessToken,
+                    RefreshToken = refreshToken
                 };
             }
 
             return Unauthorized("Invalid Username or Password");
         }
 
-        /*
+        // Generate the user a new JWT and Refresh token
         [HttpPost]
-        public async Task<IActionResult> Logout()
+        [Route("refresh-token")]
+        public async Task<IActionResult> RefreshToken(UserDTO userDTO)
         {
-            // Cancel or Remove JWT from user 
-        
-            return NoContent();
+            if (userDTO is null)
+                return BadRequest("Invalid client request");
+
+            string accessToken = userDTO.AccessToken;
+            string refreshToken = userDTO.RefreshToken;
+
+            var principal = _tokenService.GetPrincipalFromExpiredToken(accessToken);
+            string username = principal.Identity.Name;
+
+            AppUser user = await _userManager.FindByNameAsync(username);
+
+            if (user == null || user.RefreshToken != refreshToken || user.RefreshTokenExpiryTime <= DateTime.Now)
+            {
+                return BadRequest("Invalid access token or refresh token");
+            }
+
+            string newAccessToken = _tokenService.GenerateAccessToken(principal.Claims);
+            string newRefreshToken = _tokenService.GenerateRefreshToken();
+
+            user.RefreshToken = newRefreshToken;
+
+            await _userManager.UpdateAsync(user);
+
+            return Ok(new ObjectResult(new
+            {
+                accessToken = newAccessToken,
+                refreshToken = newRefreshToken
+            }));
         }
-        */
+
+        // Revoke user's Refresh token
+        [Authorize]
+        [HttpPost]
+        [Route("revoke/{username}")]
+        public async Task<IActionResult> Revoke(string username)
+        {
+            var user = await _userManager.FindByNameAsync(username);
+            if (user == null) return BadRequest("Invalid username");
+
+            user.RefreshToken = null;
+            await _userManager.UpdateAsync(user);
+
+            return NoContent(); // Logout
+        }
+
+        // Method to logout and redirect user to login page
+        // private async Task<ActionResult> Logout()
+        // {
+
+        // }
 
         private async Task<bool> UserExists(string email)
         {

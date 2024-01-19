@@ -1,5 +1,4 @@
 ﻿using API.Entities;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -32,6 +31,18 @@ namespace API.Controllers
             var user = await _userManager.Users.FirstOrDefaultAsync(user => user.Id == id);
 
             return user;
+        }
+
+        // [Authorize(Roles = "Admin")]
+        [HttpPost("{id}")]
+        public async Task<ActionResult> DeleteUser(int id)
+        {
+
+            var user = await _userManager.Users.FirstOrDefaultAsync(user => user.Id == id);
+
+            await _userManager.DeleteAsync(user);
+
+            return Ok($"Deleted {user.UserName} successfully.");
         }
     }
 }

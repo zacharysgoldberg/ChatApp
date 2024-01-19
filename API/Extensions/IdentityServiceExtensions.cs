@@ -3,7 +3,6 @@ using API.Data;
 using API.Entities;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 
 namespace API.Extensions;
@@ -31,10 +30,11 @@ public static class IdentityServiceExtensions
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.
                         UTF8.GetBytes(config["JWT:TokenKey"])),
                     ValidateIssuerSigningKey = true,
-                    ValidateIssuer = false,
                     ValidateAudience = false,
+                    ValidateIssuer = false,
                     ValidIssuer = config["JWT:ValidIssuer"],
-                    ValidAudience = config["JWT:ValidAudience"]
+                    ValidAudience = config["JWT:ValidAudience"],
+                    ClockSkew = TimeSpan.Zero   // Need this for JWTs to expire
                 };
             });
 
