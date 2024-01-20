@@ -26,7 +26,7 @@ namespace API.Controllers
 
         // Create new user
         [HttpPost("register")] // POST /api/account/register?username=dave&password=pwd
-        public async Task<ActionResult> Register(RegisterDTO registerDto)
+        public async Task<IActionResult> Register(RegisterDTO registerDto)
         {
             if(await UserExists(registerDto.Email.ToLower()))
                 return BadRequest("Email is already in use");
@@ -48,14 +48,14 @@ namespace API.Controllers
                     Console.WriteLine(error.Description);
                 }
                     
-                return BadRequest("User creation failed! Please check user details and try again.");
+                return BadRequest("User registration failed! Please check user details and try again.");
             }
             
-            return Ok("User creation successful!");
+            return Ok("User registration successful!");
         }
 
         // Sign user in and return a JWT and Refresh token
-        [HttpPost("login")]
+        [HttpPost("login")] // POST /api/account/login
         public async Task<ActionResult<UserDTO>> Login(LoginDTO loginDTO)
         {
             AppUser user = await _userManager.FindByNameAsync(loginDTO.Username.ToLower());
@@ -70,7 +70,7 @@ namespace API.Controllers
             string refreshToken = _tokenService.GenerateRefreshToken();
 
             _ = int.TryParse(_config["JWT:RefreshTokenValidityInDays"],
-                out int refreshTokenValidityInDays);
+                             out int refreshTokenValidityInDays);
 
             user.RefreshToken = refreshToken;
             user.RefreshTokenExpiryTime = DateTime.Now.AddDays(refreshTokenValidityInDays);
@@ -91,8 +91,7 @@ namespace API.Controllers
         }
 
         // Generate the user a new JWT and Refresh token
-        [HttpPost]
-        [Route("refresh-token")]
+        [HttpPost("refresh-token")] // POST /api/account/refresh-token
         public async Task<IActionResult> RefreshToken(UserDTO userDTO)
         {
             if (userDTO is null)
@@ -127,8 +126,7 @@ namespace API.Controllers
 
         // Revoke user's Refresh token
         [Authorize]
-        [HttpPost]
-        [Route("revoke/{username}")]
+        [HttpPost("revoke/{username}")] // POST /api/account/revoke/zach@zach.com
         public async Task<IActionResult> Revoke(string username)
         {
             var user = await _userManager.FindByNameAsync(username);
@@ -137,10 +135,10 @@ namespace API.Controllers
             user.RefreshToken = null;
             await _userManager.UpdateAsync(user);
 
-            return NoContent(); // Logout
+            return Ok("Logged out successfully"); // Logout
         }
 
-        // Method to logout and redirect user to login page
+        // Logout and redirect user to login page
         // private async Task<ActionResult> Logout()
         // {
 

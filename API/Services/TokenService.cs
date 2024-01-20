@@ -19,7 +19,7 @@ public class TokenService : ITokenService
     // Create a JWT and return it as a string
     public string GenerateAccessToken(IEnumerable<Claim> claims)
     {
-        var creds = new SigningCredentials(_key, SecurityAlgorithms.HmacSha256);
+        var creds = new SigningCredentials(_key, SecurityAlgorithms.HmacSha512);
 
         var tokenDescriptor = new SecurityTokenDescriptor
         {
@@ -36,7 +36,7 @@ public class TokenService : ITokenService
         return tokenHandler.WriteToken(token);
     }
 
-    // Create and return a random number in base 64
+    // Create and return a random string of characters in base 64
     public string GenerateRefreshToken()
     {
         var randomNumber = new byte[64];
@@ -45,7 +45,7 @@ public class TokenService : ITokenService
         return Convert.ToBase64String(randomNumber);
     }
 
-    // Validate the incomming token and return principal owner of token
+    // Validate the incomming expired token and return it's principal claim
     public ClaimsPrincipal GetPrincipalFromExpiredToken(string token)
     {
         var tokenValidationParameters = new TokenValidationParameters
@@ -66,10 +66,14 @@ public class TokenService : ITokenService
                                                                tokenValidationParameters, 
                                                                out securityToken);
 
-        var jwtSecurityToken = securityToken as JwtSecurityToken;
+        JwtSecurityToken jwtSecurityToken = securityToken as JwtSecurityToken;
 
-        if (!jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, 
-                                                StringComparison.InvariantCultureIgnoreCase) || jwtSecurityToken == null)
+        bool isSecurityTokenHmacSha512 = jwtSecurityToken.Header.Alg.Equals(
+                                                SecurityAlgorithms.HmacSha512, 
+                                                StringComparison.InvariantCultureIgnoreCase
+                                                );
+
+        if (!isSecurityTokenHmacSha512|| jwtSecurityToken == null)
             throw new SecurityTokenException("Invalid token");
 
         return principal;

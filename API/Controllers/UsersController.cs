@@ -35,7 +35,7 @@ namespace API.Controllers
 
         // [Authorize(Roles = "Admin")]
         [HttpPost("{id}")]
-        public async Task<ActionResult> DeleteUser(int id)
+        public async Task<IActionResult> DeleteUser(int id)
         {
 
             var user = await _userManager.Users.FirstOrDefaultAsync(user => user.Id == id);

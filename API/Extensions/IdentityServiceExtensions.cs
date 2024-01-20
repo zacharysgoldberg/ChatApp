@@ -13,8 +13,8 @@ public static class IdentityServiceExtensions
         IConfiguration config)
     {
         services.AddIdentity<AppUser, IdentityRole<int>>()
-            .AddEntityFrameworkStores<ApplicationDbContext>()
-            .AddDefaultTokenProviders();
+                .AddEntityFrameworkStores<ApplicationDbContext>()
+                .AddDefaultTokenProviders();
 
         services.AddAuthentication( options => 
         {
@@ -22,21 +22,21 @@ public static class IdentityServiceExtensions
             options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
             options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
         })  
-        .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
+                .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
+        {
+            options.SaveToken = true;
+            options.TokenValidationParameters = new TokenValidationParameters
             {
-                // options.SaveToken = true;
-                options.TokenValidationParameters = new TokenValidationParameters
-                {
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.
-                        UTF8.GetBytes(config["JWT:TokenKey"])),
-                    ValidateIssuerSigningKey = true,
-                    ValidateAudience = false,
-                    ValidateIssuer = false,
-                    ValidIssuer = config["JWT:ValidIssuer"],
-                    ValidAudience = config["JWT:ValidAudience"],
-                    ClockSkew = TimeSpan.Zero   // Need this for JWTs to expire
-                };
-            });
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.
+                    UTF8.GetBytes(config["JWT:TokenKey"])),
+                ValidateIssuerSigningKey = true,
+                ValidateAudience = false,
+                ValidateIssuer = false,
+                ValidIssuer = config["JWT:ValidIssuer"],
+                ValidAudience = config["JWT:ValidAudience"],
+                ClockSkew = TimeSpan.Zero   // Need this for JWTs to expire
+            };
+        });
 
         // services.AddAuthorization();
 
