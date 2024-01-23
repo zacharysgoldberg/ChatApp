@@ -26,7 +26,7 @@ namespace API.Controllers
 
         // Create new user
         [HttpPost("register")] // POST /api/account/register?username=dave&password=pwd
-        public async Task<IActionResult> Register(RegisterDTO registerDto)
+        public async  Task<ActionResult<UserDTO>> Register(RegisterDTO registerDto)
         {
             if(await UserExists(registerDto.Email.ToLower()))
                 return BadRequest("Email is already in use");
@@ -50,8 +50,30 @@ namespace API.Controllers
                     
                 return BadRequest("User registration failed! Please check user details and try again.");
             }
-            
-            return Ok("User registration successful!");
+
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, registerDto.Email),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            };
+
+            string accessToken = _tokenService.GenerateAccessToken(claims);
+            string refreshToken = _tokenService.GenerateRefreshToken();
+
+            _ = int.TryParse(_config["JWT:RefreshTokenValidityInDays"],
+                             out int refreshTokenValidityInDays);
+
+            user.RefreshToken = refreshToken;
+            user.RefreshTokenExpiryTime = DateTime.Now.AddDays(refreshTokenValidityInDays);
+
+            await _userManager.UpdateAsync(user);
+
+            return new UserDTO
+            {
+                Username = user.UserName,
+                AccessToken = accessToken,
+                RefreshToken = refreshToken
+            };
         }
 
         // Sign user in and return a JWT and Refresh token
@@ -126,7 +148,7 @@ namespace API.Controllers
 
         // Revoke user's Refresh token
         [Authorize]
-        [HttpPost("revoke/{username}")] // POST /api/account/revoke/zach@zach.com
+        [HttpPost("revoke/{username}")] // POST /api/account/revoke/johndoe@domain.com
         public async Task<IActionResult> Revoke(string username)
         {
             var user = await _userManager.FindByNameAsync(username);
@@ -135,14 +157,8 @@ namespace API.Controllers
             user.RefreshToken = null;
             await _userManager.UpdateAsync(user);
 
-            return Ok("Logged out successfully"); // Logout
+            return Ok("Revoked refresh token successfully");
         }
-
-        // Logout and redirect user to login page
-        // private async Task<ActionResult> Logout()
-        // {
-
-        // }
 
         private async Task<bool> UserExists(string email)
         {
