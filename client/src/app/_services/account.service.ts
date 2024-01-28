@@ -69,7 +69,7 @@ export class AccountService {
     const username = user.username;
     const accessToken = user.accessToken;
     const refreshToken = user.refreshToken;
-    localStorage.setItem('username', JSON.stringify(username));
+    localStorage.setItem('username', username);
     localStorage.setItem('accessToken', accessToken);
     localStorage.setItem('refreshToken', refreshToken);
   }
@@ -79,10 +79,8 @@ export class AccountService {
   }
 
   getUsername() {
-    const username = this.currentUserSource['_value']['username']
-      ? this.currentUserSource['_value']['username']
-      : this.currentUserSource['_value'];
-
+    let username;
+    if (this.isUserActive()) username = localStorage.getItem('username');
     return username;
   }
 

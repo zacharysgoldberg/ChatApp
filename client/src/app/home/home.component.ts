@@ -29,7 +29,9 @@ export class HomeComponent implements OnInit {
 
   login() {
     this.accountService.login(this.credentials).subscribe({
-      next: (_) => this.router.navigateByUrl('/account'),
+      next: (_) => {
+        this.router.navigateByUrl('/account');
+      },
 
       error: (error) => {
         this.toastr.error(error.error), console.log(error);

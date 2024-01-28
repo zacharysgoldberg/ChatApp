@@ -24,7 +24,6 @@ export class NavbarComponent implements OnInit {
   isContactsActive: boolean = false;
   isMessagesActive: boolean = false;
   isSidebarCollapsed: boolean = false;
-  username: string | undefined;
 
   model: any = {};
 
@@ -34,10 +33,7 @@ export class NavbarComponent implements OnInit {
     private toastr: ToastrService
   ) {}
 
-  ngOnInit(): void {
-    if (this.accountService.isUserActive())
-      this.username = this.accountService.getUsername();
-  }
+  ngOnInit(): void {}
 
   logout() {
     this.accountService.logout(this.model).subscribe({
