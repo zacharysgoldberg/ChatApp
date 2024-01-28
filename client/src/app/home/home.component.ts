@@ -1,5 +1,9 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
+import { AccountService } from '../_services/account.service';
+import { LoginModel } from '../_models/login.model';
+import { Router } from '@angular/router';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-home',
@@ -8,12 +12,29 @@ import { Component, OnInit } from '@angular/core';
 })
 export class HomeComponent implements OnInit {
   registerMode = false;
-  users: any;
 
-  constructor(private http: HttpClient) {}
+  users: any;
+  credentials: LoginModel = { username: '', password: '' };
+
+  constructor(
+    private http: HttpClient,
+    public accountService: AccountService,
+    private router: Router,
+    private toastr: ToastrService
+  ) {}
 
   ngOnInit(): void {
     this.getUsers();
+  }
+
+  login() {
+    this.accountService.login(this.credentials).subscribe({
+      next: (_) => this.router.navigateByUrl('/account'),
+
+      error: (error) => {
+        this.toastr.error(error.error), console.log(error);
+      },
+    });
   }
 
   registerToggle() {
@@ -21,7 +42,8 @@ export class HomeComponent implements OnInit {
   }
 
   getUsers() {
-    this.http.get('https://localhost:81/api/users').subscribe({
+    const baseUrl: string = this.accountService.baseUrl;
+    this.http.get(baseUrl + 'users').subscribe({
       next: (response) => (this.users = response),
       error: (error) => console.log(error),
       complete: () => console.log('Request has completed'),

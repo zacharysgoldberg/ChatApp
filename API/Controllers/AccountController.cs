@@ -80,7 +80,14 @@ namespace API.Controllers
         [HttpPost("login")] // POST /api/account/login
         public async Task<ActionResult<UserDTO>> Login(LoginDTO loginDTO)
         {
+            if (loginDTO.Username is null || loginDTO.Password is null)
+                return Unauthorized("Invalid Username or Password");
+                
             AppUser user = await _userManager.FindByNameAsync(loginDTO.Username.ToLower());
+
+            if(user is null)
+                return Unauthorized("Invalid Username or Password");
+
             
             var claims = new List<Claim>
             {
@@ -147,7 +154,7 @@ namespace API.Controllers
         }
 
         // Revoke user's Refresh token
-        [Authorize]
+        // [Authorize]
         [HttpPost("revoke/{username}")] // POST /api/account/revoke/johndoe@domain.com
         public async Task<IActionResult> Revoke(string username)
         {
@@ -157,7 +164,7 @@ namespace API.Controllers
             user.RefreshToken = null;
             await _userManager.UpdateAsync(user);
 
-            return Ok("Revoked refresh token successfully");
+            return Ok();
         }
 
         private async Task<bool> UserExists(string email)

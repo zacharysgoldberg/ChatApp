@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { AccountService } from './_services/account.service';
-import { User } from './_models/user';
+import { UserModel } from './_models/user.model';
 
 @Component({
   selector: 'app-root',
@@ -8,7 +8,7 @@ import { User } from './_models/user';
   styleUrls: ['./app.component.css'],
 })
 export class AppComponent implements OnInit {
-  title: string = 'Chat App';
+  public title: string = 'Chat App';
 
   constructor(private accountService: AccountService) {}
 
@@ -17,9 +17,9 @@ export class AppComponent implements OnInit {
   }
 
   setCurrentUser() {
-    const userString = localStorage.getItem('user');
+    const userString = localStorage.getItem('username');
     if (!userString) return;
-    const user: User = JSON.parse(userString);
-    this.accountService.setCurrentUser(user);
+    const user: UserModel = JSON.parse(userString);
+    this.accountService.setCurrentUserSource(user);
   }
 }

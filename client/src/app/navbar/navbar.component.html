@@ -1,0 +1,111 @@
+<!-- sidebar.component.html -->
+
+<nav class="navbar navbar-expand-md navbar-dark fixed-bottom bg-dark">
+  <div class="container">
+    <a class="navbar-brand" routerLinkActive="active">
+      <strong> Chat App </strong>
+    </a>
+    <ul class="nav nav-pills me-auto mb-2 mb-md-0" *ngIf="accountService.currentUser$ | async">
+      <ng-container *ngIf="accountService.currentUser$ | async">
+        <li class="nav-item my-sm-2 my-2">
+          <a class="nav-link text-white text-center text-sm-start" routerLink="/" aria-current="page">
+            <i class="fa fa-home"></i>
+            <span class="ms-2 d-none d-sm-inline"> Home </span>
+          </a>
+        </li>
+        <li class="nav-item my-sm-2 my-2">
+          <a class="nav-link text-white text-center text-sm-start" routerLink="/members" aria-current="page">
+            <i class="fa fa-users"></i>
+            <span class="ms-2 d-none d-sm-inline"> Contacts </span>
+          </a>
+        </li>
+        <li class="nav-item my-sm-2 my-2">
+          <a class="nav-link text-white text-center text-sm-start" routerLink="/chats" routerLinkActive="active"
+            aria-current="page">
+            <i class="fa fa-comments"></i>
+            <span class="ms-2 d-none d-sm-inline"> Chat </span>
+          </a>
+        </li>
+        <li class="nav-item my-sm-2 my-2">
+          <a class="nav-link text-white text-center text-sm-start" routerLink="/notifications" routerLinkActive="active"
+            aria-current="page">
+            <i class="fa fa-bell"></i>
+            <span class="ms-2 d-none d-sm-inline"> Notifications </span>
+          </a>
+        </li>
+      </ng-container>
+    </ul>
+
+    <div class="nav collapsed flex-column mt-2 mt-sm-0" dropdown [dropup]="isDropup">
+      <a id="button-dropup" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle"
+        data-bs-toggle="dropdown" aria-expanded="false" aria-controls="dropdown-dropup" dropdownToggle>
+        <!-- <img src="" alt="" width="32" height="32"> -->
+        <i class="fa fa-user"></i>
+        <span class="ms-1 d-none d-sm-inline"> {{username}} </span>
+      </a>
+      <div id="dropdown-dropup" class="dropdown-menu dropdown-menu-dark text-small shadow" *dropdownMenu>
+        <li><a class="dropdown-item" href="#">Settings</a></li>
+        <li><a class="dropdown-item" href="#">Profile</a></li>
+        <li>
+          <hr class="dropdown-divider">
+        </li>
+        <li><a class="dropdown-item" (click)="logout()">Sign out</a></li>
+      </div>
+    </div>
+    <!-- <form *ngIf="!(accountService.currentUser$ | async)" #loginForm="ngForm" class="d-flex" (ngSubmit)="login()"
+      autocomplete="off">
+      <input name="username" [(ngModel)]="credentials.username" class="form-control me-2" type="text"
+        placeholder="Username">
+      <input name="password" [(ngModel)]="credentials.password" class="form-control me-2" type="password"
+        placeholder="Password">
+      <button class="btn btn-outline-success" type="submit">Login</button>
+    </form> -->
+  </div>
+</nav>
+
+
+<!-- Deprecated -->
+
+<!-- <section *ngIf="accountService.currentUser$ | async">
+  <nav class="d-flex flex-nowrap">
+    <div *ngIf="accountService.currentUser$" class="container-fluid">
+      <div class="row">
+        <div class="d-flex flex-column justify-content-between col-auto bg-dark min-vh-100">
+          <div class="sidebar collapsed mt-4 " [ngClass]="{'collapsed': isSidebarCollapsed}">
+            <a class="text-white d-sm-inline text-decoration-none d-flex align-items-center ms-4" routerLink="/"
+              routerLinkActive="active">
+              <strong class="fs-5">ChatApp</strong>
+            </a>
+
+            <i [ngClass]="{'fa-angle-right': !isSidebarCollapsed, 'fa-angle-left': isSidebarCollapsed}"
+              class="fa fa-angle-right bg-dark text-white toggle" (click)="toggleSidebar()"></i>
+
+            <hr class="text-white d-none d-sm-block" />
+            <ul class="nav nav-pills flex-column mt-2 mt-sm-0 " id="menu">
+              <li class="nav-item my-sm-2 my-2">
+                <a (click)="toggleMessages()" class="nav-link text-white text-center text-sm-start"
+                  routerLink="/messages" routerLinkActive="active" aria-current="page">
+                  <i class="fa fa-comments"></i>
+                  <span class="ms-2 d-none d-sm-inline"> Messages </span>
+                </a>
+              </li>
+
+              <li class="nav-item my-sm-2 my-2">
+                <a href="#sidemenu" data-bs-toggle="collapse" class="nav-link text-white text-center text-sm-start"
+                  aria-current="page">
+                  <i class="fa fa-users"></i>
+                  <span class="ms-2 d-none d-sm-inline" (click)="toggleContacts()"> Contacts </span>
+                  <i class="fa fa-caret-down" (click)="toggleContacts()"></i>
+                </a>
+                <ul *ngIf="isContactsActive === true" class="list-unstyled" id="sidemenu" data-bs-parent="#menu">
+                  <li class="nav-item"><a class="nav-link text-white"> Sam </a></li>
+                  <li class="nav-item"><a class="nav-link text-white"> Zach </a></li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+</section> -->

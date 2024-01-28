@@ -2,3 +2,7 @@
 .dropdown-item {
   cursor: pointer;
 }
+
+.nav-pills li a:hover {
+  background-color: blue;
+}
