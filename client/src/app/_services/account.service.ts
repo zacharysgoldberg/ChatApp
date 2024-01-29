@@ -25,7 +25,6 @@ export class AccountService {
           const user = response;
           if (user) {
             this.setUserAccess(user);
-            // localStorage.setItem('user', JSON.stringify(user));
             this.currentUserSource.next(user);
             this.activeUser.next(true);
             console.log(this.activeUser);
@@ -60,7 +59,6 @@ export class AccountService {
           localStorage.removeItem('refreshToken');
           this.currentUserSource.next(null);
           this.activeUser.next(false);
-          console.log(this.activeUser);
         })
       );
   }

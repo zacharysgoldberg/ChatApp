@@ -9,7 +9,7 @@
         <ng-container *ngIf="accountService.currentUser$ | async">
 
           <li class="nav-item my-sm-2 my-2">
-            <a class="nav-link text-white text-center text-sm-start" routerLink="/" aria-current="page">
+            <a class="nav-link text-white text-center text-sm-start" routerLink="/account" aria-current="page">
               <i class="fa fa-home"></i>
               <span class="ms-2 d-none d-sm-inline"> Home </span>
             </a>
@@ -38,6 +38,16 @@
               <span class="ms-2 d-none d-sm-inline"> Notifications </span>
             </a>
           </li>
+
+          <!-- (ERRORS) For Development Only -->
+          <li class="nav-item my-sm-2 my-2">
+            <a class="nav-link text-white text-center text-sm-start" routerLink="/errors" routerLinkActive="active"
+              aria-current="page">
+              <i class="fa fa-warning"></i>
+              <span class="ms-2 d-none d-sm-inline">ERRORS</span>
+            </a>
+          </li>
+          <!-- ----------------------------- -->
         </ng-container>
       </ul>
 
@@ -49,7 +59,7 @@
           <span class="ms-1 d-none d-sm-inline"> {{accountService.getUsername()}} </span>
         </a>
 
-        <div id="dropdown-dropup" class="dropdown-menu dropdown-menu-dark text-small shadow" *dropdownMenu>
+        <div id="dropdown-dropup" class="dropdown-menu dropdown-menu-dark text-small shadow">
           <li><a class="dropdown-item" href="#">Settings</a></li>
           <li><a class="dropdown-item" href="#">Profile</a></li>
           <li>
@@ -58,14 +68,6 @@
           <li><a class="dropdown-item" (click)="logout()">Sign out</a></li>
         </div>
       </div>
-      <!-- <form *ngIf="!(accountService.currentUser$ | async)" #loginForm="ngForm" class="d-flex" (ngSubmit)="login()"
-  autocomplete="off">
-  <input name="username" [(ngModel)]="credentials.username" class="form-control me-2" type="text"
-  placeholder="Username">
-  <input name="password" [(ngModel)]="credentials.password" class="form-control me-2" type="password"
-  placeholder="Password">
-  <button class="btn btn-outline-success" type="submit">Login</button>
-</form> -->
     </div>
   </nav>
 </section>

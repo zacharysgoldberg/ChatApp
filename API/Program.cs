@@ -1,6 +1,5 @@
-using API.Data;
 using API.Extensions;
-using Microsoft.AspNetCore.Identity;
+using API.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,8 +15,10 @@ builder.Services.AddIdentityServices(builder.Configuration);
 var app = builder.Build();
 
 // Confugure the HTTP request pipeline
-app.UseCors(builder => builder.AllowAnyHeader().AllowAnyMethod().
-    WithOrigins("https://localhost:4200"));
+app.UseMiddleware<ExceptionMiddleware>();
+
+app.UseCors(builder => builder.AllowAnyHeader().AllowAnyMethod()
+    .WithOrigins("https://localhost:4200"));
 
 app.UseAuthentication();
 
