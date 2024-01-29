@@ -1,4 +1,7 @@
 // sidebar.component.ts
+import { AccountService } from '../_services/account.service';
+import { Router } from '@angular/router';
+import { ToastrService } from 'ngx-toastr';
 import {
   Component,
   Output,
@@ -7,9 +10,6 @@ import {
   ViewChild,
   ElementRef,
 } from '@angular/core';
-import { AccountService } from '../_services/account.service';
-import { Router } from '@angular/router';
-import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-navbar',
@@ -21,9 +21,6 @@ export class NavbarComponent implements OnInit {
   @ViewChild('sidebar') sidebar: ElementRef | undefined;
 
   isDropup = true;
-  isContactsActive: boolean = false;
-  isMessagesActive: boolean = false;
-  isSidebarCollapsed: boolean = false;
 
   model: any = {};
 
@@ -51,17 +48,5 @@ export class NavbarComponent implements OnInit {
   navigateToProfile(): void {
     // Implement navigation logic to the profile page
     this.router.navigate(['/profile']);
-  }
-
-  toggleContacts(): void {
-    this.isContactsActive = !this.isContactsActive;
-  }
-
-  toggleMessages() {
-    this.isMessagesActive = !this.isMessagesActive;
-  }
-
-  toggleSidebar(): void {
-    this.isSidebarCollapsed = !this.isSidebarCollapsed;
   }
 }
