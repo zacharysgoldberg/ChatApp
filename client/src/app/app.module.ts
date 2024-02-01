@@ -7,8 +7,6 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FormsModule } from '@angular/forms';
 import { HomeComponent } from './home/home.component';
 import { RegisterComponent } from './register/register.component';
-import { MemberListComponent } from './members/member-list/member-list.component';
-import { MemberDetailComponent } from './members/member-detail/member-detail.component';
 import { ChatsComponent } from './chats/chats.component';
 import { NavbarComponent } from './navbar/navbar.component';
 import { NotificationsComponent } from './notifications/notifications.component';
@@ -17,6 +15,15 @@ import { TestErrorComponent } from './errors/test-error/test-error.component';
 import { ErrorInterceptor } from './_interceptors/error.interceptor';
 import { NotFoundComponent } from './errors/not-found/not-found.component';
 import { ServerErrorComponent } from './errors/server-error/server-error.component';
+import { JwtModule } from '@auth0/angular-jwt';
+import { AuthGuard } from './_guards/auth.guard';
+import { ContactListComponent } from './contacts/contact-list/contact-list.component';
+import { ContactDetailComponent } from './contacts/contact-detail/contact-detail.component';
+import { environment } from 'src/environments/environment.development';
+
+export function tokenGetter() {
+  return localStorage.getItem('accessToken');
+}
 
 @NgModule({
   declarations: [
@@ -24,13 +31,13 @@ import { ServerErrorComponent } from './errors/server-error/server-error.compone
     HomeComponent,
     RegisterComponent,
     NavbarComponent,
-    MemberListComponent,
-    MemberDetailComponent,
     ChatsComponent,
     NotificationsComponent,
     TestErrorComponent,
     NotFoundComponent,
     ServerErrorComponent,
+    ContactListComponent,
+    ContactDetailComponent,
   ],
   imports: [
     BrowserModule,
@@ -39,6 +46,13 @@ import { ServerErrorComponent } from './errors/server-error/server-error.compone
     BrowserAnimationsModule,
     FormsModule,
     SharedModule,
+    JwtModule.forRoot({
+      config: {
+        tokenGetter: tokenGetter,
+        allowedDomains: [environment.allowedDomains],
+        disallowedRoutes: [],
+      },
+    }),
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },

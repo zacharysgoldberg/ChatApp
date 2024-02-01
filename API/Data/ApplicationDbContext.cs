@@ -17,6 +17,6 @@ public class ApplicationDbContext : IdentityDbContext<AppUser, IdentityRole<int>
             base.OnModelCreating(builder);
     }
     
-    // public DbSet<Entities.Message>      Message {get; set;}
+    // public DbSet<Entities.Message>           Message {get; set;}
     // public DbSet<Entities.Notification>      Notification {get; set;}
 }

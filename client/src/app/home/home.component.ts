@@ -1,4 +1,3 @@
-import { HttpClient } from '@angular/common/http';
 import { AccountService } from '../_services/account.service';
 import { LoginModel } from '../_models/login.model';
 import { Router } from '@angular/router';
@@ -17,15 +16,12 @@ export class HomeComponent implements OnInit {
   credentials: LoginModel = { username: '', password: '' };
 
   constructor(
-    private http: HttpClient,
     public accountService: AccountService,
     private router: Router,
     private toastr: ToastrService
   ) {}
 
-  ngOnInit(): void {
-    this.getUsers();
-  }
+  ngOnInit(): void {}
 
   login() {
     this.accountService.login(this.credentials).subscribe({
@@ -36,15 +32,6 @@ export class HomeComponent implements OnInit {
       error: (error) => {
         this.toastr.error(error.error), console.log(error);
       },
-    });
-  }
-
-  getUsers() {
-    const baseUrl: string = this.accountService.baseUrl;
-    this.http.get(baseUrl + 'users').subscribe({
-      next: (response) => (this.users = response),
-      error: (error) => console.log(error),
-      complete: () => console.log('Request has completed'),
     });
   }
 

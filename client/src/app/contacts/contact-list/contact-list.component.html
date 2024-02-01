@@ -1,0 +1,8 @@
+<!-- contact list component -->
+
+<div class="container mt-4">
+  <h2>Contact List</h2>
+  <div *ngFor="let contact of contacts">
+    <app-contact-detail [contact]="contact"></app-contact-detail>
+  </div>
+</div>

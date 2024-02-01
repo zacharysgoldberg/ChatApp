@@ -1,6 +1,7 @@
 ﻿using API.Data;
 using API.Entities;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
@@ -8,9 +9,11 @@ namespace API.Controllers;
 public class BuggyController: BaseApiController
 {
     private readonly ApplicationDbContext _context;
-    public BuggyController(ApplicationDbContext context)
+    private readonly UserManager<AppUser> _userManager;
+    public BuggyController(ApplicationDbContext context, UserManager<AppUser> userManager)
     {
         _context = context;
+        _userManager = userManager;
     }
 
     [Authorize]
@@ -23,7 +26,8 @@ public class BuggyController: BaseApiController
     [HttpGet("not-found")]
     public ActionResult<AppUser> GetNotFound()
     {
-        AppUser thing = _context.Users.Find(-1);
+        // AppUser thing = _context.Users.Find(-1);
+        AppUser thing = _userManager.Users.FirstOrDefault(user => user.Id == -1);
         
         if(thing is null)
             return NotFound();
@@ -33,7 +37,8 @@ public class BuggyController: BaseApiController
     [HttpGet("server-error")]
     public ActionResult<string> GetServerError()
     {
-        AppUser thing = _context.Users.Find(-1);
+        // AppUser thing = _context.Users.Find(-1);
+        AppUser thing = _userManager.Users.FirstOrDefault(user => user.Id == -1);
         
         string thingToReturn = thing.ToString();
 

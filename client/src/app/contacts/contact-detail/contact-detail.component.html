@@ -1,0 +1,11 @@
+<!-- contact detail component -->
+
+<div class="card mb-4" *ngIf="contact">
+  <img [src]="contact.photoUrl" class="card-img-top" alt="Profile Picture">
+  <div>
+    <h5 class="card-title">{{ contact.userName }}</h5>
+    <p class="card-text">{{ contact.lastActive }}</p>
+
+    <button class="btn btn-primary" (click)="startChat()">Start Chat</button>
+  </div>
+</div>

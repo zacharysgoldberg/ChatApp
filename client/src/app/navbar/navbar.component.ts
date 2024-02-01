@@ -2,14 +2,8 @@
 import { AccountService } from '../_services/account.service';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import {
-  Component,
-  Output,
-  EventEmitter,
-  OnInit,
-  ViewChild,
-  ElementRef,
-} from '@angular/core';
+import { Component, Output, OnInit } from '@angular/core';
+import { JwtHelperService } from '@auth0/angular-jwt';
 
 @Component({
   selector: 'app-navbar',
@@ -17,9 +11,6 @@ import {
   styleUrls: ['./navbar.component.css'],
 })
 export class NavbarComponent implements OnInit {
-  @Output() navigateSidebar = new EventEmitter<string>();
-  @ViewChild('sidebar') sidebar: ElementRef | undefined;
-
   isDropup = true;
 
   model: any = {};
@@ -33,20 +24,23 @@ export class NavbarComponent implements OnInit {
   ngOnInit(): void {}
 
   logout() {
-    this.accountService.logout(this.model).subscribe({
-      next: () => {
-        // console.log(response);
-        this.router.navigateByUrl('/');
-      },
+    // this.accountService.logout(this.model).subscribe({
+    //   next: () => {
+    //     // console.log(response);
+    //     this.router.navigateByUrl('/');
+    //   },
 
-      error: (error) => {
-        this.toastr.error(error.error), console.log(error);
-      },
-    });
+    //   error: (error) => {
+    //     this.toastr.error(error.error), console.log(error);
+    //   },
+    // });
+
+    this.accountService.logout(this.model);
+    this.router.navigateByUrl('/');
   }
 
   navigateToProfile(): void {
-    // Implement navigation logic to the profile page
+    // Implement navigation logic to the user's profile page
     this.router.navigate(['/profile']);
   }
 }

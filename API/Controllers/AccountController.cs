@@ -29,7 +29,7 @@ namespace API.Controllers
         public async  Task<ActionResult<UserDTO>> Register(RegisterDTO registerDto)
         {
             if(await UserExists(registerDto.Email.ToLower()))
-                return BadRequest("Email is already in use");
+                return BadRequest("\nEmail is already in use");
 
             AppUser user = new AppUser
             {
@@ -42,13 +42,12 @@ namespace API.Controllers
 
             if (!result.Succeeded)
             {
-                Console.WriteLine("----------------\n");
-                foreach(var error in result.Errors)
-                {
-                    Console.WriteLine(error.Description);
-                }
+                // foreach(var error in result.Errors)
+                // {
+                //     Console.WriteLine(error.Description);
+                // }
                     
-                return BadRequest("User registration failed! Please check user details and try again.");
+                return BadRequest("\nUser registration failed! Please check user details and try again.");
             }
 
             var claims = new List<Claim>
@@ -68,12 +67,12 @@ namespace API.Controllers
 
             await _userManager.UpdateAsync(user);
 
-            return new UserDTO
+            return Ok(new UserDTO
             {
                 Username = user.UserName,
                 AccessToken = accessToken,
                 RefreshToken = refreshToken
-            };
+            });
         }
 
         // Sign user in and return a JWT and Refresh token
@@ -81,12 +80,12 @@ namespace API.Controllers
         public async Task<ActionResult<UserDTO>> Login(LoginDTO loginDTO)
         {
             if (loginDTO.Username is null || loginDTO.Password is null)
-                return Unauthorized("Invalid Username or Password");
+                return Unauthorized("\nInvalid Username or Password");
                 
             AppUser user = await _userManager.FindByNameAsync(loginDTO.Username.ToLower());
 
             if(user is null)
-                return Unauthorized("Invalid Username or Password");
+                return Unauthorized("\nInvalid Username or Password");
 
             
             var claims = new List<Claim>
@@ -108,15 +107,15 @@ namespace API.Controllers
 
             if(user != null && await _userManager.CheckPasswordAsync(user, loginDTO.Password))
             {
-                return new UserDTO
+                return Ok(new UserDTO
                 {
                     Username = user.UserName,
                     AccessToken = accessToken,
                     RefreshToken = refreshToken
-                };
+                });
             }
 
-            return Unauthorized("Invalid Username or Password");
+            return Unauthorized("\nInvalid Username or Password");
         }
 
         // Generate the user a new JWT and Refresh token
@@ -124,7 +123,7 @@ namespace API.Controllers
         public async Task<IActionResult> RefreshToken(UserDTO userDTO)
         {
             if (userDTO is null)
-                return BadRequest("Invalid client request");
+                return BadRequest("\nInvalid client request");
 
             string accessToken = userDTO.AccessToken;
             string refreshToken = userDTO.RefreshToken;
@@ -136,7 +135,7 @@ namespace API.Controllers
 
             if (user == null || user.RefreshToken != refreshToken || user.RefreshTokenExpiryTime <= DateTime.Now)
             {
-                return BadRequest("Invalid access token or refresh token");
+                return BadRequest("\nInvalid access token or refresh token");
             }
 
             string newAccessToken = _tokenService.GenerateAccessToken(principal.Claims);
@@ -146,20 +145,22 @@ namespace API.Controllers
 
             await _userManager.UpdateAsync(user);
 
-            return Ok(new ObjectResult(new
+            return Ok(new UserDTO()
             {
-                accessToken = newAccessToken,
-                refreshToken = newRefreshToken
-            }));
+                Username = username,
+                AccessToken = newAccessToken,
+                RefreshToken = newRefreshToken
+            });
         }
 
         // Revoke user's Refresh token
-        // [Authorize]
+        [Authorize]
         [HttpPost("revoke/{username}")] // POST /api/account/revoke/johndoe@domain.com
         public async Task<IActionResult> Revoke(string username)
         {
             var user = await _userManager.FindByNameAsync(username);
-            if (user == null) return BadRequest("Invalid username");
+            if (user == null) 
+                return BadRequest("\nInvalid username");
 
             user.RefreshToken = null;
             await _userManager.UpdateAsync(user);
