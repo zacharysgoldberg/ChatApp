@@ -41,14 +41,7 @@ namespace API.Controllers
             var result = await _userManager.CreateAsync(user, registerDto.Password);
 
             if (!result.Succeeded)
-            {
-                // foreach(var error in result.Errors)
-                // {
-                //     Console.WriteLine(error.Description);
-                // }
-                    
-                return BadRequest("\nUser registration failed! Please check user details and try again.");
-            }
+                return BadRequest("\nUser registration failed! Check user details and try again.");
 
             var claims = new List<Claim>
             {

@@ -1,14 +1,11 @@
-﻿using System.Security.Claims;
-using API.DTOs;
+﻿using API.DTOs;
 using API.Entities;
 using API.Extensions;
 using API.Interfaces;
-using API.Services;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace API.Controllers;
 
@@ -17,20 +14,21 @@ public class UsersController : BaseApiController
 {
     private readonly UserManager<AppUser> _userManager;
     private readonly IUserRepository _userRepository;
+    private readonly IContactService _contactService;
     private readonly IMapper _mapper;
 
     public UsersController(UserManager<AppUser> userManager, IUserRepository userRepository,
-        IMapper mapper)
+        IContactService contactService, IMapper mapper)
     {
         _userManager = userManager;
         _userRepository = userRepository;
+        _contactService = contactService;
         _mapper = mapper;
     }
 
     // ===================================================
     // ================= GET Requests ====================
     // ===================================================
-
     [AllowAnonymous] // Development Only
     // [Authorize(Roles="Admin")]
     [HttpGet] // /api/users
@@ -77,10 +75,10 @@ public class UsersController : BaseApiController
 
         return Ok(await _userRepository.GetContactsAsync(username));
     }
+
     // ===================================================
     // ================= POST Requests ===================
     // ===================================================
-
     [HttpPost("contacts")] // /api/users/contacts
     public async Task<ActionResult<ContactDTO>> AddContact(ContactDTO contactDTO)
     {
@@ -96,42 +94,20 @@ public class UsersController : BaseApiController
         if(user.Contacts.Find(c => c.UserName == contactUsername) != null)
             return BadRequest("Contact already exists in contact list");
 
-        MemberDTO member = await _userRepository.GetMemberAsync(contactUsername);
-
-        if(member == null)
-            return NotFound();
-
-        var contact = new Contact
-        {
-            UserName = member.UserName,
-            Email = member.Email,
-            Photo = member.Photo,
-            LastActive = member.LastActive
-        };
-
-        user.Contacts.Add(contact);
-
-        bool succeeded = await _userRepository.Update(user);
+        bool succeeded = await _contactService.AddContactAsync(user, contactUsername);
 
         if(succeeded)
-            return _mapper.Map<ContactDTO>(contact);
+            return Ok($"\nSuccessfully added {contactUsername} as a contact");
             
         return BadRequest($"\nSomething went wrong with adding contact {contactUsername}");
     }
 
-    // [Authorize(Roles = "Admin")]
-    [HttpPost("delete/{username}")] // /api/users/delete/test@test.com
-    public async Task<IActionResult> DeleteUser(string username)
-    {
-        AppUser user = await _userManager.FindByNameAsync(username);
+    // [HttpPost("photo-upload")]
+    // public async Task<ActionResult> AddPhoto()
+    // {
 
-        if(user == null)
-            return NotFound();
-        
-        await _userManager.DeleteAsync(user);
-
-        return Ok($"\nSuccessfully deleted user {username}.");
-    }
+    //     return NoContent();
+    // }
 
     [HttpPost("contacts/delete/{contactUsername}")] // /api/users/contacts/delete/{test@test.com}
     public async Task<IActionResult> DeleteContact(string contactUsername)
@@ -143,14 +119,7 @@ public class UsersController : BaseApiController
         if(user == null)
             return NotFound();
 
-        Contact contact = user.Contacts.Find(c => c.UserName == contactUsername);
-
-        if(contact == null)
-            return NotFound();
-
-        user.Contacts.Remove(contact);
-
-        bool succeeded = await _userRepository.Update(user);
+        bool succeeded = await _contactService.DeleteContactAsync(user, contactUsername);
 
         if(succeeded)
             return Ok($"\nSuccessfully removed {contactUsername} as a contact");
@@ -161,7 +130,6 @@ public class UsersController : BaseApiController
     // ===================================================
     // ================= PUT Requests ====================
     // ===================================================
-
     [HttpPut] // /api/users
     public async Task<ActionResult> UpdateUser(MemberUpdateDTO memberUpdateDTO)
     {

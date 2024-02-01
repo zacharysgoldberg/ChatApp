@@ -14,7 +14,7 @@ public static class ApplicationServiceExtensions
 
         // System.Console.WriteLine($"---------\n\n{connectionString}\n\n---------" );
         // ADO.NET (SQL authentication) - UseSqlServer
-        services.AddDbContext<Data.ApplicationDbContext>(opt => 
+        services.AddDbContext<ApplicationDbContext>(opt => 
         { 
             opt.UseSqlite(connectionString);
         });
@@ -22,6 +22,7 @@ public static class ApplicationServiceExtensions
         services.AddCors();
 
         services.AddScoped<ITokenService, TokenService>();
+        services.AddScoped<IContactService, ContactService>();
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
