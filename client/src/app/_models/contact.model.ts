@@ -1,6 +1,6 @@
 import { Photo } from './photo.model';
 
-export interface Contact {
+export interface ContactModel {
   id: number;
   userName: string;
   email: string;

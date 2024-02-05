@@ -97,7 +97,7 @@ public class UsersController : BaseApiController
         bool succeeded = await _contactService.AddContactAsync(user, contactUsername);
 
         if(succeeded)
-            return Ok($"\nSuccessfully added {contactUsername} as a contact");
+            return contactDTO;
             
         return BadRequest($"\nSomething went wrong with adding contact {contactUsername}");
     }

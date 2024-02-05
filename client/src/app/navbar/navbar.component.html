@@ -1,15 +1,14 @@
-<!-- navbar.component.html -->
-<section *ngIf="accountService.currentUser$ | async">
+<!-- <section *ngIf="accountService.currentUser$ | async">
   <nav class="navbar navbar-expand-md navbar-dark fixed-bottom bg-dark">
     <div class="container">
       <a class="navbar-brand" routerLinkActive="active">
         <strong> Chat App </strong>
       </a>
-      <ul class="nav nav-pills me-auto mb-2 mb-md-0">
-        <ng-container *ngIf="accountService.currentUser$ | async">
+      <ul class="nav nav-pills mb-2 mb-md-0">
+        <ng-container>
 
           <li class="nav-item my-sm-2 my-2">
-            <a class="nav-link text-white text-center text-sm-start" routerLink="/account" aria-current="page">
+            <a class="nav-link text-white text-center text-sm-start" routerLink="/home" aria-current="page">
               <i class="fa fa-home"></i>
               <span class="ms-2 d-none d-sm-inline"> Home </span>
             </a>
@@ -37,24 +36,24 @@
               <i class="fa fa-bell"></i>
               <span class="ms-2 d-none d-sm-inline"> Notifications </span>
             </a>
-          </li>
+          </li> -->
 
-          <!-- (ERRORS) For Development Only -->
-          <li class="nav-item my-sm-2 my-2">
+<!-- (ERRORS) For Development Only -->
+<!-- <li class="nav-item my-sm-2 my-2">
             <a class="nav-link text-white text-center text-sm-start" routerLink="/errors" routerLinkActive="active"
               aria-current="page">
               <i class="fa fa-warning"></i>
               <span class="ms-2 d-none d-sm-inline">ERRORS</span>
             </a>
-          </li>
-          <!-- ----------------------------- -->
-        </ng-container>
-      </ul>
+          </li> -->
+<!-- ----------------------------- -->
+<!-- </ng-container>
+      </ul> -->
 
-      <div class="nav nav-pills flex-column mt-2 mt-sm-0" dropdown [dropup]="isDropup">
+<!-- <div class="nav nav-pills flex-column mt-2 mt-sm-0" dropdown [dropup]="isDropup">
         <a id="button-dropup" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle"
           data-bs-toggle="dropdown" aria-expanded="false" aria-controls="dropdown-dropup" dropdownToggle>
-          <!-- <img src="" alt="" width="32" height="32"> -->
+
           <i class="fa fa-user"></i>
           <span class="ms-1 d-none d-sm-inline"> {{accountService.getUsername()}} </span>
         </a>
@@ -70,4 +69,69 @@
       </div>
     </div>
   </nav>
+</section> -->
+
+<section class="position-sticky" *ngIf="accountService.currentUser$ | async">
+  <div class="sidebar d-flex flex-column flex-shrink-0 p-3 text-white bg-dark" style="width: 280px;">
+    <a class="navbar-brand my-3" routerLinkActive="active">
+      <strong> Chat App </strong>
+    </a>
+    <hr>
+    <ul class="nav nav-pills flex-column mb-auto">
+      <ng-container>
+        <li class="nav-item my-sm-2 my-2">
+          <a class="nav-link text-white text-center text-sm-start" routerLink="/home" aria-current="page">
+            <i class="fa fa-home"></i>
+            <span class="ms-2 d-none d-sm-inline"> Home </span>
+          </a>
+        </li>
+        <li class="nav-item my-sm-2 my-2">
+          <a class="nav-link text-white text-center text-sm-start" routerLink="/contacts" routerLinkActive="active"
+            aria-current="page">
+            <i class="fa fa-users"></i>
+            <span class="ms-2 d-none d-sm-inline"> Contacts </span>
+          </a>
+        </li>
+        <li class="nav-item my-sm-2 my-2">
+          <a class="nav-link text-white text-center text-sm-start" routerLink="/chats" routerLinkActive="active"
+            aria-current="page">
+            <i class="fa fa-comments"></i>
+            <span class="ms-2 d-none d-sm-inline"> Chat </span>
+          </a>
+        </li>
+        <li class="nav-item my-sm-2 my-2">
+          <a class="nav-link text-white text-center text-sm-start" routerLink="/notifications" routerLinkActive="active"
+            aria-current="page">
+            <i class="fa fa-bell"></i>
+            <span class="ms-2 d-none d-sm-inline"> Notifications </span>
+          </a>
+        </li>
+        <!-- (ERRORS) For Development Only -->
+        <!-- <li class="nav-item my-sm-2 my-2">
+            <a class="nav-link text-white text-center text-sm-start" routerLink="/errors" routerLinkActive="active"
+              aria-current="page">
+              <i class="fa fa-warning"></i>
+              <span class="ms-2 d-none d-sm-inline">ERRORS</span>
+            </a>
+          </li> -->
+      </ng-container>
+    </ul>
+    <hr>
+    <div class="nav nav-pills flex-column mt-2 mt-sm-0" dropdown [dropup]="isDropup">
+      <a id="button-dropup" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle"
+        data-bs-toggle="dropdown" aria-expanded="false" aria-controls="dropdown-dropup" dropdownToggle>
+
+        <i class="fa fa-user"></i>
+        <span class="ms-1 d-none d-sm-inline"> {{accountService.getUsername()}} </span>
+      </a>
+      <div id="dropdown-dropup" class="dropdown-menu dropdown-menu-dark text-small shadow">
+        <li><a class="dropdown-item" href="#">Settings</a></li>
+        <li><a class="dropdown-item" href="#">Profile</a></li>
+        <li>
+          <hr class="dropdown-divider">
+        </li>
+        <li><a class="dropdown-item" (click)="logout()">Sign out</a></li>
+      </div>
+    </div>
+  </div>
 </section>

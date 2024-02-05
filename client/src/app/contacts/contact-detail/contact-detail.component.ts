@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { Contact } from 'src/app/_models/contact.model';
+import { ContactModel } from 'src/app/_models/contact.model';
 
 @Component({
   selector: 'app-contact-detail',
@@ -7,11 +7,13 @@ import { Contact } from 'src/app/_models/contact.model';
   styleUrls: ['./contact-detail.component.css'],
 })
 export class ContactDetailComponent implements OnInit {
-  @Input() contact: Contact | undefined;
+  @Input() contact: ContactModel | undefined;
 
   constructor() {}
 
   ngOnInit(): void {}
 
-  startChat() {}
+  newChat() {}
+
+  deleteContact() {}
 }

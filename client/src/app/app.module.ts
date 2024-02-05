@@ -7,7 +7,6 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FormsModule } from '@angular/forms';
 import { HomeComponent } from './home/home.component';
 import { RegisterComponent } from './register/register.component';
-import { ChatsComponent } from './chats/chats.component';
 import { NavbarComponent } from './navbar/navbar.component';
 import { NotificationsComponent } from './notifications/notifications.component';
 import { SharedModule } from './_modules/shared.module';
@@ -20,6 +19,8 @@ import { AuthGuard } from './_guards/auth.guard';
 import { ContactListComponent } from './contacts/contact-list/contact-list.component';
 import { ContactDetailComponent } from './contacts/contact-detail/contact-detail.component';
 import { environment } from 'src/environments/environment.development';
+import { ChatComponent } from './chat/chat.component';
+import { LoginComponent } from './login/login.component';
 
 export function tokenGetter() {
   return localStorage.getItem('accessToken');
@@ -31,13 +32,14 @@ export function tokenGetter() {
     HomeComponent,
     RegisterComponent,
     NavbarComponent,
-    ChatsComponent,
     NotificationsComponent,
     TestErrorComponent,
     NotFoundComponent,
     ServerErrorComponent,
     ContactListComponent,
     ContactDetailComponent,
+    ChatComponent,
+    LoginComponent,
   ],
   imports: [
     BrowserModule,

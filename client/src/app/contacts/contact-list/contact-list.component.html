@@ -1,10 +1,20 @@
-<!-- contact list component -->
-<section class="vh-100 bg-black">
-  <div class="container py-5 h-100">
-    <h2 class="text-white">Contact List</h2>
-    <div *ngFor="let contact of contacts">
-      <hr>
-      <app-contact-detail [contact]="contact"></app-contact-detail>
-    </div>
+<app-navbar></app-navbar>
+
+<div class="b-example-divider bg-primary"></div>
+<div class="contact-list d-flex flex-column align-items-stretch flex-shrink-0 bg-dark" style="width: 380px;">
+  <span class="fs-5 fw-semibold text-white">Contact List</span>
+  <div class="input-group mb-3 my-3">
+    <input type="text" class="form-control text-white bg-dark" placeholder="Username" aria-label="Submit"
+      aria-describedby="button-addon2" [(ngModel)]="contactToAdd.userName">
+    <button class="btn btn-outline-secondary" type="submit" (click)="addContact()" id="button-addon1">Add</button>
   </div>
-</section>
+  <div class="list-group list-group-flush border-bottom" *ngFor="let contact of contacts">
+    <hr>
+    <button class="list-group-item list-group-item-action py-4 lh-tight bg-dark text-white" aria-current="true">
+      <div class="d-flex w-100 align-items-center justify-content-between">
+        <strong class="mb-1">{{contact.userName}}</strong>
+        <small class="text-muted">something</small>
+      </div>
+    </button>
+  </div>
+</div>

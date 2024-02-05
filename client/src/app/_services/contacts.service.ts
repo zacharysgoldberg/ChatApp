@@ -1,7 +1,7 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment.development';
-import { Contact } from '../_models/contact.model';
+import { ContactModel } from '../_models/contact.model';
 import { UserModel } from '../_models/user.model';
 
 @Injectable({
@@ -10,20 +10,27 @@ import { UserModel } from '../_models/user.model';
 export class ContactsService {
   baseUrl = environment.apiUrl;
   user: UserModel | undefined;
+  contact: ContactModel | undefined;
 
   constructor(private http: HttpClient) {}
 
-  addContact() {}
+  addContact(contact: ContactModel) {
+    return this.http.post<ContactModel>(
+      this.baseUrl + 'users/contacts',
+      contact,
+      this.getHttpOptions()
+    );
+  }
 
   getContacts() {
-    return this.http.get<Contact[]>(
+    return this.http.get<ContactModel[]>(
       this.baseUrl + 'users/contacts',
       this.getHttpOptions()
     );
   }
 
   getContact(contactUsername: string) {
-    return this.http.get<Contact>(
+    return this.http.get<ContactModel>(
       this.baseUrl + 'users/contacts/' + contactUsername,
       this.getHttpOptions()
     );
