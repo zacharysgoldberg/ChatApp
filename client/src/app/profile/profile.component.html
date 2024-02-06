@@ -1,0 +1,42 @@
+<app-navbar></app-navbar>
+
+<div class="divider bg-primary"></div>
+
+<div class="profile bg-dark">
+  Profile
+  <hr style="color:white">
+  <div class="card bg-dark" *ngIf="member">
+    <div class="col-8">
+      <div class="alert alert-info">
+        <p><strong>Information:</strong> You have made changes. Any unsaved changes will be lost</p>
+      </div>
+    </div>
+    <div class="card-body text-white">
+      <img src="{{member.photoUrl}}" class="card-img-top img-thumbnail">
+      <div>
+        <strong> Display Name: </strong>
+        <textarea class="form-control bg-dark text-white" [(ngModel)]="newDisplayName"
+          style="height: 40px;width: 250px">{{member.userName}}</textarea>
+      </div>
+      <div>
+        <strong> Username: </strong>
+        <p>{{member.userName}}</p>
+      </div>
+      <div>
+        <strong> Email: </strong>
+        <p>{{member.email}}</p>
+      </div>
+      <div>
+        <strong> Member Since: </strong>
+        <p>{{member.created}}</p>
+      </div>
+      <div>
+        <strong> Last Active: </strong>
+        <p>{{member.lastActive}}</p>
+      </div>
+    </div>
+    <div class="card-footer">
+      <button type="submit" class="btn btn-success">Save Changes</button>
+    </div>
+  </div>
+</div>

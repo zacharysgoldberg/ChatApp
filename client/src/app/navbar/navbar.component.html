@@ -71,7 +71,7 @@
   </nav>
 </section> -->
 
-<section class="position-sticky" *ngIf="accountService.currentUser$ | async">
+<section class="position-sticky bg-primary" *ngIf="accountService.currentUser$ | async">
   <div class="sidebar d-flex flex-column flex-shrink-0 p-3 text-white bg-dark" style="width: 280px;">
     <a class="navbar-brand my-3" routerLinkActive="active">
       <strong> Chat App </strong>
@@ -99,13 +99,24 @@
             <span class="ms-2 d-none d-sm-inline"> Chat </span>
           </a>
         </li>
+
         <li class="nav-item my-sm-2 my-2">
-          <a class="nav-link text-white text-center text-sm-start" routerLink="/notifications" routerLinkActive="active"
-            aria-current="page">
+          <a href="#sidemenu" class="nav-link text-white text-center text-sm-start" data-bs-toggle="collapse"
+            data-bs-target="#sidemenu" data-bs-target="#sidemenu" routerLinkActive="active" aria-current="page">
             <i class="fa fa-bell"></i>
             <span class="ms-2 d-none d-sm-inline"> Notifications </span>
           </a>
+
+          <div class="collapse" id="sidemenu">
+            <ul class="btn-toggle-nav list-unstyled fw-normal pb-1" id="#sidemenu"
+              *ngFor="let notification of notifications">
+              <li class="nav-item">
+                <a class="nav-link text-white">{{notification}}</a>
+              </li>
+            </ul>
+          </div>
         </li>
+
         <!-- (ERRORS) For Development Only -->
         <!-- <li class="nav-item my-sm-2 my-2">
             <a class="nav-link text-white text-center text-sm-start" routerLink="/errors" routerLinkActive="active"
@@ -126,7 +137,7 @@
       </a>
       <div id="dropdown-dropup" class="dropdown-menu dropdown-menu-dark text-small shadow">
         <li><a class="dropdown-item" href="#">Settings</a></li>
-        <li><a class="dropdown-item" href="#">Profile</a></li>
+        <li><a class="dropdown-item" (click)="navigateToProfile()">Profile</a></li>
         <li>
           <hr class="dropdown-divider">
         </li>

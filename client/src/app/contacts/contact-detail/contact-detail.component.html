@@ -1,9 +1,0 @@
-<!-- contact detail component -->
-
-<a class="contact-detail list-group-item list-group-item-action text-white bg-black my-4" *ngIf="contact">
-  <img [src]="contact.photoUrl" class="card-img-top">
-  <strong class="card-title">{{ contact.userName }}</strong>
-  <div class="my-3">
-    <button class="btn btn-success" (click)="newChat()">New Chat</button>
-  </div>
-</a>

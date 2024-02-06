@@ -10,7 +10,7 @@
   padding: 20px; /* Adjust as needed */
 }
 
-.b-example-divider {
+.divider {
   position: fixed;
   left: 270px; /* Adjust based on the width of your sidebar */
   flex-shrink: 0;

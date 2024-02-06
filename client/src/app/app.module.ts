@@ -14,13 +14,13 @@ import { TestErrorComponent } from './errors/test-error/test-error.component';
 import { ErrorInterceptor } from './_interceptors/error.interceptor';
 import { NotFoundComponent } from './errors/not-found/not-found.component';
 import { ServerErrorComponent } from './errors/server-error/server-error.component';
-import { JwtModule } from '@auth0/angular-jwt';
+import { JwtInterceptor, JwtModule } from '@auth0/angular-jwt';
 import { AuthGuard } from './_guards/auth.guard';
-import { ContactListComponent } from './contacts/contact-list/contact-list.component';
-import { ContactDetailComponent } from './contacts/contact-detail/contact-detail.component';
+import { ContactsComponent } from './contacts/contacts.component';
 import { environment } from 'src/environments/environment.development';
 import { ChatComponent } from './chat/chat.component';
 import { LoginComponent } from './login/login.component';
+import { ProfileComponent } from './profile/profile.component';
 
 export function tokenGetter() {
   return localStorage.getItem('accessToken');
@@ -36,10 +36,10 @@ export function tokenGetter() {
     TestErrorComponent,
     NotFoundComponent,
     ServerErrorComponent,
-    ContactListComponent,
-    ContactDetailComponent,
+    ContactsComponent,
     ChatComponent,
     LoginComponent,
+    ProfileComponent,
   ],
   imports: [
     BrowserModule,
@@ -58,6 +58,7 @@ export function tokenGetter() {
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
+    { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
   ],
   bootstrap: [AppComponent],
 })

@@ -3,6 +3,11 @@ import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { Component, Output, OnInit } from '@angular/core';
 import { JwtHelperService } from '@auth0/angular-jwt';
+import { NotificationModel } from '../_models/notification.model';
+import { UserModel } from '../_models/user.model';
+import { take } from 'rxjs';
+import { MemberModel } from '../_models/member.mode';
+import { ContactsService } from '../_services/contacts.service';
 
 @Component({
   selector: 'app-navbar',
@@ -11,11 +16,12 @@ import { JwtHelperService } from '@auth0/angular-jwt';
 })
 export class NavbarComponent implements OnInit {
   isDropup = true;
-
   model: any = {};
+  notifications: NotificationModel[] = [];
 
   constructor(
     public accountService: AccountService,
+    private contactService: ContactsService,
     private router: Router,
     private toastr: ToastrService
   ) {}
@@ -38,8 +44,9 @@ export class NavbarComponent implements OnInit {
     this.router.navigateByUrl('/');
   }
 
-  navigateToProfile(): void {
-    // Implement navigation logic to the user's profile page
-    this.router.navigate(['/profile']);
+  navigateToProfile() {
+    this.router.navigateByUrl('/profile');
   }
+
+  loadNotifications() {}
 }

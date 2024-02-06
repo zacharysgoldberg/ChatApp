@@ -1,14 +1,14 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { ContactModel } from 'src/app/_models/contact.model';
 import { ContactsService } from 'src/app/_services/contacts.service';
 
 @Component({
-  selector: 'app-contact-list',
-  templateUrl: './contact-list.component.html',
-  styleUrls: ['./contact-list.component.css'],
+  selector: 'app-contacts',
+  templateUrl: './contacts.component.html',
+  styleUrls: ['./contacts.component.css'],
 })
-export class ContactListComponent implements OnInit {
+export class ContactsComponent implements OnInit {
   contacts: ContactModel[] = [];
   contact: ContactModel | undefined;
   contactToAdd: ContactModel = {
@@ -21,7 +21,7 @@ export class ContactListComponent implements OnInit {
 
   constructor(
     private contactsService: ContactsService,
-    private router: Router
+    private route: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
@@ -31,6 +31,12 @@ export class ContactListComponent implements OnInit {
   loadContacts() {
     this.contactsService.getContacts().subscribe({
       next: (contacts) => (this.contacts = contacts),
+    });
+  }
+
+  loadContact(contactUsername: string) {
+    this.contactsService.getContact(contactUsername).subscribe({
+      next: (contact) => (this.contact = contact),
     });
   }
 
@@ -45,4 +51,8 @@ export class ContactListComponent implements OnInit {
       },
     });
   }
+
+  message() {}
+
+  removeContact() {}
 }
