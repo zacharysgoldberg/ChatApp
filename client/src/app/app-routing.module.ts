@@ -10,7 +10,7 @@ import { ContactsComponent } from './contacts/contacts.component';
 import { ChatComponent } from './chat/chat.component';
 import { LoginComponent } from './login/login.component';
 import { RegisterComponent } from './register/register.component';
-import { ProfileComponent } from './profile/profile.component';
+import { ProfileDetailsComponent } from './profile/profile-details/profile-details.component';
 
 const routes: Routes = [
   { path: '', component: LoginComponent },
@@ -21,7 +21,7 @@ const routes: Routes = [
     canActivate: [AuthGuard],
     children: [
       { path: 'home', component: HomeComponent },
-      { path: 'profile', component: ProfileComponent },
+      { path: 'profile', component: ProfileDetailsComponent },
       { path: 'contacts', component: ContactsComponent },
       { path: 'chats', component: ChatComponent },
       { path: 'notifications', component: NotificationsComponent },

@@ -71,7 +71,7 @@
   </nav>
 </section> -->
 
-<section class="position-sticky bg-primary" *ngIf="accountService.currentUser$ | async">
+<section class="position-sticky bg-primary" *ngIf="(accountService.currentUser$ | async) as user">
   <div class="sidebar d-flex flex-column flex-shrink-0 p-3 text-white bg-dark" style="width: 280px;">
     <a class="navbar-brand my-3" routerLinkActive="active">
       <strong> Chat App </strong>
@@ -79,20 +79,20 @@
     <hr>
     <ul class="nav nav-pills flex-column mb-auto">
       <ng-container>
-        <li class="nav-item my-sm-2 my-2">
+        <li class="nav-item my-sm-2 my-2 py-2">
           <a class="nav-link text-white text-center text-sm-start" routerLink="/home" aria-current="page">
             <i class="fa fa-home"></i>
             <span class="ms-2 d-none d-sm-inline"> Home </span>
           </a>
         </li>
-        <li class="nav-item my-sm-2 my-2">
+        <li class="nav-item my-sm-2 my-2 py-2">
           <a class="nav-link text-white text-center text-sm-start" routerLink="/contacts" routerLinkActive="active"
             aria-current="page">
             <i class="fa fa-users"></i>
             <span class="ms-2 d-none d-sm-inline"> Contacts </span>
           </a>
         </li>
-        <li class="nav-item my-sm-2 my-2">
+        <li class="nav-item my-sm-2 my-2 py-2">
           <a class="nav-link text-white text-center text-sm-start" routerLink="/chats" routerLinkActive="active"
             aria-current="page">
             <i class="fa fa-comments"></i>
@@ -100,7 +100,7 @@
           </a>
         </li>
 
-        <li class="nav-item my-sm-2 my-2">
+        <li class="nav-item my-sm-2 my-2 py-2">
           <a href="#sidemenu" class="nav-link text-white text-center text-sm-start" data-bs-toggle="collapse"
             data-bs-target="#sidemenu" data-bs-target="#sidemenu" routerLinkActive="active" aria-current="page">
             <i class="fa fa-bell"></i>
@@ -126,6 +126,7 @@
             </a>
           </li> -->
       </ng-container>
+
     </ul>
     <hr>
     <div class="nav nav-pills flex-column mt-2 mt-sm-0" dropdown [dropup]="isDropup">

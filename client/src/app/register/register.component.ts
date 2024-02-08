@@ -28,14 +28,16 @@ export class RegisterComponent implements OnInit {
   ngOnInit(): void {}
 
   register() {
-    this.accountService.register(this.registration).subscribe({
-      next: () => {
-        this.router.navigateByUrl('/account');
-      },
-      error: (error) => {
-        this.toastr.error(error.error), console.log(error);
-      },
-    });
+    if (this.registration)
+      this.accountService.register(this.registration).subscribe({
+        next: () => {
+          this.router.navigateByUrl('/account');
+        },
+        error: (error) => {
+          this.toastr.error(error.error), console.log(error);
+        },
+      });
+    return;
   }
 
   cancel() {

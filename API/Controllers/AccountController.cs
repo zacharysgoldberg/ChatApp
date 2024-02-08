@@ -2,6 +2,7 @@
 using System.Security.Claims;
 using API.DTOs;
 using API.Entities;
+using API.Extensions;
 using API.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -13,29 +14,32 @@ namespace API.Controllers
     {
         private readonly ITokenService _tokenService;
         private readonly UserManager<AppUser> _userManager;
+        private readonly IUserRepository _userRepository;
         private readonly IConfiguration _config;
 
         public AccountController(ITokenService             tokenService, 
                                  UserManager<AppUser>      userManager,
+                                 IUserRepository           userRepository,
                                  IConfiguration            configuration)
         {
-            _tokenService = tokenService;
-            _userManager  = userManager;
-            _config = configuration;
+            _tokenService   = tokenService;
+            _userManager    = userManager;
+            _userRepository = userRepository;
+            _config         = configuration;
         }
 
         // Create new user
         [HttpPost("register")] // POST /api/account/register?username=dave&password=pwd
         public async  Task<ActionResult<UserDTO>> Register(RegisterDTO registerDto)
         {
-            if(await UserExists(registerDto.Email.ToLower()))
+            if(await _userRepository.EmailExistsAsync(registerDto.Email.ToLower()))
                 return BadRequest("\nEmail is already in use");
 
             AppUser user = new AppUser
             {
-                Email = registerDto.Email.ToLower(),
-                UserName = registerDto.Email.ToLower(),
-                SecurityStamp = Guid.NewGuid().ToString(),
+                Email           = registerDto.Email.ToLower(),
+                UserName        = registerDto.Email.ToLower(),
+                SecurityStamp   = Guid.NewGuid().ToString(),
             };
 
             var result = await _userManager.CreateAsync(user, registerDto.Password);
@@ -49,22 +53,24 @@ namespace API.Controllers
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             };
 
-            string accessToken = _tokenService.GenerateAccessToken(claims);
+            string accessToken  = _tokenService.GenerateAccessToken(claims);
             string refreshToken = _tokenService.GenerateRefreshToken();
+            bool succeeded      = int.TryParse(_config["JWT:RefreshTokenValidityInDays"],
+                                                out int refreshTokenValidityInDays);
+            
+            if(!succeeded)
+                return BadRequest();
 
-            _ = int.TryParse(_config["JWT:RefreshTokenValidityInDays"],
-                             out int refreshTokenValidityInDays);
-
-            user.RefreshToken = refreshToken;
+            user.RefreshToken           = refreshToken;
             user.RefreshTokenExpiryTime = DateTime.Now.AddDays(refreshTokenValidityInDays);
 
             await _userManager.UpdateAsync(user);
 
             return Ok(new UserDTO
             {
-                Username = user.UserName,
-                AccessToken = accessToken,
-                RefreshToken = refreshToken
+                Username        = user.UserName,
+                AccessToken     = accessToken,
+                RefreshToken    = refreshToken
             });
         }
 
@@ -87,13 +93,15 @@ namespace API.Controllers
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             };
 
-            string accessToken = _tokenService.GenerateAccessToken(claims);
+            string accessToken  = _tokenService.GenerateAccessToken(claims);
             string refreshToken = _tokenService.GenerateRefreshToken();
+            bool succeeded      = int.TryParse(_config["JWT:RefreshTokenValidityInDays"],
+                                                out int refreshTokenValidityInDays);
+            
+            if(!succeeded)
+                return BadRequest();
 
-            _ = int.TryParse(_config["JWT:RefreshTokenValidityInDays"],
-                             out int refreshTokenValidityInDays);
-
-            user.RefreshToken = refreshToken;
+            user.RefreshToken           = refreshToken;
             user.RefreshTokenExpiryTime = DateTime.Now.AddDays(refreshTokenValidityInDays);
 
             await _userManager.UpdateAsync(user);
@@ -102,9 +110,9 @@ namespace API.Controllers
             {
                 return Ok(new UserDTO
                 {
-                    Username = user.UserName,
-                    AccessToken = accessToken,
-                    RefreshToken = refreshToken
+                    Username        = user.UserName,
+                    AccessToken     = accessToken,
+                    RefreshToken    = refreshToken
                 });
             }
 
@@ -118,31 +126,25 @@ namespace API.Controllers
             if (userDTO is null)
                 return BadRequest("\nInvalid client request");
 
-            string accessToken = userDTO.AccessToken;
+            string accessToken  = userDTO.AccessToken;
             string refreshToken = userDTO.RefreshToken;
-
-            var principal = _tokenService.GetPrincipalFromExpiredToken(accessToken);
-            string username = principal.Identity.Name;
-
-            AppUser user = await _userManager.FindByNameAsync(username);
+            var principal       = _tokenService.GetPrincipalFromExpiredToken(accessToken);
+            string username     = principal.Identity.Name;
+            AppUser user        = await _userManager.FindByNameAsync(username);
 
             if (user == null || user.RefreshToken != refreshToken || user.RefreshTokenExpiryTime <= DateTime.Now)
-            {
                 return BadRequest("\nInvalid access token or refresh token");
-            }
 
-            string newAccessToken = _tokenService.GenerateAccessToken(principal.Claims);
-            string newRefreshToken = _tokenService.GenerateRefreshToken();
-
-            user.RefreshToken = newRefreshToken;
-
+            string newAccessToken   = _tokenService.GenerateAccessToken(principal.Claims);
+            string newRefreshToken  = _tokenService.GenerateRefreshToken();
+            user.RefreshToken       = newRefreshToken;
             await _userManager.UpdateAsync(user);
 
             return Ok(new UserDTO()
             {
-                Username = username,
-                AccessToken = newAccessToken,
-                RefreshToken = newRefreshToken
+                Username        = username,
+                AccessToken     = newAccessToken,
+                RefreshToken    = newRefreshToken
             });
         }
 
@@ -152,6 +154,7 @@ namespace API.Controllers
         public async Task<IActionResult> Revoke(string username)
         {
             var user = await _userManager.FindByNameAsync(username);
+
             if (user == null) 
                 return BadRequest("\nInvalid username");
 
@@ -161,13 +164,48 @@ namespace API.Controllers
             return Ok();
         }
 
-        private async Task<bool> UserExists(string email)
-        {
-            var user = await _userManager.FindByEmailAsync(email);
+        // [HttpPost]
+        // [ValidateAntiForgeryToken]
+        // public async Task<IActionResult> ForgotPassword(ForgotPasswordModel forgotPasswordModel)
+        // {
+        //     if (!ModelState.IsValid)
+        //         return View(forgotPasswordModel);
 
-            if (user != null)
-                return true;
-            return false;
+        //     var user = await _userManager.FindByEmailAsync(forgotPasswordModel.Email);
+        //     if (user == null)
+        //         return RedirectToAction(nameof(ForgotPasswordConfirmation));
+
+        //     var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+        //     var callback = Url.Action(nameof(ResetPassword), "Account", new { token, email = user.Email }, Request.Scheme);
+
+        //     var message = new Message(new string[] { user.Email }, "Reset password token", callback, null);
+        //     await _emailSender.SendEmailAsync(message);
+
+        //     return RedirectToAction(nameof(ForgotPasswordConfirmation));
+        // }
+      
+
+        [HttpPost("reset-password")] // /api/account/reset-password
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult> ResetPassword(ResetPasswordDTO resetPasswordDTO)
+        {
+            string username = User.GetUsername();
+            AppUser user    = await _userManager.FindByNameAsync(username);
+
+            if(user == null)
+                return NotFound();
+                
+            var resetPassResult = await _userManager.ResetPasswordAsync(user, resetPasswordDTO.Token, 
+                                                                        resetPasswordDTO.Password);
+            if(!resetPassResult.Succeeded)
+            {
+                foreach (var error in resetPassResult.Errors)
+                {
+                    ModelState.TryAddModelError(error.Code, error.Description);
+                }
+                return BadRequest();
+            }
+            return NoContent();
         }
     }
 }

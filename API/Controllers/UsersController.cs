@@ -20,10 +20,10 @@ public class UsersController : BaseApiController
     public UsersController(UserManager<AppUser> userManager, IUserRepository userRepository,
         IContactService contactService, IMapper mapper)
     {
-        _userManager = userManager;
+        _userManager    = userManager;
         _userRepository = userRepository;
         _contactService = contactService;
-        _mapper = mapper;
+        _mapper         = mapper;
     }
 
     // ===================================================
@@ -48,58 +48,67 @@ public class UsersController : BaseApiController
     [HttpGet("members/{username}")] // /api/users/members/test@test.com
     public async Task<ActionResult<MemberDTO>> GetMemberByUsername(string username)
     {
-        return await _userRepository.GetMemberAsync(username);
+        return await _userRepository.GetMemberByUsernameAsync(username);
     }
 
     [HttpGet("members")] // /api/users/members
     public async Task<ActionResult<IEnumerable<MemberDTO>>> GetMembers()
     {
-        return Ok( await _userRepository.GetMembersAsync());
+        return Ok(await _userRepository.GetMembersAsync());
     }
 
         
-    [HttpGet("contacts/{contactUsername}")] // /api/users/contacts/test@test.com
-    public async Task<ActionResult<ContactDTO>> GetContactByUsername(string contactUsername)
+    [HttpGet("contacts/{contactId}")] // /api/users/contacts/2
+    public async Task<ActionResult<ContactDTO>> GetContact(int contactId)
     {
-        string username = User.GetUsername();
+        string username     = User.GetUsername();
+        MemberDTO user      = await _userRepository.GetMemberByUsernameAsync(username);
+        ContactDTO contact  = await _contactService.GetContactAsync(user.Id, contactId);
 
-        var contacts = await _userRepository.GetContactsAsync(username);
+        if(contact == null)
+            return NotFound();
 
-        return contacts.FirstOrDefault(c => c.UserName == contactUsername);
+        return contact;
     }    
 
-    [HttpGet("contacts")] // /api/users/contacts
+    [HttpGet("contacts")] // /api/users/contacts/1
     public async Task<ActionResult<IEnumerable<ContactDTO>>> GetContacts()
     {
         string username = User.GetUsername();
+        MemberDTO user  = await _userRepository.GetMemberByUsernameAsync(username);
 
-        return Ok(await _userRepository.GetContactsAsync(username));
+        return Ok(await _contactService.GetContactsAsync(user.Id));
     }
 
     // ===================================================
     // ================= POST Requests ===================
     // ===================================================
     [HttpPost("contacts")] // /api/users/contacts
-    public async Task<ActionResult<ContactDTO>> AddContact(ContactDTO contactDTO)
+    public async Task<ActionResult<MemberDTO>> AddContact([FromBody] 
+        ContactUsernameDTO contactUsernameDTO)
     {
         string username = User.GetUsername();
+        AppUser user    = await _userRepository.GetUserByUsernameAsync(username);
 
-        AppUser user = await _userRepository.GetUserByUsernameAsync(username);
+        if(user == null || contactUsernameDTO.Username == username)
+            return BadRequest("You cannot add yourself as a contact");
 
-        if(user == null)
-            return NotFound();
+        MemberDTO contact = await _userRepository.GetMemberByUsernameAsync(contactUsernameDTO.Username);
 
-        string contactUsername = contactDTO.UserName;
+        if(contact == null)
+            return BadRequest($"{contactUsernameDTO.Username} does not exist");
 
-        if(user.Contacts.Find(c => c.UserName == contactUsername) != null)
-            return BadRequest("Contact already exists in contact list");
+        bool userContactExists = await _contactService.UserContactExists(user.Id, contact.Id);
 
-        bool succeeded = await _contactService.AddContactAsync(user, contactUsername);
+        if(contact == null || userContactExists)
+            return BadRequest($"{contactUsernameDTO.Username} already exists in contact list");
+
+        bool succeeded = await _contactService.AddContactAsync(user, contact.Id);
 
         if(succeeded)
-            return contactDTO;
+            return contact;
             
-        return BadRequest($"\nSomething went wrong with adding contact {contactUsername}");
+        return BadRequest($"\nSomething went wrong with adding contact {contactUsernameDTO.Username}");
     }
 
     // [HttpPost("photo-upload")]
@@ -109,40 +118,90 @@ public class UsersController : BaseApiController
     //     return NoContent();
     // }
 
-    [HttpPost("contacts/delete/{contactUsername}")] // /api/users/contacts/delete/{test@test.com}
-    public async Task<IActionResult> DeleteContact(string contactUsername)
+    [HttpPost("contacts/delete/{contactId}")] // /api/users/contacts/delete/2
+    public async Task<IActionResult> DeleteContact(int contactId)
     {
         string username = User.GetUsername();
-
-        AppUser user = await _userRepository.GetUserByUsernameAsync(username);
+        AppUser user    = await _userRepository.GetUserByUsernameAsync(username);
 
         if(user == null)
             return NotFound();
 
-        bool succeeded = await _contactService.DeleteContactAsync(user, contactUsername);
+        bool succeeded = await _contactService.DeleteContactAsync(user, contactId);
 
         if(succeeded)
-            return Ok($"\nSuccessfully removed {contactUsername} as a contact");
+            return Ok();
             
-        return BadRequest($"\nSomething went wrong with adding contact {contactUsername}");
+        return BadRequest("\nSomething went wrong with removing contact");
     }
 
     // ===================================================
     // ================= PUT Requests ====================
     // ===================================================
-    [HttpPut] // /api/users
-    public async Task<ActionResult> UpdateUser(MemberUpdateDTO memberUpdateDTO)
+    [HttpPut("update-username")] // /api/users
+    public async Task<ActionResult> UpdateUsername(MemberUpdateDTO memberUpdateDTO)
     {
-        string username = User.GetUsername();
-            
-        AppUser user = await _userManager.FindByNameAsync(username);
+        bool usernameExists = await _userRepository.UsernameExistsAsync(memberUpdateDTO.UserName);
+
+        if(usernameExists)
+            return BadRequest($"Username \"{memberUpdateDTO.UserName}\" is already in use");
+
+        string username = User.GetUsername();     
+        AppUser user    = await _userManager.FindByNameAsync(username);
 
         if(user == null)
             return NotFound();
             
-        _mapper.Map(memberUpdateDTO, user);
+        // _mapper.Map(newUsername, user);
+        user.UserName   = memberUpdateDTO.UserName;
 
-        await _userManager.UpdateAsync(user);
+        bool succeeded  = await _userRepository.UpdateAsync(user);
+        
+        if(!succeeded)
+            return BadRequest("Failed to update username");
+
+        return NoContent();
+    }
+
+    [HttpPut("update-email")] // /api/users
+    public async Task<ActionResult> UpdateEmail(MemberUpdateDTO memberUpdateDTO)
+    {
+        bool emailExists = await _userRepository.EmailExistsAsync(memberUpdateDTO.Email);
+
+        if(emailExists)
+            return BadRequest($"Email \"{memberUpdateDTO.Email}\" is already in use");
+
+        string username = User.GetUsername();
+        AppUser user    = await _userManager.FindByNameAsync(username);
+
+        if(user == null)
+            return NotFound();
+            
+        // _mapper.Map(newUsername, user);
+        user.Email      = memberUpdateDTO.Email;
+
+        bool succeeded  = await _userRepository.UpdateAsync(user);
+        
+        if(!succeeded)
+            return BadRequest("Failed to update email");
+
+        return NoContent();
+    }
+
+    [HttpPut("reset-password")] // /api/users
+    public async Task<ActionResult> UpdatePassword(ChangePasswordDTO changePasswordDTO)
+    {
+        string username = User.GetUsername();     
+        AppUser user    = await _userManager.FindByNameAsync(username);
+
+        if(user == null)
+            return NotFound();
+            
+        // _mapper.Map(newUsername, user);
+
+        await _userManager.ChangePasswordAsync(user, 
+                                            changePasswordDTO.CurrentPassword, 
+                                            changePasswordDTO.Password);
 
         return NoContent();
     }

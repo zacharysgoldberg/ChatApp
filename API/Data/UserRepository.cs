@@ -4,7 +4,6 @@ using API.Interfaces;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace API.Data;
@@ -23,21 +22,35 @@ public class UserRepository : IUserRepository
     public async Task<AppUser> GetUserByUsernameAsync(string username)
     {
         return await _userManager.Users
-                        .Include(u => u.Contacts)
+                        .Include(u => u.UserContacts)
                         .SingleOrDefaultAsync(u => u.UserName == username);
+    }
+
+    public async Task<AppUser> GetUserByIdAsync(int id)
+    {        
+        return await _userManager.Users.FirstOrDefaultAsync(u => u.Id == id);
     }
 
      public async Task<IEnumerable<AppUser>> GetUsersAsync()
     {
         return await _userManager.Users
-                        .Include(u => u.Contacts)
+                        .Include(u => u.UserContacts)
                         .ToListAsync();
     }
 
-    public async Task<MemberDTO> GetMemberAsync(string username)
+    public async Task<MemberDTO> GetMemberByUsernameAsync(string username)
     {
         return await _userManager.Users
                         .Where(user => user.UserName == username)
+                        .ProjectTo<MemberDTO>(_mapper.ConfigurationProvider)
+                        .SingleOrDefaultAsync();
+    }
+
+    
+    public async Task<MemberDTO> GetMemberByIdAsync(int id)
+    {
+        return await _userManager.Users
+                        .Where(user => user.Id == id)
                         .ProjectTo<MemberDTO>(_mapper.ConfigurationProvider)
                         .SingleOrDefaultAsync();
     }
@@ -49,18 +62,28 @@ public class UserRepository : IUserRepository
                         .ToListAsync();
     }
 
-    public async Task<IEnumerable<ContactDTO>> GetContactsAsync(string username)
-    {   
-        return _mapper.Map<IEnumerable<ContactDTO>>(await _userManager.Users
-                        .Where(user => user.UserName == username)
-                        .Select(c => c.Contacts)
-                        .SingleOrDefaultAsync());
-    }
-
-    public async Task<bool> Update(AppUser user)
+    public async Task<bool> UpdateAsync(AppUser user)
     {
         var result = await _userManager.UpdateAsync(user);
 
         return result.Succeeded;
+    }
+
+    public async Task<bool> EmailExistsAsync(string email)
+    {
+        var user = await _userManager.FindByEmailAsync(email);
+
+        if (user != null)
+            return true;
+        return false;
+    }
+
+    public async Task<bool> UsernameExistsAsync(string username)
+    {
+         var user = await _userManager.FindByNameAsync(username);
+
+        if (user != null)
+            return true;
+        return false;
     }
 }

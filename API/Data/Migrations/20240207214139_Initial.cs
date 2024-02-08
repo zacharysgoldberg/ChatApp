@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace API.Migrations
+namespace API.Data.Migrations
 {
     /// <inheritdoc />
     public partial class Initial : Migration
@@ -27,6 +27,18 @@ namespace API.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Contacts",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Contacts", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Photo",
                 columns: table => new
                 {
@@ -38,19 +50,6 @@ namespace API.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Photo", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "PhotoDTO",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    Url = table.Column<string>(type: "TEXT", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_PhotoDTO", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -196,31 +195,27 @@ namespace API.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Contacts",
+                name: "UserContacts",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    UserName = table.Column<string>(type: "TEXT", nullable: true),
-                    Email = table.Column<string>(type: "TEXT", nullable: true),
-                    LastActive = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    PhotoId = table.Column<int>(type: "INTEGER", nullable: true),
-                    AppUserId = table.Column<int>(type: "INTEGER", nullable: false)
+                    AppUserId = table.Column<int>(type: "INTEGER", nullable: false),
+                    ContactId = table.Column<int>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Contacts", x => x.Id);
+                    table.PrimaryKey("PK_UserContacts", x => new { x.AppUserId, x.ContactId });
                     table.ForeignKey(
-                        name: "FK_Contacts_AspNetUsers_AppUserId",
+                        name: "FK_UserContacts_AspNetUsers_AppUserId",
                         column: x => x.AppUserId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Contacts_PhotoDTO_PhotoId",
-                        column: x => x.PhotoId,
-                        principalTable: "PhotoDTO",
-                        principalColumn: "Id");
+                        name: "FK_UserContacts_Contacts_ContactId",
+                        column: x => x.ContactId,
+                        principalTable: "Contacts",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
@@ -266,14 +261,9 @@ namespace API.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Contacts_AppUserId",
-                table: "Contacts",
-                column: "AppUserId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Contacts_PhotoId",
-                table: "Contacts",
-                column: "PhotoId");
+                name: "IX_UserContacts_ContactId",
+                table: "UserContacts",
+                column: "ContactId");
         }
 
         /// <inheritdoc />
@@ -295,7 +285,7 @@ namespace API.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "Contacts");
+                name: "UserContacts");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
@@ -304,7 +294,7 @@ namespace API.Migrations
                 name: "AspNetUsers");
 
             migrationBuilder.DropTable(
-                name: "PhotoDTO");
+                name: "Contacts");
 
             migrationBuilder.DropTable(
                 name: "Photo");

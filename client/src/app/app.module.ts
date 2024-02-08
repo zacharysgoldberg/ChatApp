@@ -20,7 +20,8 @@ import { ContactsComponent } from './contacts/contacts.component';
 import { environment } from 'src/environments/environment.development';
 import { ChatComponent } from './chat/chat.component';
 import { LoginComponent } from './login/login.component';
-import { ProfileComponent } from './profile/profile.component';
+import { ProfileDetailsComponent } from './profile/profile-details/profile-details.component';
+import { ProfileEditComponent } from './profile/profile-edit/profile-edit.component';
 
 export function tokenGetter() {
   return localStorage.getItem('accessToken');
@@ -39,7 +40,8 @@ export function tokenGetter() {
     ContactsComponent,
     ChatComponent,
     LoginComponent,
-    ProfileComponent,
+    ProfileDetailsComponent,
+    ProfileEditComponent,
   ],
   imports: [
     BrowserModule,

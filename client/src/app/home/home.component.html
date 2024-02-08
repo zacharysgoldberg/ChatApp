@@ -1,7 +1,8 @@
 <app-navbar></app-navbar>
 
 <div class="divider bg-primary"></div>
-<div class="home container py-5 vh-100 bg-dark">
+
+<div class="home container py-5 vh-100 bg-dark" *ngIf="(accountService.currentUser$ | async)">
   <div>
     Home
     <hr style="color:white">

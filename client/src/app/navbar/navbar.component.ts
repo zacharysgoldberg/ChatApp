@@ -6,7 +6,7 @@ import { JwtHelperService } from '@auth0/angular-jwt';
 import { NotificationModel } from '../_models/notification.model';
 import { UserModel } from '../_models/user.model';
 import { take } from 'rxjs';
-import { MemberModel } from '../_models/member.mode';
+import { MemberModel } from '../_models/member.model';
 import { ContactsService } from '../_services/contacts.service';
 
 @Component({
@@ -40,7 +40,7 @@ export class NavbarComponent implements OnInit {
     //   },
     // });
 
-    this.accountService.logout(this.model);
+    this.accountService.logout();
     this.router.navigateByUrl('/');
   }
 

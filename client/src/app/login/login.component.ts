@@ -12,7 +12,10 @@ import { Component, OnInit } from '@angular/core';
 export class LoginComponent implements OnInit {
   registerMode = false;
 
-  credentials: LoginModel = { username: '', password: '' };
+  credentials: LoginModel = {
+    username: '',
+    password: '',
+  };
 
   constructor(
     public accountService: AccountService,
@@ -25,15 +28,17 @@ export class LoginComponent implements OnInit {
   }
 
   login() {
-    this.accountService.login(this.credentials).subscribe({
-      next: (_) => {
-        this.router.navigateByUrl('/home');
-      },
+    if (this.credentials)
+      this.accountService.login(this.credentials).subscribe({
+        next: (_) => {
+          this.router.navigateByUrl('/home');
+        },
 
-      error: (error) => {
-        this.toastr.error(error.error), console.log(error);
-      },
-    });
+        error: (error) => {
+          this.toastr.error(error.error), console.log(error);
+        },
+      });
+    return;
   }
 
   registerToggle() {

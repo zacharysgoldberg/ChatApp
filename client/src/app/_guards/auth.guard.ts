@@ -22,18 +22,8 @@ export const AuthGuard: CanActivateFn = async (route, state) => {
   const isRefreshSuccess = await accountService.tryRefreshingTokens(token);
   if (!isRefreshSuccess) {
     router.navigateByUrl('/');
-    toastr.error('Must be signed in');
+    // toastr.error('Must be signed in');
   }
 
   return isRefreshSuccess;
-
-  // return accountService.currentUser$.pipe(
-  //   map((user) => {
-  //     if (user) return true;
-  //     else {
-  //       toastr.error('You shall not pass!');
-  //       return false;
-  //     }
-  //   })
-  // );
 };

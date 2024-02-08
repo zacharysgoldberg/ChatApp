@@ -1,0 +1,45 @@
+<div class="modal" style="display: block; position: absolute; margin-top:20%">
+  <div class="modal-dialog" role="document">
+    <!-- Edit Username || Email || Phone Number -->
+    <div class="modal-content bg-light"
+      *ngIf="editField == 'Username' || editField == 'Email' || editField == 'Phone Number'">
+      <div class="modal-header">
+        <h5 class="modal-title">Edit {{editField}}</h5>
+      </div>
+      <input *ngIf="editField == 'Username'" type="text" class="form-control bg-light"
+        [(ngModel)]="memberUpdate.userName">
+      <input *ngIf="editField == 'Email'" type="email" class="form-control bg-light" [(ngModel)]="memberUpdate.email">
+      <input *ngIf="editField == 'Phone Number'" type="tel" class="form-control bg-light">
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" (click)="save(editField)">Save</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" (click)="cancel()">Close</button>
+      </div>
+    </div>
+
+    <!-- Edit Password -->
+    <div class="modal-content bg-light" *ngIf="editField == 'Password'">
+      <div class="form-group">
+        <label class="form-label mt-4"></label>
+        <div class="form-floating mb-3">
+          Current Password
+          <input type="text" class="form-control" id="floatingInput" placeholder="Password"
+            [(ngModel)]="changePassword.currentPassword">
+        </div>
+        <div class="form-floating mb-3">
+          New Password
+          <input type="password" class="form-control" id="floatingInput" placeholder="Password"
+            [(ngModel)]="changePassword.password">
+        </div>
+        <div class="form-floating">
+          Confirm Password
+          <input type="password" class="form-control" id="floatingPassword" placeholder="Confirm Password"
+            autocomplete="off" [(ngModel)]="changePassword.confirmPassword">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" (click)="save(editField)">Save</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" (click)="cancel()">Close</button>
+      </div>
+    </div>
+  </div>
+</div>

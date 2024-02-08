@@ -3,43 +3,40 @@ import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment.development';
 import { ContactModel } from '../_models/contact.model';
 import { UserModel } from '../_models/user.model';
-import { MemberModel } from '../_models/member.mode';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ContactsService {
-  baseUrl = environment.apiUrl;
+  apiUrl = environment.apiUrl;
   user: UserModel | undefined;
   contact: ContactModel | undefined | null;
-  member: MemberModel | undefined;
 
   constructor(private http: HttpClient) {}
 
-  addContact(contact: ContactModel) {
+  addContact(contactUsername: string) {
+    const contactUsernameDTO = { username: contactUsername };
+
     return this.http.post<ContactModel>(
-      this.baseUrl + 'users/contacts',
-      contact
+      this.apiUrl + 'users/contacts',
+      contactUsernameDTO
     );
   }
 
   getContacts() {
-    return this.http.get<ContactModel[]>(this.baseUrl + 'users/contacts');
+    return this.http.get<ContactModel[]>(this.apiUrl + 'users/contacts');
   }
 
-  getContact(contactUsername: string) {
+  getContact(contactId: number) {
     return this.http.get<ContactModel>(
-      this.baseUrl + 'users/contacts/' + contactUsername
+      this.apiUrl + `users/contacts/${contactId}`
     );
   }
 
-  getMember(username: string) {
-    return this.http.get<MemberModel>(
-      this.baseUrl + 'users/members/' + username
+  removeContact(contactId: number) {
+    return this.http.post(
+      this.apiUrl + `users/contacts/delete/${contactId}`,
+      this.contact
     );
-  }
-
-  updateMember() {
-    return this.http.put(this.baseUrl + 'users', this.member);
   }
 }

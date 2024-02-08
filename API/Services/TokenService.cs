@@ -19,18 +19,17 @@ public class TokenService : ITokenService
     // Create a JWT and return it as a string
     public string GenerateAccessToken(IEnumerable<Claim> claims)
     {
-        var creds = new SigningCredentials(_key, SecurityAlgorithms.HmacSha512);
+        var creds           = new SigningCredentials(_key, SecurityAlgorithms.HmacSha512);
 
         var tokenDescriptor = new SecurityTokenDescriptor
         {
-            Subject = new ClaimsIdentity(claims),
-            Expires = DateTime.Now.AddMinutes(2),
-            NotBefore = DateTime.Now,
-            SigningCredentials = creds,
+            Subject             = new ClaimsIdentity(claims),
+            Expires             = DateTime.Now.AddMinutes(5),
+            NotBefore           = DateTime.Now,
+            SigningCredentials  = creds,
         };
 
-        var tokenHandler = new JwtSecurityTokenHandler();
-
+        var tokenHandler    = new JwtSecurityTokenHandler();
         SecurityToken token = tokenHandler.CreateToken(tokenDescriptor);
 
         return tokenHandler.WriteToken(token);
@@ -39,8 +38,8 @@ public class TokenService : ITokenService
     // Create and return a random string of characters in base 64
     public string GenerateRefreshToken()
     {
-        var randomNumber = new byte[64];
-        using var rng = RandomNumberGenerator.Create();
+        var randomNumber    = new byte[64];
+        using var rng       = RandomNumberGenerator.Create();
         rng.GetBytes(randomNumber);
         return Convert.ToBase64String(randomNumber);
     }
@@ -50,25 +49,23 @@ public class TokenService : ITokenService
     {
         var tokenValidationParameters = new TokenValidationParameters
         {
-            IssuerSigningKey = _key,
-            ValidateIssuerSigningKey = true,
-            ValidateAudience = false,
-            ValidateIssuer = false,
+            IssuerSigningKey            = _key,
+            ValidateIssuerSigningKey    = true,
+            ValidateAudience            = false,
+            ValidateIssuer              = false,
             // Here we're saying that we don't care about the token's expiration date/time
-            ValidateLifetime = false 
+            ValidateLifetime            = false 
         };
-
-        var tokenHandler = new JwtSecurityTokenHandler();
 
         SecurityToken securityToken;
 
-        ClaimsPrincipal principal = tokenHandler.ValidateToken(token, 
+        var tokenHandler                    = new JwtSecurityTokenHandler();
+        ClaimsPrincipal principal           = tokenHandler.ValidateToken(token, 
                                                                tokenValidationParameters, 
                                                                out securityToken);
 
-        JwtSecurityToken jwtSecurityToken = securityToken as JwtSecurityToken;
-
-        bool isSecurityTokenHmacSha512 = jwtSecurityToken.Header.Alg.Equals(
+        JwtSecurityToken jwtSecurityToken   = securityToken as JwtSecurityToken;
+        bool isSecurityTokenHmacSha512      = jwtSecurityToken.Header.Alg.Equals(
                                                 SecurityAlgorithms.HmacSha512, 
                                                 StringComparison.InvariantCultureIgnoreCase
                                                 );

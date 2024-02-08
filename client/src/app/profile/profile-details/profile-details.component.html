@@ -1,0 +1,63 @@
+<app-navbar></app-navbar>
+
+<div class="divider bg-primary"></div>
+
+<div class="profile py-5 bg-dark">
+  Profile
+  <hr style="color:white">
+  <div class="card bg-dark" *ngIf="member">
+    <div class="col-8">
+      <div class="alert alert-warning">
+        <p><strong>Information:</strong> Any unsaved changes will be lost</p>
+      </div>
+    </div>
+    <div class="card-body text-white">
+      <div class="my-3">
+        <img src="{{member.photoUrl}}" class="card-img-top img-thumbnail">
+      </div>
+      <div class="my-3 d-flex align-items-center">
+        <div>
+          <strong> Member Since: </strong>
+          <p>{{member.created}}</p>
+        </div>
+      </div>
+      <div class="d-flex align-items-center">
+        <div>
+          <strong> Username: </strong>
+          <p class="mb-3">{{member.userName}}</p>
+        </div>
+        <button class="btn" type="button" style="position: absolute; right:50%; background-color:rgb(154, 154, 154)"
+          (click)="editModeToggle('Username')">Edit</button>
+      </div>
+      <div class="d-flex align-items-center">
+        <div>
+          <strong> Email: </strong>
+          <p class="mb-3">{{member.email}}</p>
+        </div>
+        <button class="btn" style="position: absolute; right:50%; background-color:rgb(154, 154, 154)"
+          (click)="editModeToggle('Email')">Edit</button>
+      </div>
+      <div class="my-3 d-flex align-items-center">
+        <div>
+          <strong> Phone Number: </strong>
+          <p class="mb-3"></p>
+        </div>
+        <button class="btn" style="position: absolute; right:50%; background-color:rgb(154, 154, 154)"
+          (click)="editModeToggle('Phone Number')">Edit</button>
+      </div>
+    </div>
+
+    <div class="card-body text-white">
+      <div class="my-3">
+        <button class="btn btn-info" (click)="editModeToggle('Password')"> Change Password </button>
+      </div>
+    </div>
+
+    <app-profile-edit *ngIf="editMode" (cancelEdit)="cancelEditMode($event)" [editField]="editField"></app-profile-edit>
+
+  </div>
+
+  <div style="position: relative;margin-top: 30%;left: 1%">
+    <button type="submit" class="btn btn-danger">Delete Account</button>
+  </div>
+</div>

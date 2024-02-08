@@ -13,10 +13,14 @@ public class AutoMapperProfiles : Profile
 
         CreateMap<AppUser, Contact>();
 
-        CreateMap<Contact, ContactDTO>();
+        // CreateMap<AppUser, ContactDTO>();
+
+        CreateMap<MemberDTO, ContactDTO>();
 
         CreateMap<Photo, PhotoDTO>();
         
         CreateMap<MemberUpdateDTO, AppUser>();
+
+        
     }
 }
