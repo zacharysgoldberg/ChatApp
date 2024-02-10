@@ -9,48 +9,48 @@
       aria-describedby="button-addon2" [(ngModel)]="contactToAdd">
     <button class="btn btn-outline-secondary" type="submit" (click)="addContact()" id="button-addon1">Add</button>
   </div>
-  <div class="list-group list-group-flush border-bottom" *ngFor="let contact of contacts">
+  <div class="list-group list-group-flush border-bottom" *ngFor="let contact of contacts$ | async">
     <hr>
     <button (click)="loadContact(contact.id)"
       class="list-group-item list-group-item-action py-4 lh-tight bg-dark text-white" aria-current="true">
       <div class="d-flex w-100 align-items-center justify-content-between">
         <strong class="mb-1">{{contact.userName}}</strong>
-        <small class="text-white">>></small>
+        <small class="text-white">></small>
       </div>
     </button>
   </div>
-</div>
 
-<div class="contact-detail text-white bg-dark py-5" *ngIf="contact">
-  <div class="card bg-dark text-white">
-    <img [src]="contact.photoUrl" class="card-img-top">
-    <strong class="card-title">Contact Details</strong>
-    <hr>
-    <div class="d-flex align-items-center">
-      <div style="position: relative; left:3%">
-        <strong> Username: </strong>
-        <p class=" mb-3">{{contact.userName}}</p>
+  <div class="contact-detail text-white bg-dark py-5" *ngIf="contact">
+    <div class="card bg-dark text-white">
+      <img [src]="contact.photoUrl" class="card-img-top">
+      <strong class="card-title">Contact Details</strong>
+      <hr>
+      <div class="d-flex align-items-center">
+        <div style="position: relative; left:3%">
+          <strong> Username: </strong>
+          <p class=" mb-3">{{contact.userName}}</p>
+        </div>
       </div>
-    </div>
-    <div class="d-flex align-items-center">
-      <div style="position: relative; left:3%">
-        <strong> Email: </strong>
-        <p class="mb-3">{{contact.email}}</p>
+      <div class="d-flex align-items-center">
+        <div style="position: relative; left:3%">
+          <strong> Email: </strong>
+          <p class="mb-3">{{contact.email}}</p>
+        </div>
       </div>
-    </div>
-    <div class="d-flex align-items-center">
-      <div style="position: relative; left:3%">
-        <strong> Last Active: </strong>
-        <p class="mb-3">{{contact.lastActive}}</p>
+      <div class="d-flex align-items-center">
+        <div style="position: relative; left:3%">
+          <strong> Last Active: </strong>
+          <p class="mb-3">{{contact.lastActive}}</p>
+        </div>
       </div>
-    </div>
-    <div class="btn-group row">
-      <div class="my-3 mx-3">
-        <button class="btn btn-success" (click)="message()">Message</button>
-      </div>
+      <div class="btn-group row">
+        <div class="my-3 mx-3">
+          <button class="btn btn-success" (click)="message()">Message</button>
+        </div>
 
-      <div class="my-3 py-5 mx-3">
-        <button class="btn btn-danger" (click)="removeContact(contact.id)">Remove Contact</button>
+        <div class="my-3 py-5 mx-3">
+          <button class="btn btn-danger" (click)="removeContact(contact.id)">Remove Contact</button>
+        </div>
       </div>
     </div>
   </div>

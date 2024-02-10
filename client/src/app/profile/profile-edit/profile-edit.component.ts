@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Router } from '@angular/router';
+import { Observable } from 'rxjs';
 import { ChangePasswordModel } from 'src/app/_models/changePassword.model';
 import { MemberUpdateModel } from 'src/app/_models/memberUpdate.model';
 import { AccountService } from 'src/app/_services/account.service';
@@ -39,23 +40,43 @@ export class ProfileEditComponent implements OnInit {
   }
 
   save(editField: string) {
-    let updateRequest;
+    let request: Observable<Object>;
 
-    if (editField === 'Password')
-      updateRequest = this.memberService.changePassword(this.changePassword);
-    else if (editField === 'Username')
-      updateRequest = this.memberService.updateUsername(this.memberUpdate);
-    else if (editField === 'Email')
-      updateRequest = this.memberService.updateEmail(this.memberUpdate);
-    else return;
+    if (editField === 'Password') {
+      request = this.memberService.changePassword(this.changePassword);
+      this.submitHardUpate(request);
+    } else if (editField === 'Username') {
+      request = this.memberService.updateUsername(this.memberUpdate);
+      this.submitHardUpate(request);
+    } else if (editField === 'Email') {
+      request = this.memberService.updateEmail(this.memberUpdate);
+      this.submitSoftUpdate(request);
+    } else if (editField === 'Phone') {
+      request = this.memberService.updatePhone(this.memberUpdate);
+      this.submitSoftUpdate(request);
+    } else return;
+  }
 
-    updateRequest.subscribe({
-      next: (response) => {
+  submitHardUpate(hardRequest: Observable<Object>) {
+    hardRequest.subscribe({
+      next: (response: any) => {
         console.log(response);
         this.accountService.logout();
         this.router.navigateByUrl('/');
       },
-      error: (err) => {
+      error: (err: any) => {
+        console.error('Error updating profile:', err);
+      },
+    });
+  }
+
+  submitSoftUpdate(hardRequest: Observable<Object>) {
+    hardRequest.subscribe({
+      next: (response: any) => {
+        console.log(response);
+        location.reload();
+      },
+      error: (err: any) => {
         console.error('Error updating profile:', err);
       },
     });

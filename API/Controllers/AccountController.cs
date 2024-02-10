@@ -81,12 +81,13 @@ namespace API.Controllers
             if (loginDTO.Username is null || loginDTO.Password is null)
                 return Unauthorized("\nInvalid Username or Password");
                 
-            AppUser user = await _userManager.FindByNameAsync(loginDTO.Username.ToLower());
+            AppUser user = await _userRepository.GetUserAsync(loginDTO.Username);
 
-            if(user is null)
+            if(user == null)
+            {   
                 return Unauthorized("\nInvalid Username or Password");
+            }
 
-            
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, loginDTO.Username),
@@ -126,14 +127,15 @@ namespace API.Controllers
             if (userDTO is null)
                 return BadRequest("\nInvalid client request");
 
-            string accessToken  = userDTO.AccessToken;
-            string refreshToken = userDTO.RefreshToken;
-            var principal       = _tokenService.GetPrincipalFromExpiredToken(accessToken);
-            string username     = principal.Identity.Name;
-            AppUser user        = await _userManager.FindByNameAsync(username);
+            string accessToken          = userDTO.AccessToken;
+            string refreshToken         = userDTO.RefreshToken;
+            var principal               = _tokenService.GetPrincipalFromExpiredToken(accessToken);
+            string usernameOrEmail      = principal.Identity.Name;
+
+            AppUser user                = await _userRepository.GetUserAsync(usernameOrEmail);
 
             if (user == null || user.RefreshToken != refreshToken || user.RefreshTokenExpiryTime <= DateTime.Now)
-                return BadRequest("\nInvalid access token or refresh token");
+                return BadRequest("\nInvalid access token or refresh token");                
 
             string newAccessToken   = _tokenService.GenerateAccessToken(principal.Claims);
             string newRefreshToken  = _tokenService.GenerateRefreshToken();
@@ -142,7 +144,7 @@ namespace API.Controllers
 
             return Ok(new UserDTO()
             {
-                Username        = username,
+                Username        = user.UserName,
                 AccessToken     = newAccessToken,
                 RefreshToken    = newRefreshToken
             });
@@ -150,10 +152,10 @@ namespace API.Controllers
 
         // Revoke user's Refresh token
         [Authorize]
-        [HttpPost("revoke/{username}")] // POST /api/account/revoke/johndoe@domain.com
-        public async Task<IActionResult> Revoke(string username)
+        [HttpPost("revoke/{usernameOrEmail}")] // POST /api/account/revoke/johndoe@domain.com
+        public async Task<IActionResult> Revoke(string usernameOrEmail)
         {
-            var user = await _userManager.FindByNameAsync(username);
+            AppUser user = await _userRepository.GetUserAsync(usernameOrEmail);
 
             if (user == null) 
                 return BadRequest("\nInvalid username");
@@ -189,8 +191,8 @@ namespace API.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> ResetPassword(ResetPasswordDTO resetPasswordDTO)
         {
-            string username = User.GetUsername();
-            AppUser user    = await _userManager.FindByNameAsync(username);
+            string usernameOrEmail = User.GetUsernameOrEmail();
+            AppUser user    = await _userRepository.GetUserAsync(usernameOrEmail);
 
             if(user == null)
                 return NotFound();

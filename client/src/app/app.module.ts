@@ -22,9 +22,18 @@ import { ChatComponent } from './chat/chat.component';
 import { LoginComponent } from './login/login.component';
 import { ProfileDetailsComponent } from './profile/profile-details/profile-details.component';
 import { ProfileEditComponent } from './profile/profile-edit/profile-edit.component';
+import { LoadingInterceptor } from './_interceptors/loading.interceptor';
+import { PhotoEditComponent } from './profile/photo-edit/photo-edit.component';
+import { UserModel } from './_models/user.model';
 
 export function tokenGetter() {
-  return localStorage.getItem('accessToken');
+  const userString = localStorage.getItem('user');
+
+  if (!userString) return null;
+
+  const user: UserModel = JSON.parse(userString);
+
+  return user.accessToken;
 }
 
 @NgModule({
@@ -42,6 +51,7 @@ export function tokenGetter() {
     LoginComponent,
     ProfileDetailsComponent,
     ProfileEditComponent,
+    PhotoEditComponent,
   ],
   imports: [
     BrowserModule,
@@ -61,6 +71,7 @@ export function tokenGetter() {
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
+    { provide: HTTP_INTERCEPTORS, useClass: LoadingInterceptor, multi: true },
   ],
   bootstrap: [AppComponent],
 })

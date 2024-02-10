@@ -4,6 +4,7 @@ import { ContactModel } from 'src/app/_models/contact.model';
 import { ContactsService } from 'src/app/_services/contacts.service';
 import { AccountService } from '../_services/account.service';
 import { ToastrService } from 'ngx-toastr';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-contacts',
@@ -11,7 +12,7 @@ import { ToastrService } from 'ngx-toastr';
   styleUrls: ['./contacts.component.css'],
 })
 export class ContactsComponent implements OnInit {
-  contacts: ContactModel[] = [];
+  contacts$: Observable<ContactModel[]> | undefined;
   contact: ContactModel | undefined;
   contactToAdd: string = '';
 
@@ -23,13 +24,9 @@ export class ContactsComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.loadContacts();
-  }
-
-  loadContacts() {
-    this.contactsService.getContacts().subscribe({
-      next: (contacts) => (this.contacts = contacts),
-    });
+    this.contacts$ = this.contactsService.getContacts();
+    if (this.contactsService.contacts.length > 0)
+      return this.loadContact(this.contactsService.contacts[0].id);
   }
 
   loadContact(contactId: number) {

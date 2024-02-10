@@ -107,7 +107,7 @@ namespace API.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Contacts");
+                    b.ToTable("Contacts", (string)null);
                 });
 
             modelBuilder.Entity("API.Entities.Photo", b =>
@@ -124,7 +124,7 @@ namespace API.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Photo");
+                    b.ToTable("Photo", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<int>", b =>
@@ -265,7 +265,7 @@ namespace API.Data.Migrations
 
                     b.HasIndex("ContactId");
 
-                    b.ToTable("UserContacts");
+                    b.ToTable("UserContacts", (string)null);
                 });
 
             modelBuilder.Entity("API.Entities.AppUser", b =>

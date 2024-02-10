@@ -118,5 +118,4 @@ public class ContactService : IContactService
         return await _context.UserContacts
             .AnyAsync(uc => uc.AppUserId == userId && uc.ContactId == contactId);
     }
-
 }

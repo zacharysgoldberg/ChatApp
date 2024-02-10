@@ -1,0 +1,29 @@
+<div class="modal" id="photoEditModal" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header d-flex justify-content-between">
+        <button class="close" type="button" class="close" data-dismiss="modal" aria-label="Close" (click)="cancel()">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <img *ngIf="member" src="{{ member.photoUrl }}" alt="photo of user">
+      <div class="modal-footer">
+        <!-- Button to update the photo -->
+        <button type="button" class="fa fa-upload btn btn-success" (click)="updatePhoto()"
+          [disabled]="!uploader?.getNotUploadedItems()?.length"> Upload
+        </button>
+        <!-- <button *ngIf="uploader" type="button" class="fa fa-upload btn btn-success" (click)="uploader.uploadItem"
+          [disabled]="!uploader.isFile"></button> -->
+
+        <input class="btn btn-info btn-sm" type="file" ng2FileSelect [uploader]="uploader" />
+
+        <!-- Button to delete the photo -->
+        <button class="btn btn-sm btn-danger" (click)="deletePhoto()">
+          <li class="fa fa-trash"> Delete Photo </li>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Ng2 file upload -->

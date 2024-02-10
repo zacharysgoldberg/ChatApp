@@ -1,9 +1,18 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  EventEmitter,
+  Input,
+  OnInit,
+  Output,
+  ViewChild,
+} from '@angular/core';
 import { MemberModel } from '../../_models/member.model';
 import { UserModel } from '../../_models/user.model';
 import { AccountService } from '../../_services/account.service';
 import { take } from 'rxjs';
 import { MemberService } from 'src/app/_services/member.service';
+import { PhotoEditComponent } from '../photo-edit/photo-edit.component';
 
 @Component({
   selector: 'app-profile-details',
@@ -11,16 +20,17 @@ import { MemberService } from 'src/app/_services/member.service';
   styleUrls: ['./profile-details.component.css'],
 })
 export class ProfileDetailsComponent implements OnInit {
-  editMode: boolean = false;
+  editPhotoMode: boolean = false;
+  editProfileMode: boolean = false;
   editField: string | undefined;
 
   member: MemberModel | undefined;
-  user: UserModel | null = null;
-  newDisplayName: string = '';
+  user: UserModel | undefined;
 
   constructor(
     private accountService: AccountService,
-    private memberService: MemberService
+    private memberService: MemberService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -31,6 +41,7 @@ export class ProfileDetailsComponent implements OnInit {
     const username = this.accountService.getUsername();
 
     if (!username) return;
+
     this.memberService.getMember(username).subscribe({
       next: (member) => {
         this.member = member;
@@ -38,12 +49,28 @@ export class ProfileDetailsComponent implements OnInit {
     });
   }
 
-  editModeToggle(field: string) {
-    this.editMode = !this.editMode;
+  editPhotoToggle() {
+    this.editPhotoMode = !this.editPhotoMode;
+  }
+
+  cancelEditPhotoMode(event: boolean) {
+    this.editPhotoMode = event;
+  }
+
+  editProfileModeToggle(field: string) {
+    this.editProfileMode = !this.editProfileMode;
     this.editField = field;
   }
 
-  cancelEditMode(event: boolean) {
-    this.editMode = event;
+  cancelEditProfileMode(event: boolean) {
+    this.editProfileMode = event;
+  }
+
+  // Closes the modal when backdrop is clicked
+  closeModalOnBackdropClick(event: MouseEvent) {
+    // Check if the click event target is the backdrop element
+    if ((event.target as HTMLElement).classList.contains('modal')) {
+      this.editPhotoMode = false;
+    }
   }
 }

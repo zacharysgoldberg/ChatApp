@@ -19,11 +19,12 @@ public class UserRepository : IUserRepository
         _mapper = mapper;
     }
 
-    public async Task<AppUser> GetUserByUsernameAsync(string username)
+    public async Task<AppUser> GetUserAsync(string usernameOrEmail)
     {
         return await _userManager.Users
-                        .Include(u => u.UserContacts)
-                        .SingleOrDefaultAsync(u => u.UserName == username);
+                        // .Include(u => u.UserContacts) // include contacts list
+                        .SingleOrDefaultAsync(u => u.UserName == usernameOrEmail || 
+                                            u.Email == usernameOrEmail.ToLower());
     }
 
     public async Task<AppUser> GetUserByIdAsync(int id)
@@ -38,10 +39,10 @@ public class UserRepository : IUserRepository
                         .ToListAsync();
     }
 
-    public async Task<MemberDTO> GetMemberByUsernameAsync(string username)
+    public async Task<MemberDTO> GetMemberAsync(string usernameOrEmail)
     {
         return await _userManager.Users
-                        .Where(user => user.UserName == username)
+                        .Where(u => u.UserName == usernameOrEmail || u.Email == usernameOrEmail)
                         .ProjectTo<MemberDTO>(_mapper.ConfigurationProvider)
                         .SingleOrDefaultAsync();
     }
@@ -62,13 +63,6 @@ public class UserRepository : IUserRepository
                         .ToListAsync();
     }
 
-    public async Task<bool> UpdateAsync(AppUser user)
-    {
-        var result = await _userManager.UpdateAsync(user);
-
-        return result.Succeeded;
-    }
-
     public async Task<bool> EmailExistsAsync(string email)
     {
         var user = await _userManager.FindByEmailAsync(email);
@@ -85,5 +79,12 @@ public class UserRepository : IUserRepository
         if (user != null)
             return true;
         return false;
+    }
+
+    public async Task<bool> UpdateAsync(AppUser user)
+    {
+        var result = await _userManager.UpdateAsync(user);
+
+        return result.Succeeded;
     }
 }

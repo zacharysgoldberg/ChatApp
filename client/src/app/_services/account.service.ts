@@ -2,7 +2,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { LoginModel } from '../_models/login.model';
 import { UserModel } from '../_models/user.model';
 import { RegisterModel } from '../_models/register.model';
-import { BehaviorSubject, map } from 'rxjs';
+import { BehaviorSubject, Observable, Subject, map } from 'rxjs';
 import { Injectable } from '@angular/core';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { environment } from 'src/environments/environment';
@@ -15,13 +15,10 @@ export class AccountService {
   apiUrl = environment.apiUrl;
 
   private currentUserSource = new BehaviorSubject<UserModel | null>(null);
-  private activeUser = new BehaviorSubject<boolean>(false);
   currentUser$ = this.currentUserSource.asObservable();
 
-  invalidLogin: boolean | undefined;
-
   constructor(private http: HttpClient, private jwtHelper: JwtHelperService) {
-    const userString = localStorage.getItem('currentUser');
+    const userString = JSON.stringify(localStorage.getItem('username'));
 
     if (userString) {
       const user: UserModel = JSON.parse(userString);
@@ -32,7 +29,7 @@ export class AccountService {
   }
 
   login(credentials: LoginModel) {
-    console.log(this.apiUrl);
+    // console.log(this.apiUrl);
     return this.http
       .post<UserModel>(this.apiUrl + 'account/login', credentials)
       .pipe(
@@ -41,8 +38,6 @@ export class AccountService {
           if (user) {
             this.setUserAccess(user);
             this.currentUserSource.next(user);
-            this.activeUser.next(true);
-            console.log(this.activeUser);
           }
         })
       );
@@ -65,22 +60,14 @@ export class AccountService {
   logout() {
     // const username = this.getUsername();
 
-    localStorage.removeItem('username');
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('user');
     this.currentUserSource.next(null);
-    this.activeUser.next(false);
 
     // return this.http.post(this.apiUrl + `account/revoke/${username}`, model);
   }
 
   setUserAccess(user: UserModel): void {
-    const username = user.username;
-    const accessToken = user.accessToken;
-    const refreshToken = user.refreshToken;
-    localStorage.setItem('username', username);
-    localStorage.setItem('accessToken', accessToken);
-    localStorage.setItem('refreshToken', refreshToken);
+    localStorage.setItem('user', JSON.stringify(user));
   }
 
   setCurrentUserSource(user: UserModel): void {
@@ -88,11 +75,15 @@ export class AccountService {
   }
 
   async tryRefreshingTokens(token: string | null): Promise<boolean> {
-    const refreshToken = localStorage.getItem('refreshToken');
-    const username = localStorage.getItem('username');
-    if (!token || !refreshToken || !username) {
-      return false;
-    }
+    const userString = localStorage.getItem('user');
+
+    if (!userString) return false;
+
+    const user: UserModel = JSON.parse(userString);
+    const username = user.username;
+    const refreshToken = user.refreshToken;
+
+    if (!token || !refreshToken || !username) return false;
 
     const credentials = JSON.stringify({
       username: username,
@@ -118,20 +109,57 @@ export class AccountService {
         });
     });
 
-    localStorage.setItem('accessToken', refreshRes.accessToken);
-    localStorage.setItem('refreshToken', refreshRes.refreshToken);
+    user.accessToken = refreshRes.accessToken;
+    user.refreshToken = refreshRes.refreshToken;
+
+    localStorage.setItem('user', JSON.stringify(user));
     isRefreshSuccess = true;
 
     return isRefreshSuccess;
   }
 
+  async getAccessToken(currentUser: UserModel): Promise<string> {
+    if (
+      !this.isUserAuthenticated() ||
+      this.jwtHelper.isTokenExpired(currentUser.accessToken)
+    ) {
+      const isRefreshSuccess = await this.tryRefreshingTokens(
+        currentUser.accessToken
+      );
+      if (!isRefreshSuccess) return currentUser.accessToken;
+
+      const userString = localStorage.getItem('user');
+
+      if (!userString) return currentUser.accessToken;
+
+      const newUser: UserModel = JSON.parse(userString!);
+      return newUser.accessToken;
+    }
+
+    return currentUser.accessToken;
+  }
+
   getUsername() {
-    if (this.isUserAuthenticated()) return localStorage.getItem('username');
+    if (this.isUserAuthenticated()) {
+      const userString = localStorage.getItem('user');
+
+      if (!userString) return null;
+
+      const user: UserModel = JSON.parse(userString);
+      const username = user.username;
+      return username;
+    }
     return null;
   }
 
   isUserAuthenticated(): boolean {
-    const token = localStorage.getItem('accessToken');
+    const userString = localStorage.getItem('user');
+
+    if (!userString) return false;
+
+    const user: UserModel = JSON.parse(userString);
+    const token = user.accessToken;
+
     if (token && !this.jwtHelper.isTokenExpired(token)) {
       return true;
     }

@@ -12,51 +12,63 @@
       </div>
     </div>
     <div class="card-body text-white">
+      <!-- Edit photo -->
       <div class="my-3">
-        <img src="{{member.photoUrl}}" class="card-img-top img-thumbnail">
+        <img class="photo" type="button" src="{{ member.photoUrl }}" (click)="editPhotoToggle()"
+          data-toggle="modal fade" data-target="#photoEditModal">
       </div>
+
       <div class="my-3 d-flex align-items-center">
         <div>
           <strong> Member Since: </strong>
           <p>{{member.created}}</p>
         </div>
       </div>
+      <!-- Edit username -->
       <div class="d-flex align-items-center">
         <div>
           <strong> Username: </strong>
           <p class="mb-3">{{member.userName}}</p>
         </div>
         <button class="btn" type="button" style="position: absolute; right:50%; background-color:rgb(154, 154, 154)"
-          (click)="editModeToggle('Username')">Edit</button>
+          (click)="editProfileModeToggle('Username')">Edit</button>
       </div>
+      <!-- Edit email -->
       <div class="d-flex align-items-center">
         <div>
           <strong> Email: </strong>
           <p class="mb-3">{{member.email}}</p>
         </div>
         <button class="btn" style="position: absolute; right:50%; background-color:rgb(154, 154, 154)"
-          (click)="editModeToggle('Email')">Edit</button>
+          (click)="editProfileModeToggle('Email')">Edit</button>
       </div>
+      <!-- Edit phone number -->
       <div class="my-3 d-flex align-items-center">
         <div>
           <strong> Phone Number: </strong>
           <p class="mb-3"></p>
         </div>
         <button class="btn" style="position: absolute; right:50%; background-color:rgb(154, 154, 154)"
-          (click)="editModeToggle('Phone Number')">Edit</button>
+          (click)="editProfileModeToggle('Phone Number')">Edit</button>
       </div>
     </div>
-
+    <!-- Edit password -->
     <div class="card-body text-white">
       <div class="my-3">
-        <button class="btn btn-info" (click)="editModeToggle('Password')"> Change Password </button>
+        <button class="btn btn-info" (click)="editProfileModeToggle('Password')"> Change Password </button>
       </div>
     </div>
 
-    <app-profile-edit *ngIf="editMode" (cancelEdit)="cancelEditMode($event)" [editField]="editField"></app-profile-edit>
+    <!-- Photo edit components -->
+    <app-photo-edit *ngIf="editPhotoMode" (cancelEdit)="cancelEditPhotoMode($event)"
+      (click)="closeModalOnBackdropClick($event)" [member]="member"></app-photo-edit>
+
+    <!-- Profile edit component -->
+    <app-profile-edit *ngIf=" editProfileMode" (cancelEdit)="cancelEditProfileMode($event)"
+      [editField]="editField"></app-profile-edit>
 
   </div>
-
+  <!-- Delete account button -->
   <div style="position: relative;margin-top: 30%;left: 1%">
     <button type="submit" class="btn btn-danger">Delete Account</button>
   </div>

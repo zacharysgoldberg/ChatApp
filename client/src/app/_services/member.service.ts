@@ -28,6 +28,10 @@ export class MemberService {
     return this.http.put(this.baseUrl + 'users/update-email', memberUpdate);
   }
 
+  updatePhone(memberUpdate: MemberUpdateModel) {
+    return this.http.put(this.baseUrl + 'users/update-phone', memberUpdate);
+  }
+
   changePassword(changePassword: ChangePasswordModel) {
     return this.http.post(
       this.baseUrl + 'users/reset-password',
