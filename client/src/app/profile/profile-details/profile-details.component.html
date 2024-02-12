@@ -14,8 +14,10 @@
     <div class="card-body text-white">
       <!-- Edit photo -->
       <div class="my-3">
-        <img class="photo" type="button" src="{{ member.photoUrl }}" (click)="editPhotoToggle()"
-          data-toggle="modal fade" data-target="#photoEditModal">
+        <img *ngIf="member.photoUrl" class="photo" type="button" src="{{ member.photoUrl }}" (click)="editPhotoToggle()"
+          data-toggle="modal fade" data-target="#photoEditModal" class="rounded-circle me-2">
+        <!-- TODO: updade this to something other than a button but clickable -->
+        <button *ngIf="!member.photoUrl" class="fa fa-user" (click)="editPhotoToggle()"></button>
       </div>
 
       <div class="my-3 d-flex align-items-center">

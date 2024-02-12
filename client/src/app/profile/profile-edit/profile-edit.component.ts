@@ -14,17 +14,17 @@ import { MemberService } from 'src/app/_services/member.service';
 export class ProfileEditComponent implements OnInit {
   @Output() cancelEdit = new EventEmitter();
   @Input() editField: string | undefined;
-  memberUpdate: MemberUpdateModel = {
-    id: 0,
-    userName: '',
-    email: '',
-    photoUrl: '',
-  };
 
   changePassword: ChangePasswordModel = {
     currentPassword: '',
     password: '',
     confirmPassword: '',
+  };
+  memberUpdate: MemberUpdateModel = {
+    id: 0,
+    userName: '',
+    email: '',
+    photoUrl: '',
   };
 
   constructor(
@@ -43,8 +43,10 @@ export class ProfileEditComponent implements OnInit {
     let request: Observable<Object>;
 
     if (editField === 'Password') {
-      request = this.memberService.changePassword(this.changePassword);
-      this.submitHardUpate(request);
+      if (this.changePassword) {
+        request = this.memberService.changePassword(this.changePassword);
+        this.submitHardUpate(request);
+      }
     } else if (editField === 'Username') {
       request = this.memberService.updateUsername(this.memberUpdate);
       this.submitHardUpate(request);

@@ -6,7 +6,7 @@
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
-      <img *ngIf="member" src="{{ member.photoUrl }}" alt="photo of user">
+      <img *ngIf="member" src="{{ member.photoUrl }}" alt="photo of user" class="rounded-circle me-2">
       <div class="modal-footer">
         <!-- Button to update the photo -->
         <button type="button" class="fa fa-upload btn btn-success" (click)="updatePhoto()"

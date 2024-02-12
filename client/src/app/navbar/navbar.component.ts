@@ -8,6 +8,7 @@ import { UserModel } from '../_models/user.model';
 import { take } from 'rxjs';
 import { MemberModel } from '../_models/member.model';
 import { ContactsService } from '../_services/contacts.service';
+import { MemberService } from '../_services/member.service';
 
 @Component({
   selector: 'app-navbar',
@@ -15,18 +16,28 @@ import { ContactsService } from '../_services/contacts.service';
   styleUrls: ['./navbar.component.css'],
 })
 export class NavbarComponent implements OnInit {
-  isDropup = true;
-  model: any = {};
+  member: MemberModel | undefined;
   notifications: NotificationModel[] = [];
+  isDropup = true;
 
   constructor(
     public accountService: AccountService,
-    private contactService: ContactsService,
+    private memberService: MemberService,
     private router: Router,
     private toastr: ToastrService
   ) {}
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    const username = this.accountService.getUsername();
+
+    if (!username) return;
+
+    this.memberService.getMember(username).subscribe({
+      next: (member) => {
+        this.member = member;
+      },
+    });
+  }
 
   logout() {
     // this.accountService.logout(this.model).subscribe({
@@ -41,7 +52,7 @@ export class NavbarComponent implements OnInit {
     // });
 
     this.accountService.logout();
-    this.router.navigateByUrl('/');
+    this.router.navigateByUrl('/login');
   }
 
   navigateToProfile() {

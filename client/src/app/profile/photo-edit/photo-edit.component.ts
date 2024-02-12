@@ -1,11 +1,10 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { Router } from '@angular/router';
-import { JwtHelperService } from '@auth0/angular-jwt';
 import { FileUploadModule, FileUploader } from 'ng2-file-upload';
 import { take } from 'rxjs';
 import { MemberModel } from 'src/app/_models/member.model';
 import { UserModel } from 'src/app/_models/user.model';
 import { AccountService } from 'src/app/_services/account.service';
+import { MemberService } from 'src/app/_services/member.service';
 import { environment } from 'src/environments/environment';
 
 @Component({
@@ -18,11 +17,13 @@ export class PhotoEditComponent implements OnInit {
   @Input() member: MemberModel | undefined;
   user: UserModel | undefined;
   uploader: FileUploader | undefined;
-
   baseUrl = environment.apiUrl;
   hasBaseDropZoneOver = false;
 
-  constructor(private accountService: AccountService, private router: Router) {}
+  constructor(
+    private accountService: AccountService,
+    private memberService: MemberService
+  ) {}
 
   ngOnInit(): void {
     this.accountService.currentUser$.pipe(take(1)).subscribe({
@@ -37,21 +38,6 @@ export class PhotoEditComponent implements OnInit {
   cancel() {
     this.cancelEdit.emit(false);
   }
-
-  async updatePhoto() {
-    if (!this.user) return;
-
-    this.user.accessToken = await this.accountService.getAccessToken(this.user);
-
-    if (!this.uploader) return;
-
-    this.uploader.authToken = 'Bearer ' + this.user.accessToken;
-
-    this.uploader?.uploadAll();
-  }
-
-  // Delete user's photo
-  deletePhoto() {}
 
   initializeUploader() {
     this.uploader = new FileUploader({
@@ -78,5 +64,28 @@ export class PhotoEditComponent implements OnInit {
       }
       this.cancel();
     };
+  }
+
+  async updatePhoto() {
+    // Ensure the user is authenticated before making a new request
+    if (!this.user) return;
+    this.user = await this.accountService.getAuthenticatedUser(this.user);
+
+    if (!this.uploader) return;
+    this.uploader.authToken = 'Bearer ' + this.user.accessToken;
+
+    this.uploader?.uploadAll();
+  }
+
+  // Delete user's photo
+  deletePhoto() {
+    this.memberService.deletePhoto().subscribe({
+      next: (response) => {
+        console.log(response);
+        this.cancel();
+      },
+
+      error: (error) => console.log(error),
+    });
   }
 }

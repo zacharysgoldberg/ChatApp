@@ -13,8 +13,6 @@ public class AutoMapperProfiles : Profile
 
         CreateMap<AppUser, Contact>();
 
-        // CreateMap<AppUser, ContactDTO>();
-
         CreateMap<MemberDTO, ContactDTO>();
 
         CreateMap<Photo, PhotoDTO>();

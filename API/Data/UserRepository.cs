@@ -23,6 +23,7 @@ public class UserRepository : IUserRepository
     {
         return await _userManager.Users
                         // .Include(u => u.UserContacts) // include contacts list
+                        .Include(u => u.Photo)
                         .SingleOrDefaultAsync(u => u.UserName == usernameOrEmail || 
                                             u.Email == usernameOrEmail.ToLower());
     }

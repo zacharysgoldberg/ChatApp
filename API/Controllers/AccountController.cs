@@ -45,7 +45,7 @@ namespace API.Controllers
             var result = await _userManager.CreateAsync(user, registerDto.Password);
 
             if (!result.Succeeded)
-                return BadRequest("\nUser registration failed! Check user details and try again.");
+                return BadRequest("\nUser registration failed! Check user details and try again");
 
             var claims = new List<Claim>
             {
@@ -59,7 +59,7 @@ namespace API.Controllers
                                                 out int refreshTokenValidityInDays);
             
             if(!succeeded)
-                return BadRequest();
+                return BadRequest("Failed to convert refresh token validity into a 32-bit signed integer");
 
             user.RefreshToken           = refreshToken;
             user.RefreshTokenExpiryTime = DateTime.Now.AddDays(refreshTokenValidityInDays);
@@ -191,8 +191,8 @@ namespace API.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> ResetPassword(ResetPasswordDTO resetPasswordDTO)
         {
-            string usernameOrEmail = User.GetUsernameOrEmail();
-            AppUser user    = await _userRepository.GetUserAsync(usernameOrEmail);
+            string usernameOrEmail  = User.GetUsernameOrEmail();
+            AppUser user            = await _userRepository.GetUserAsync(usernameOrEmail);
 
             if(user == null)
                 return NotFound();

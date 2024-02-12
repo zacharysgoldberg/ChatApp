@@ -133,7 +133,8 @@
       <a id="button-dropup" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle"
         data-bs-toggle="dropdown" aria-expanded="false" aria-controls="dropdown-dropup" dropdownToggle>
 
-        <i class="fa fa-user"></i>
+        <i *ngIf="!member" class="fa fa-user"></i>
+        <img *ngIf="member" src="{{member.photoUrl}}" alt="" width="32" height="32" class="rounded-circle me-2">
         <span class="ms-1 d-none d-sm-inline"> {{accountService.getUsername()}} </span>
       </a>
       <div id="dropdown-dropup" class="dropdown-menu dropdown-menu-dark text-small shadow">

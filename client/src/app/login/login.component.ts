@@ -10,12 +10,12 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./login.component.css'],
 })
 export class LoginComponent implements OnInit {
-  registerMode = false;
-
   credentials: LoginModel = {
     username: '',
     password: '',
   };
+
+  registerMode = false;
 
   constructor(
     public accountService: AccountService,

@@ -38,4 +38,8 @@ export class MemberService {
       changePassword
     );
   }
+
+  deletePhoto() {
+    return this.http.delete(this.baseUrl + 'users/delete-photo');
+  }
 }

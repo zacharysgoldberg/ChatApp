@@ -20,12 +20,10 @@ import { PhotoEditComponent } from '../photo-edit/photo-edit.component';
   styleUrls: ['./profile-details.component.css'],
 })
 export class ProfileDetailsComponent implements OnInit {
+  member: MemberModel | undefined;
   editPhotoMode: boolean = false;
   editProfileMode: boolean = false;
   editField: string | undefined;
-
-  member: MemberModel | undefined;
-  user: UserModel | undefined;
 
   constructor(
     private accountService: AccountService,
