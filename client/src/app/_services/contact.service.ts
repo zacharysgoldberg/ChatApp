@@ -8,7 +8,7 @@ import { map, of } from 'rxjs';
 @Injectable({
   providedIn: 'root',
 })
-export class ContactsService {
+export class ContactService {
   apiUrl = environment.apiUrl;
 
   contacts: ContactModel[] = [];

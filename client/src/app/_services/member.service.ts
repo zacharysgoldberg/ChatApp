@@ -4,6 +4,7 @@ import { MemberModel } from '../_models/member.model';
 import { HttpClient } from '@angular/common/http';
 import { MemberUpdateModel } from '../_models/memberUpdate.model';
 import { ChangePasswordModel } from '../_models/changePassword.model';
+import { FileUploader } from 'ng2-file-upload';
 
 @Injectable({
   providedIn: 'root',

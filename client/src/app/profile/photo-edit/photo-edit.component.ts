@@ -68,16 +68,33 @@ export class PhotoEditComponent implements OnInit {
 
   async updatePhoto() {
     // Ensure the user is authenticated before making a new request
-    if (!this.user) return;
+    if (!this.user) {
+      this.cancel();
+      return;
+    }
+
     this.user = await this.accountService.getAuthenticatedUser(this.user);
 
     if (!this.uploader) return;
     this.uploader.authToken = 'Bearer ' + this.user.accessToken;
 
-    this.uploader?.uploadAll();
+    if (this.member?.photoUrl) {
+      this.memberService.deletePhoto().subscribe({
+        next: () => {
+          console.log('Previous photo deleted successfully.');
+          // Upload new photo after the previous one is deleted
+          this.uploader?.uploadAll();
+        },
+
+        error: (error) =>
+          console.error('Failed to delete previous photo:', error),
+      });
+    } else {
+      // If no previous photo, directly upload new photo
+      this.uploader?.uploadAll();
+    }
   }
 
-  // Delete user's photo
   deletePhoto() {
     this.memberService.deletePhoto().subscribe({
       next: (response) => {

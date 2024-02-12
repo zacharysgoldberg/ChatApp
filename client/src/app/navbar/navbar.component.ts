@@ -7,7 +7,7 @@ import { NotificationModel } from '../_models/notification.model';
 import { UserModel } from '../_models/user.model';
 import { take } from 'rxjs';
 import { MemberModel } from '../_models/member.model';
-import { ContactsService } from '../_services/contacts.service';
+import { ContactService } from '../_services/contact.service';
 import { MemberService } from '../_services/member.service';
 
 @Component({

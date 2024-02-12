@@ -4,7 +4,7 @@ import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HomeComponent } from './home/home.component';
 import { RegisterComponent } from './register/register.component';
 import { NavbarComponent } from './navbar/navbar.component';
@@ -25,6 +25,7 @@ import { ProfileEditComponent } from './profile/profile-edit/profile-edit.compon
 import { LoadingInterceptor } from './_interceptors/loading.interceptor';
 import { PhotoEditComponent } from './profile/photo-edit/photo-edit.component';
 import { UserModel } from './_models/user.model';
+import { TextInputComponent } from './_forms/text-input/text-input.component';
 
 export function tokenGetter() {
   const userString = localStorage.getItem('user');
@@ -52,6 +53,7 @@ export function tokenGetter() {
     ProfileDetailsComponent,
     ProfileEditComponent,
     PhotoEditComponent,
+    TextInputComponent,
   ],
   imports: [
     BrowserModule,
@@ -59,6 +61,7 @@ export function tokenGetter() {
     HttpClientModule,
     BrowserAnimationsModule,
     FormsModule,
+    ReactiveFormsModule,
     SharedModule,
     JwtModule.forRoot({
       config: {

@@ -22,7 +22,7 @@
 
   <div class="contact-detail text-white bg-dark py-5" *ngIf="contact">
     <div class="card bg-dark text-white">
-      <img [src]="contact.photoUrl" class="card-img-top">
+      <img [src]="contact.photoUrl" class="photo" class="rounded-circle me-2" width="150" height="150">
       <strong class="card-title">Contact Details</strong>
       <hr>
       <div class="d-flex align-items-center">
@@ -40,7 +40,7 @@
       <div class="d-flex align-items-center">
         <div style="position: relative; left:3%">
           <strong> Last Active: </strong>
-          <p class="mb-3">{{contact.lastActive}}</p>
+          <p class="mb-3">{{contact.lastActive | date: 'MM/dd/yyyy'}}</p>
         </div>
       </div>
       <div class="btn-group row">

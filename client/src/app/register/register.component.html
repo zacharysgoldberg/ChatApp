@@ -6,29 +6,13 @@
           <div class="card-body p-5 text-center">
             <div class="mb-md-5 mt-md-4 pb-5">
               <h2 class="text-uppercase text-center mb-5">Create an account</h2>
-              <form #registerForm="ngForm" (ngSubmit)="register()" autocomplete="off">
-                <!-- <div class="form-outline mb-4">
-                  <input type="text" id="form3Example1cg" class="form-control form-control-lg" />
-                  <label class="form-label" for="form3Example1cg">Your Name</label>
-                </div> -->
+              <form [formGroup]="registerForm" (ngSubmit)="registerForm.valid && register()" autocomplete="off">
 
-                <div class="form-outline mb-4">
-                  <input type="text" class="form-control form-control-lg bg-dark text-white" name="email"
-                    [(ngModel)]="registration.email" />
-                  <label class="form-label" for="form3Example3cg">Email</label>
-                </div>
-
-                <div class="form-outline mb-4">
-                  <input type="password" class="form-control form-control-lg bg-dark text-white" name="password"
-                    [(ngModel)]="registration.password" />
-                  <label class="form-label" for="form3Example4cg">Password</label>
-                </div>
-
-                <div class="form-outline mb-4">
-                  <input type="password" class="form-control form-control-lg bg-dark text-white" name="confirmPassword"
-                    [(ngModel)]="registration.confirmPassword" />
-                  <label class="form-label">Confirm Password</label>
-                </div>
+                <app-text-input [formControl]="$any(registerForm.controls['email'])" [label]="'Email'"></app-text-input>
+                <app-text-input [formControl]="$any(registerForm.controls['password'])" [label]="'Password'"
+                  [type]="'password'"></app-text-input>
+                <app-text-input [formControl]="$any(registerForm.controls['confirmPassword'])"
+                  [label]="'Confirm Password'" [type]="'password'"></app-text-input>
 
                 <div class="form-check d-flex justify-content-center mb-5">
                   <input class="form-check-input me-2" type="checkbox" value="" id="form2Example3cg" />
@@ -37,15 +21,14 @@
                   </label>
                 </div>
 
-                <button type="button" class="btn btn-lg btn-outline-primary" type="submit">Register</button>
-                <!-- <button class="btn btn-default text-white" type="button" (click)="cancel()"></button> -->
-
+                <button [disabled]="!registerForm.valid" type="button" class="btn btn-lg btn-outline-primary"
+                  type="submit">Register</button>
               </form>
             </div>
 
             <div>
               <p class="">Already have an account?
-                <a routerLink="/" (click)="cancel()" class="text-white"><u>Sign In</u></a>
+                <a routerLink="/login" (click)="cancel()" class="text-white"><u>Sign In</u></a>
               </p>
             </div>
           </div>

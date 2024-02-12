@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ContactModel } from 'src/app/_models/contact.model';
-import { ContactsService } from 'src/app/_services/contacts.service';
+import { ContactService } from 'src/app/_services/contact.service';
 import { AccountService } from '../_services/account.service';
 import { ToastrService } from 'ngx-toastr';
 import { Observable } from 'rxjs';
@@ -18,25 +18,25 @@ export class ContactsComponent implements OnInit {
 
   constructor(
     public accountService: AccountService,
-    private contactsService: ContactsService,
+    private contactService: ContactService,
     private toastr: ToastrService,
     private route: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
-    this.contacts$ = this.contactsService.getContacts();
-    if (this.contactsService.contacts.length > 0)
-      return this.loadContact(this.contactsService.contacts[0].id);
+    this.contacts$ = this.contactService.getContacts();
+    if (this.contactService.contacts.length > 0)
+      return this.loadContact(this.contactService.contacts[0].id);
   }
 
   loadContact(contactId: number) {
-    this.contactsService.getContact(contactId).subscribe({
+    this.contactService.getContact(contactId).subscribe({
       next: (contact) => (this.contact = contact),
     });
   }
 
   addContact() {
-    this.contactsService.addContact(this.contactToAdd).subscribe({
+    this.contactService.addContact(this.contactToAdd).subscribe({
       next: (_) => {
         location.reload();
       },
@@ -49,7 +49,7 @@ export class ContactsComponent implements OnInit {
   }
 
   removeContact(contactId: number) {
-    this.contactsService.removeContact(contactId).subscribe({
+    this.contactService.removeContact(contactId).subscribe({
       next: (_) => location.reload(),
     });
   }
