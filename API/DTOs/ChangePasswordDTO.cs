@@ -4,7 +4,7 @@ public record ChangePasswordDTO
 {
     [Required]
     [DataType(DataType.Password)]
-    public string  CurrentPassword {get; init;}
+    public string   CurrentPassword {get; init;}
     [Required]
     [DataType(DataType.Password)]
     public string   Password { get; init; }
