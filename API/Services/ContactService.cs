@@ -95,7 +95,6 @@ public class ContactService : IContactService
             // Add the ContactDTO to the list
             contactDTOs.Add(contactDTO);
         }
-
         return contactDTOs;
     }
 

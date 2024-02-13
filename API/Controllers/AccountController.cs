@@ -30,26 +30,26 @@ namespace API.Controllers
 
         // Create new user
         [HttpPost("register")] // POST /api/account/register?username=dave&password=pwd
-        public async  Task<ActionResult<UserDTO>> Register(RegisterDTO registerDto)
+        public async  Task<ActionResult<UserDTO>> Register(RegisterDTO registerDTO)
         {
-            if(await _userRepository.EmailExistsAsync(registerDto.Email.ToLower()))
+            if(await _userRepository.EmailExistsAsync(registerDTO.Email.ToLower()))
                 return BadRequest("\nEmail is already in use");
 
             AppUser user = new AppUser
             {
-                Email           = registerDto.Email.ToLower(),
-                UserName        = registerDto.Email.ToLower(),
+                Email           = registerDTO.Email.ToLower(),
+                UserName        = registerDTO.Email.ToLower(),
                 SecurityStamp   = Guid.NewGuid().ToString(),
             };
 
-            var result = await _userManager.CreateAsync(user, registerDto.Password);
+            var result = await _userManager.CreateAsync(user, registerDTO.Password);
 
             if (!result.Succeeded)
                 return BadRequest("\nUser registration failed! Check user details and try again");
 
             var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.Name, registerDto.Email),
+                new Claim(ClaimTypes.Name, registerDTO.Email),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             };
 
@@ -102,13 +102,14 @@ namespace API.Controllers
             if(!succeeded)
                 return BadRequest();
 
-            user.RefreshToken           = refreshToken;
-            user.RefreshTokenExpiryTime = DateTime.Now.AddDays(refreshTokenValidityInDays);
-
-            await _userManager.UpdateAsync(user);
-
-            if(user != null && await _userManager.CheckPasswordAsync(user, loginDTO.Password))
+            if(await _userManager.CheckPasswordAsync(user, loginDTO.Password))
             {
+                user.RefreshToken           = refreshToken;
+                user.RefreshTokenExpiryTime = DateTime.Now.AddDays(refreshTokenValidityInDays);
+                user.LastActive             = DateTime.UtcNow;
+
+                await _userManager.UpdateAsync(user);
+                
                 return Ok(new UserDTO
                 {
                     Username        = user.UserName,

@@ -66,7 +66,7 @@ public class UserRepository : IUserRepository
 
     public async Task<bool> EmailExistsAsync(string email)
     {
-        var user = await _userManager.FindByEmailAsync(email);
+        AppUser user = await _userManager.FindByEmailAsync(email);
 
         if (user != null)
             return true;
@@ -75,7 +75,7 @@ public class UserRepository : IUserRepository
 
     public async Task<bool> UsernameExistsAsync(string username)
     {
-         var user = await _userManager.FindByNameAsync(username);
+         AppUser user = await _userManager.FindByNameAsync(username);
 
         if (user != null)
             return true;

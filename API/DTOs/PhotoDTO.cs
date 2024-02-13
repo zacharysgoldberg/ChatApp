@@ -1,7 +1,7 @@
 ﻿namespace API.DTOs;
 
-public class PhotoDTO
+public record PhotoDTO
 {
-    public int      Id { get; set; }
-    public string   Url { get; set; }
+    public required int      Id { get; init; }
+    public required string   Url { get; init; }
 }
