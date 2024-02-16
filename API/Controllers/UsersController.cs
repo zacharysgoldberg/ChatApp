@@ -14,18 +14,14 @@ public class UsersController : BaseApiController
 {
     private readonly UserManager<AppUser> _userManager;
     private readonly IUserRepository _userRepository;
-    private readonly IContactService _contactService;
     private readonly IPhotoService _photoService;
-    private readonly IMapper _mapper;
 
     public UsersController(UserManager<AppUser> userManager, IUserRepository userRepository,
-        IContactService contactService, IPhotoService photoService, IMapper mapper)
+        IPhotoService photoService)
     {
         _userManager    = userManager;
         _userRepository = userRepository;
-        _contactService = contactService;
         _photoService = photoService;
-        _mapper = mapper;
     }
 
     // ===================================================
@@ -50,78 +46,10 @@ public class UsersController : BaseApiController
     {
         return Ok(await _userRepository.GetMembersAsync());
     }
-
-        
-    [HttpGet("contacts/{contactId}")] // /api/users/contacts/2
-    public async Task<ActionResult<ContactDTO>> GetContact(int contactId)
-    {
-        string usernameOrEmail  = User.GetUsernameOrEmail();
-        MemberDTO user          = await _userRepository.GetMemberAsync(usernameOrEmail);
-        ContactDTO contact      = await _contactService.GetContactAsync(user.Id, contactId);
-
-        if(contact == null)
-            return BadRequest("Failed to update username");
-
-        return contact;
-    }    
-
-    [HttpGet("contacts")] // /api/users/contacts/1
-    public async Task<ActionResult<IEnumerable<ContactDTO>>> GetContacts()
-    {
-        string usernameOrEmail  = User.GetUsernameOrEmail();
-        MemberDTO user          = await _userRepository.GetMemberAsync(usernameOrEmail);
-
-        return Ok(await _contactService.GetContactsAsync(user.Id));
-    }
-
+    
     // ===================================================
     // ================= POST Requests ===================
     // ===================================================
-    [HttpPost("contacts")] // /api/users/contacts
-    public async Task<ActionResult<MemberDTO>> AddContact([FromBody] 
-        ContactUsernameDTO contactUsernameDTO)
-    {
-        string usernameOrEmail  = User.GetUsernameOrEmail();
-        AppUser user            = await _userRepository.GetUserAsync(usernameOrEmail);
-
-        if(user == null || contactUsernameDTO.Username == usernameOrEmail)
-            return BadRequest("You cannot add yourself as a contact");
-
-        MemberDTO contact = await _userRepository.GetMemberAsync(contactUsernameDTO.Username);
-
-        if(contact == null)
-            return BadRequest($"{contactUsernameDTO.Username} does not exist");
-
-        bool userContactExists = await _contactService.UserContactExists(user.Id, contact.Id);
-
-        if(contact == null || userContactExists)
-            return BadRequest($"{contactUsernameDTO.Username} already exists in contact list");
-
-        bool succeeded = await _contactService.AddContactAsync(user, contact.Id);
-
-        if(!succeeded)
-            return BadRequest($"\nFailed to add contact {contactUsernameDTO.Username}");
-            
-        return contact;
-    }
-
-    [HttpPost("contacts/delete/{contactId}")] // /api/users/contacts/delete/2
-    public async Task<IActionResult> DeleteContact(int contactId)
-    {
-        string usernameOrEmail  = User.GetUsernameOrEmail();
-        AppUser user            = await _userRepository.GetUserAsync(usernameOrEmail);
-
-        if(user == null)
-            return NotFound();
-
-        bool succeeded = await _contactService.DeleteContactAsync(user, contactId);
-
-        if(!succeeded)
-            return BadRequest("\nFailed to remove contact");
-            
-        return Ok();
-    }
-
     [HttpPost("update-photo")] // /api/users/update-photo
     public async Task<ActionResult<PhotoDTO>> UpdatePhoto(IFormFile file)
     {
@@ -202,7 +130,7 @@ public class UsersController : BaseApiController
         return NoContent();
     }
 
-    [HttpPut("reset-password")] // /api/users/reset-password
+    [HttpPut("update-password")] // /api/users/reset-password
     public async Task<ActionResult> UpdatePassword(ChangePasswordDTO changePasswordDTO)
     {
         string usernameOrEmail  = User.GetUsernameOrEmail();     

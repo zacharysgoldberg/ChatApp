@@ -72,7 +72,7 @@
 </section> -->
 
 <section class="position-sticky bg-primary" *ngIf="(accountService.currentUser$ | async) as user">
-  <div class="sidebar d-flex flex-column flex-shrink-0 p-3 text-white bg-dark" style="width: 280px;">
+  <div class="sidebar d-flex flex-column flex-shrink-0 p-3 text-white bg-dark">
     <a class="navbar-brand my-3" routerLinkActive="active">
       <strong> Chat App </strong>
     </a>
@@ -93,10 +93,18 @@
           </a>
         </li>
         <li class="nav-item my-sm-2 my-2 py-2">
-          <a class="nav-link text-white text-center text-sm-start" routerLink="/chats" routerLinkActive="active"
+          <a class="nav-link text-white text-center text-sm-start" routerLink="/chat" routerLinkActive="active"
+            aria-current="page">
+            <i class="fa fa-share-alt"></i>
+            <span class="ms-2 d-none d-sm-inline"> Chat </span>
+          </a>
+        </li>
+
+        <li class="nav-item my-sm-2 my-2 py-2">
+          <a class="nav-link text-white text-center text-sm-start" routerLink="/messages" routerLinkActive="active"
             aria-current="page">
             <i class="fa fa-comments"></i>
-            <span class="ms-2 d-none d-sm-inline"> Chat </span>
+            <span class="ms-2 d-none d-sm-inline"> Messages </span>
           </a>
         </li>
 

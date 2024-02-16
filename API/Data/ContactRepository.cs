@@ -8,13 +8,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace API.Services;
 
-public class ContactService : IContactService
+public class ContactRepository : IContactRepository
 {
     private readonly IUserRepository _userRepository;
     private readonly ApplicationDbContext _context;
     private readonly IMapper _mapper;
 
-    public ContactService(IUserRepository userRepository, ApplicationDbContext context, 
+    public ContactRepository(IUserRepository userRepository, ApplicationDbContext context, 
         IMapper mapper)
     {
         _userRepository = userRepository;
@@ -82,25 +82,14 @@ public class ContactService : IContactService
         foreach (Contact contact in contacts)
         {
             MemberDTO memberDTO = await _userRepository.GetMemberByIdAsync(contact.Id);
-            // Map properties from AppUser to ContactDTO
-            var contactDTO      = new ContactDTO
-            {
-                Id          = contact.Id,
-                UserName    = memberDTO.UserName,
-                Email       = memberDTO.Email,
-                Created     = memberDTO.Created,
-                LastActive  = memberDTO.LastActive,
-                PhotoUrl    = memberDTO.PhotoUrl
-            };
-            // Add the ContactDTO to the list
-            contactDTOs.Add(contactDTO);
+            contactDTOs.Add(_mapper.Map<ContactDTO>(memberDTO));
         }
         return contactDTOs;
     }
 
     public async Task<bool> DeleteContactAsync(AppUser user, int contactId)
     {
-        UserContact userContact =  await _context.UserContacts
+        UserContact userContact = await _context.UserContacts
             .Where(uc => uc.AppUserId == user.Id && uc.ContactId == contactId)
             .FirstOrDefaultAsync();
 

@@ -17,8 +17,17 @@ public class TokenService : ITokenService
     }
 
     // Create a JWT and return it as a string
-    public string GenerateAccessToken(IEnumerable<Claim> claims)
+    public string GenerateAccessToken(string usernameOrEmail, IEnumerable<Claim> claims = null)
     {
+        if (claims == null)
+        {
+            claims = new List<Claim>
+            {
+                new Claim(JwtRegisteredClaimNames.UniqueName, usernameOrEmail),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            };
+        }
+
         var creds           = new SigningCredentials(_key, SecurityAlgorithms.HmacSha512);
 
         var tokenDescriptor = new SecurityTokenDescriptor

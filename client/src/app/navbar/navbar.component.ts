@@ -1,14 +1,12 @@
 import { AccountService } from '../_services/account.service';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { Component, Output, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { NotificationModel } from '../_models/notification.model';
-import { UserModel } from '../_models/user.model';
 import { take } from 'rxjs';
 import { MemberModel } from '../_models/member.model';
-import { ContactService } from '../_services/contact.service';
-import { MemberService } from '../_services/member.service';
+import { UserService } from '../_services/user.service';
 
 @Component({
   selector: 'app-navbar',
@@ -22,7 +20,7 @@ export class NavbarComponent implements OnInit {
 
   constructor(
     public accountService: AccountService,
-    private memberService: MemberService,
+    private userService: UserService,
     private router: Router,
     private toastr: ToastrService
   ) {}
@@ -32,7 +30,7 @@ export class NavbarComponent implements OnInit {
 
     if (!username) return;
 
-    this.memberService.getMember(username).subscribe({
+    this.userService.getMember(username).subscribe({
       next: (member) => {
         this.member = member;
       },

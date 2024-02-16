@@ -4,7 +4,7 @@ namespace API.Interfaces;
 
 public interface ITokenService
 {
-    public string GenerateAccessToken(IEnumerable<Claim> claims);
+    public string GenerateAccessToken(string username, IEnumerable<Claim> claims = null);
     public string GenerateRefreshToken();
     public ClaimsPrincipal GetPrincipalFromExpiredToken(string token);
 }

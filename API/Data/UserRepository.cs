@@ -24,13 +24,15 @@ public class UserRepository : IUserRepository
         return await _userManager.Users
                         // .Include(u => u.UserContacts) // include contacts list
                         .Include(u => u.Photo)
-                        .SingleOrDefaultAsync(u => u.UserName == usernameOrEmail || 
+                        .FirstOrDefaultAsync(u => u.UserName == usernameOrEmail || 
                                             u.Email == usernameOrEmail.ToLower());
     }
 
     public async Task<AppUser> GetUserByIdAsync(int id)
     {        
-        return await _userManager.Users.FirstOrDefaultAsync(u => u.Id == id);
+        return await _userManager.Users
+                        .Include(u => u.Photo)
+                        .FirstOrDefaultAsync(u => u.Id == id);
     }
 
      public async Task<IEnumerable<AppUser>> GetUsersAsync()
@@ -45,7 +47,7 @@ public class UserRepository : IUserRepository
         return await _userManager.Users
                         .Where(u => u.UserName == usernameOrEmail || u.Email == usernameOrEmail)
                         .ProjectTo<MemberDTO>(_mapper.ConfigurationProvider)
-                        .SingleOrDefaultAsync();
+                        .FirstOrDefaultAsync();
     }
 
     
@@ -54,7 +56,7 @@ public class UserRepository : IUserRepository
         return await _userManager.Users
                         .Where(user => user.Id == id)
                         .ProjectTo<MemberDTO>(_mapper.ConfigurationProvider)
-                        .SingleOrDefaultAsync();
+                        .FirstOrDefaultAsync();
     }
 
     public async Task<IEnumerable<MemberDTO>> GetMembersAsync()

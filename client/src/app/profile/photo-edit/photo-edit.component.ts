@@ -4,7 +4,7 @@ import { take } from 'rxjs';
 import { MemberModel } from 'src/app/_models/member.model';
 import { UserModel } from 'src/app/_models/user.model';
 import { AccountService } from 'src/app/_services/account.service';
-import { MemberService } from 'src/app/_services/member.service';
+import { UserService } from 'src/app/_services/user.service';
 import { environment } from 'src/environments/environment';
 
 @Component({
@@ -22,17 +22,18 @@ export class PhotoEditComponent implements OnInit {
 
   constructor(
     private accountService: AccountService,
-    private memberService: MemberService
+    private userService: UserService
   ) {}
 
   ngOnInit(): void {
     this.accountService.currentUser$.pipe(take(1)).subscribe({
       next: (user) => {
-        if (user) this.user = user;
+        if (user) {
+          this.user = user;
+          this.initializeUploader();
+        }
       },
     });
-
-    this.initializeUploader();
   }
 
   cancel() {
@@ -79,7 +80,7 @@ export class PhotoEditComponent implements OnInit {
     this.uploader.authToken = 'Bearer ' + this.user.accessToken;
 
     if (this.member?.photoUrl) {
-      this.memberService.deletePhoto().subscribe({
+      this.userService.deletePhoto().subscribe({
         next: () => {
           console.log('Previous photo deleted successfully.');
           // Upload new photo after the previous one is deleted
@@ -96,7 +97,7 @@ export class PhotoEditComponent implements OnInit {
   }
 
   deletePhoto() {
-    this.memberService.deletePhoto().subscribe({
+    this.userService.deletePhoto().subscribe({
       next: (response) => {
         console.log(response);
         this.cancel();

@@ -5,7 +5,7 @@ import { ChangePasswordModel } from 'src/app/_models/changePassword.model';
 import { MemberUpdateModel } from 'src/app/_models/memberUpdate.model';
 import { UserModel } from 'src/app/_models/user.model';
 import { AccountService } from 'src/app/_services/account.service';
-import { MemberService } from 'src/app/_services/member.service';
+import { UserService } from 'src/app/_services/user.service';
 
 @Component({
   selector: 'app-profile-edit',
@@ -31,7 +31,7 @@ export class ProfileEditComponent implements OnInit {
 
   constructor(
     private accountService: AccountService,
-    private memberService: MemberService,
+    private userService: UserService,
     private router: Router
   ) {}
 
@@ -61,20 +61,20 @@ export class ProfileEditComponent implements OnInit {
     switch (editField) {
       case 'Password':
         if (this.changePassword) {
-          request = this.memberService.changePassword(this.changePassword);
+          request = this.userService.changePassword(this.changePassword);
           this.submitHardUpate(request);
         }
         break;
       case 'Username':
-        request = this.memberService.updateUsername(this.memberUpdate);
+        request = this.userService.updateUsername(this.memberUpdate);
         this.submitHardUpate(request);
         break;
       case 'Email':
-        request = this.memberService.updateEmail(this.memberUpdate);
+        request = this.userService.updateEmail(this.memberUpdate);
         this.submitSoftUpdate(request);
         break;
       case 'Phone':
-        request = this.memberService.updatePhone(this.memberUpdate);
+        request = this.userService.updatePhone(this.memberUpdate);
         this.submitSoftUpdate(request);
         break;
       default:

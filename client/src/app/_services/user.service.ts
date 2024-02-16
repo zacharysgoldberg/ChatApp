@@ -9,38 +9,38 @@ import { FileUploader } from 'ng2-file-upload';
 @Injectable({
   providedIn: 'root',
 })
-export class MemberService {
-  baseUrl = environment.apiUrl;
+export class UserService {
+  apiUrl = environment.apiUrl;
   member: MemberModel | undefined;
 
   constructor(private http: HttpClient) {}
 
   getMember(username: string) {
     return this.http.get<MemberModel>(
-      this.baseUrl + `users/members/${username}`
+      this.apiUrl + `users/members/${username}`
     );
   }
 
   updateUsername(memberUpdate: MemberUpdateModel) {
-    return this.http.put(this.baseUrl + 'users/update-username', memberUpdate);
+    return this.http.put(this.apiUrl + 'users/update-username', memberUpdate);
   }
 
   updateEmail(memberUpdate: MemberUpdateModel) {
-    return this.http.put(this.baseUrl + 'users/update-email', memberUpdate);
+    return this.http.put(this.apiUrl + 'users/update-email', memberUpdate);
   }
 
   updatePhone(memberUpdate: MemberUpdateModel) {
-    return this.http.put(this.baseUrl + 'users/update-phone', memberUpdate);
+    return this.http.put(this.apiUrl + 'users/update-phone', memberUpdate);
   }
 
   changePassword(changePassword: ChangePasswordModel) {
     return this.http.post(
-      this.baseUrl + 'users/reset-password',
+      this.apiUrl + 'users/update-password',
       changePassword
     );
   }
 
   deletePhoto() {
-    return this.http.delete(this.baseUrl + 'users/delete-photo');
+    return this.http.delete(this.apiUrl + 'users/delete-photo');
   }
 }

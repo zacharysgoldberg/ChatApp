@@ -11,7 +11,7 @@ import { MemberModel } from '../../_models/member.model';
 import { UserModel } from '../../_models/user.model';
 import { AccountService } from '../../_services/account.service';
 import { take } from 'rxjs';
-import { MemberService } from 'src/app/_services/member.service';
+import { UserService } from 'src/app/_services/user.service';
 import { PhotoEditComponent } from '../photo-edit/photo-edit.component';
 
 @Component({
@@ -27,7 +27,7 @@ export class ProfileDetailsComponent implements OnInit {
 
   constructor(
     private accountService: AccountService,
-    private memberService: MemberService,
+    private userService: UserService,
     private cdr: ChangeDetectorRef
   ) {}
 
@@ -40,7 +40,7 @@ export class ProfileDetailsComponent implements OnInit {
 
     if (!username) return;
 
-    this.memberService.getMember(username).subscribe({
+    this.userService.getMember(username).subscribe({
       next: (member) => {
         this.member = member;
       },

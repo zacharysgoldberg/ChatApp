@@ -19,6 +19,11 @@ public class AutoMapperProfiles : Profile
         
         CreateMap<MemberUpdateDTO, AppUser>();
 
-        
+        CreateMap<Message, MessageDTO>()
+            .ForMember(dest => dest.SenderPhotoUrl, 
+                opt => opt.MapFrom(src => src.Sender.Photo.Url));
+        CreateMap<Message, MessageDTO>()
+            .ForMember(dest => dest.RecipientPhotoUrl, 
+                opt => opt.MapFrom(src => src.Sender.Photo.Url));
     }
 }

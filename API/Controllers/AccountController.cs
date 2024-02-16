@@ -28,7 +28,6 @@ namespace API.Controllers
             _config         = configuration;
         }
 
-        // Create new user
         [HttpPost("register")] // POST /api/account/register?username=dave&password=pwd
         public async  Task<ActionResult<UserDTO>> Register(RegisterDTO registerDTO)
         {
@@ -47,13 +46,7 @@ namespace API.Controllers
             if (!result.Succeeded)
                 return BadRequest("\nUser registration failed! Check user details and try again");
 
-            var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.Name, registerDTO.Email),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            };
-
-            string accessToken  = _tokenService.GenerateAccessToken(claims);
+            string accessToken  = _tokenService.GenerateAccessToken(registerDTO.Email);
             string refreshToken = _tokenService.GenerateRefreshToken();
             bool succeeded      = int.TryParse(_config["JWT:RefreshTokenValidityInDays"],
                                                 out int refreshTokenValidityInDays);
@@ -74,7 +67,6 @@ namespace API.Controllers
             });
         }
 
-        // Sign user in and return a JWT and Refresh token
         [HttpPost("login")] // POST /api/account/login
         public async Task<ActionResult<UserDTO>> Login(LoginDTO loginDTO)
         {
@@ -88,13 +80,7 @@ namespace API.Controllers
                 return Unauthorized("\nInvalid Username or Password");
             }
 
-            var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.Name, loginDTO.Username),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            };
-
-            string accessToken  = _tokenService.GenerateAccessToken(claims);
+            string accessToken  = _tokenService.GenerateAccessToken(loginDTO.Username);
             string refreshToken = _tokenService.GenerateRefreshToken();
             bool succeeded      = int.TryParse(_config["JWT:RefreshTokenValidityInDays"],
                                                 out int refreshTokenValidityInDays);
@@ -121,7 +107,6 @@ namespace API.Controllers
             return Unauthorized("\nInvalid Username or Password");
         }
 
-        // Generate the user a new JWT and Refresh token
         [HttpPost("refresh-token")] // POST /api/account/refresh-token
         public async Task<IActionResult> RefreshToken(UserDTO userDTO)
         {
@@ -138,7 +123,8 @@ namespace API.Controllers
             if (user == null || user.RefreshToken != refreshToken || user.RefreshTokenExpiryTime <= DateTime.Now)
                 return BadRequest("\nInvalid access token or refresh token");                
 
-            string newAccessToken   = _tokenService.GenerateAccessToken(principal.Claims);
+            string newAccessToken   = _tokenService.GenerateAccessToken(usernameOrEmail, 
+                                                                        principal.Claims);
             string newRefreshToken  = _tokenService.GenerateRefreshToken();
             user.RefreshToken       = newRefreshToken;
             await _userManager.UpdateAsync(user);
@@ -186,7 +172,6 @@ namespace API.Controllers
 
         //     return RedirectToAction(nameof(ForgotPasswordConfirmation));
         // }
-      
 
         [HttpPost("reset-password")] // /api/account/reset-password
         [ValidateAntiForgeryToken]

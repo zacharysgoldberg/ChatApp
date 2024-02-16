@@ -1,4 +1,4 @@
-.home {
+.message {
   position: fixed;
   top: 0;
   left: 275px; /* Adjust based on the width of your sidebar */
@@ -19,4 +19,9 @@
   background-color: rgba(0, 0, 0, 0.1);
   border: solid rgba(0, 0, 0, 0.15);
   border-width: 1px 0;
+}
+
+.message-container {
+  background-color: #3333;
+  color: #d41010;
 }

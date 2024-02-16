@@ -22,11 +22,14 @@ public static class ApplicationServiceExtensions
         services.AddCors();
 
         services.AddScoped<ITokenService, TokenService>();
-        services.AddScoped<IContactService, ContactService>();
-        services.AddScoped<IUserRepository, UserRepository>();
-        services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-        services.Configure<CloudinarySettings>(config.GetSection("CloudinarySettings"));
         services.AddScoped<IPhotoService, PhotoService>();
+        services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IContactRepository, ContactRepository>();
+        services.AddScoped<IMessageRepository, MessageRespository>();
+
+        services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+        
+        services.Configure<CloudinarySettings>(config.GetSection("CloudinarySettings"));
 
         return services;
     }

@@ -22,16 +22,28 @@ public class ApplicationDbContext : IdentityDbContext<AppUser, IdentityRole<int>
         builder.Entity<UserContact>()
             .HasOne(uc => uc.AppUser)
             .WithMany(u => u.UserContacts)
-            .HasForeignKey(uc => uc.AppUserId);
+            .HasForeignKey(uc => uc.AppUserId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         builder.Entity<UserContact>()
             .HasOne(uc => uc.Contact)
             .WithMany()
             .HasForeignKey(uc => uc.ContactId);
+
+        builder.Entity<Message>()
+            .HasOne(u => u.Recipient)
+            .WithMany(m => m.MessagesReceived)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.Entity<Message>()
+            .HasOne(u => u.Sender)
+            .WithMany(m => m.MessagesSent)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 
-    public DbSet<Contact> Contacts { get; set; }
-    public DbSet<UserContact> UserContacts { get; set; }
+    public DbSet<Contact>       Contacts { get; set; }
+    public DbSet<UserContact>   UserContacts { get; set; }
+    public DbSet<Message>       Messages { get; set; }
     
     // public DbSet<Entities.Message>           Message {get; set;}
     // public DbSet<Entities.Notification>      Notification {get; set;}

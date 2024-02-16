@@ -35,3 +35,15 @@
   box-shadow: 0 2px 5px 0 rgb(0 0 0 / 5%), 0 2px 10px 0 rgb(0 0 0 / 5%);
   padding: 20px; /* Adjust as needed */
 }
+
+/* @media (max-width: 991.98px) {
+  .contact-list {
+    width: calc(100% - 660px);
+  }
+}
+
+@media (max-width: 991.98px) {
+  .contact-detail {
+    width: calc(100% - 660px);
+  }
+} */

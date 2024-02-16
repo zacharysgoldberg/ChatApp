@@ -22,7 +22,7 @@ export class ContactService {
     const contactUsernameDTO = { username: contactUsername };
 
     return this.http.post<ContactModel>(
-      this.apiUrl + 'users/contacts',
+      this.apiUrl + 'contacts',
       contactUsernameDTO
     );
   }
@@ -30,7 +30,7 @@ export class ContactService {
   getContacts() {
     if (this.contacts.length > 0) return of(this.contacts);
 
-    return this.http.get<ContactModel[]>(this.apiUrl + 'users/contacts').pipe(
+    return this.http.get<ContactModel[]>(this.apiUrl + 'contacts').pipe(
       map((contacts) => {
         this.contacts = contacts;
         return this.contacts;
@@ -43,14 +43,12 @@ export class ContactService {
 
     if (loadedContact) return of(loadedContact);
 
-    return this.http.get<ContactModel>(
-      this.apiUrl + `users/contacts/${contactId}`
-    );
+    return this.http.get<ContactModel>(this.apiUrl + `contacts/${contactId}`);
   }
 
   removeContact(contactId: number) {
     return this.http.post(
-      this.apiUrl + `users/contacts/delete/${contactId}`,
+      this.apiUrl + `contacts/delete/${contactId}`,
       this.contact
     );
   }

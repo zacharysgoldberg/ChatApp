@@ -3,7 +3,7 @@ using API.Entities;
 
 namespace API.Interfaces;
 
-public interface IContactService
+public interface IContactRepository
 {
     Task<bool> AddContactAsync(AppUser user, int contactId);
     Task<ContactDTO> GetContactAsync(int userId, int contactId);

@@ -11,6 +11,8 @@ namespace API.Entities
         public DateTime                     LastActive {get; set;} = DateTime.UtcNow;
         public Photo                        Photo {get; set;}
         public ICollection<UserContact>     UserContacts { get; set; }
+        public ICollection<Message>         MessagesSent { get; set; }
+        public ICollection<Message>         MessagesReceived { get; set; }
     }
 }
 
