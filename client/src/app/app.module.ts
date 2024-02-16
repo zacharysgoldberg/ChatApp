@@ -26,7 +26,6 @@ import { LoadingInterceptor } from './_interceptors/loading.interceptor';
 import { PhotoEditComponent } from './profile/photo-edit/photo-edit.component';
 import { UserModel } from './_models/user.model';
 import { TextInputComponent } from './_forms/text-input/text-input.component';
-import { MessagesComponent } from './messages/messages.component';
 
 export function tokenGetter() {
   const userString = localStorage.getItem('user');
@@ -55,7 +54,6 @@ export function tokenGetter() {
     ProfileEditComponent,
     PhotoEditComponent,
     TextInputComponent,
-    MessagesComponent,
   ],
   imports: [
     BrowserModule,

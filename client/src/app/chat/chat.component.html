@@ -25,87 +25,104 @@
           <div class="row no-gutters">
             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-3 col-3">
               <div class="users-container">
-                <div class="chat-search-box">
-                  <div class="input-group">
-                    <input class="form-control text-white bg-dark" placeholder="Search">
-                    <div class="input-group-btn">
-                      <button type="button" class="btn btn-secondary">
-                        <i class="fa fa-search"></i>
-                      </button>
-                    </div>
-                  </div>
-                </div>
+                <span class="py-2 fs-5 fw-semibold text-white">Chats</span>
 
-                <ul class="users" *ngFor="let contact of contactsWithMessageThreads">
-                  <li class="person" data-chat="person1" (click)="selectUser(contact)">
-                    <div class="user">
-                      <span class="status away"></span>
-                    </div>
-                    <p class="name-time">
-                      <span class="name">{{contact.userName | titlecase}} </span>
-                      <span class="time"> {{contact.lastActive | date: 'medium'}}</span>
-                    </p>
+                <form class="d-flex my-2" style="padding-bottom: 40px;">
+                  <input class="form-control me-sm-1 bg-dark text-white" type="search" placeholder="Search">
+                  <button class="btn btn-secondary my-2 my-sm-0" type="submit"><i class="fa fa-search"></i></button>
+                </form>
+
+                <ul class="nav nav-pills" *ngFor="let contact of contactsWithMessageThreads">
+                  <li class="nav-item py-1" aria-current="page" data-chat="person1" (click)="selectUser(contact)">
+                    <a class="nav-link">
+                      <span class="status online"></span>
+                      <p class="name-time">
+                        <span class="name text-white">{{contact.userName}} </span>
+                        <span class="time"> {{contact.lastActive | date: 'medium'}}</span>
+                      </p>
+                    </a>
                   </li>
-                  <!-- <li class="person" data-chat="person1">
-                    <div class="user">
-                      <span class="status offline"></span>
-                    </div>
-                    <p class="name-time">
-                      <span class="name">Steve Bangalter</span>
-                      <span class="time">15/02/2019</span>
-                    </p>
-                  </li>
-                  <li class="person" data-chat="person2">
-                    <div class="user">
-                      <span class="status away"></span>
-                    </div>
-                    <p class="name-time">
-                      <span class="name">Peter Gregor</span>
-                      <span class="time">12/02/2019</span>
-                    </p>
-                  </li> -->
                 </ul>
-
               </div>
             </div>
 
-            <div class="col-xl-8 col-lg-8 col-md-8 col-sm-9 col-9">
-
+            <div class="col-xl-8 col-lg-8 col-md-8 col-sm-9 col-9 ">
               <div class="selected-user" *ngIf="selectedUser">
                 <!-- <span>To: <span class="name">Emily Russell</span></span> -->
                 <span><img src="{{selectedUser.photoUrl}}" class="rounded-circle me-2" width="50" height="50"
-                    alt=""><span class="name">{{ selectedUser.userName }}</span></span>
+                    alt=""><span class="name text-white">{{ selectedUser.userName }}</span></span>
               </div>
 
-              <div class="chat-container">
+              <!-- <div class="chat-container" *ngIf="selectedUser">
                 <ul class="chat-box chatContainerScroll" *ngFor="let message of messageThread">
 
                   <li class="chat-left" *ngIf="message.senderId !== member?.id">
+                    <img src="{{message.senderPhotoUrl}}" class="rounded-circle me-2" width="35" height="35" alt="">
                     <div class="chat-avatar">
-                      <div class="chat-name">{{ message.senderUsername }}</div>
+                      <div class="chat-name text-white">{{ message.senderUsername }}</div>
                     </div>
-                    <div class="chat-text">{{ message.content }}
+                    <div class="chat-text text-white">{{ message.content }}
                     </div>
-                    <div class="chat-hour">{{ message.messageSent | date: 'short'}}<span
+                    <div class="chat-hour">{{ message.messageSent | date: 'short' }}<span
                         class="fa fa-check-circle"></span></div>
                   </li>
 
                   <li class="chat-right" *ngIf="message.senderId === member?.id">
                     <div class="chat-hour">{{ message.messageSent | date: 'short' }}<span
                         class="fa fa-check-circle"></span></div>
-                    <div class="chat-text">{{ message.content }}
+                    <div class="chat-text text-white bg-primary">{{ message.content }}
                       <br>
                     </div>
                     <div class="chat-avatar">
-                      <div class="chat-name">{{ message.senderUsername }}</div>
+                      <div class="chat-name text-white">{{ message.senderUsername }}</div>
                     </div>
+                    <img src="{{message.senderPhotoUrl}}" class="rounded-circle me-2" width="35" height="35" alt="">
                   </li>
 
                 </ul>
-                <div class="form-group mt-3 mb-0 py-5">
-                  <textarea class="form-control bg-dark text-white" rows="3" placeholder="Type a message..."></textarea>
+
+                <div class="card-footer">
+                  <form #messageForm="ngForm" autocomplete="off" class="form-group mt-3 mb-0 py-5"
+                    (ngSubmit)="sendMessage()">
+                    <textarea name="messageContent" class="form-control bg-dark text-white" type="text"
+                      placeholder="Type a message..." [(ngModel)]="messageContent"></textarea>
+                    <button [disabled]="!messageForm.valid" type="submit" class="btn btn-primary mt-2">Send</button>
+                  </form>
+                </div>
+              </div> -->
+
+              <div class="card bg-dark" *ngIf="messageThread.length > 0">
+                <div class="card-body overflow-auto" style="height: 70vh;">
+                  <ul class="chats">
+                    <li *ngFor="let message of messageThread">
+                      <div>
+                        <span class="chat-img float-end">
+                          <img class="rounded-circle" width="40px" height="40px" src="{{message.senderPhotoUrl}}"
+                            alt="img of sender">
+                        </span>
+                        <strong class="text-white float-end px-2">{{ message.senderUsername }}</strong>
+                        <div class="chat-body">
+                          <div class="header">
+                            <small class="text-muted">
+                              <span class="fa fa-clock-o">{{message.messageSent | date: "short"}}</span>
+                            </small>
+                          </div>
+                          <p class="text-white">{{message.content}}</p>
+                        </div>
+                      </div>
+                    </li>
+                  </ul>
+                </div>
+                <div class="card-footer my-2">
+                  <form #messageForm="ngForm" autocomplete="off" class="form-group" (ngSubmit)="sendMessage()">
+                    <textarea name="messageContent" class="form-control bg-dark text-white" type="text"
+                      placeholder="Type a message..." [(ngModel)]="messageContent"></textarea>
+                    <button [disabled]="!messageForm.valid" type="submit" class="btn btn-primary mt-2">Send</button>
+                  </form>
                 </div>
               </div>
+
+
             </div>
           </div>
           <!-- Row end -->

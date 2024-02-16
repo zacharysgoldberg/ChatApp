@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { MessageModel } from '../_models/message.model';
 import { MessageService } from '../_services/message.service';
 import { UserModel } from '../_models/user.model';
@@ -8,6 +8,7 @@ import { MemberModel } from '../_models/member.model';
 import { Pagination } from '../_models/pagination.mode';
 import { ContactModel } from '../_models/contact.model';
 import { UserService } from '../_services/user.service';
+import { NgForm } from '@angular/forms';
 
 @Component({
   selector: 'app-chat',
@@ -21,6 +22,8 @@ export class ChatComponent implements OnInit {
   selectedUser: ContactModel | null = null;
   user: UserModel | undefined;
   member: MemberModel | undefined;
+  @ViewChild('messageForm') messageForm?: NgForm;
+  messageContent = '';
   // pageNumber = 1;
   // pageSize = 5;
   // container = 'Unread';
@@ -85,22 +88,25 @@ export class ChatComponent implements OnInit {
     this.loadMessageThread(contact.id);
   }
 
-  getMessageClass(message: any): string {
-    return message.senderUsername === this.user?.username
-      ? 'chat-right'
-      : 'chat-left';
-  }
+  async sendMessage() {
+    if (!this.user) return;
 
-  sendMessage(recipientUsername: string, content: string): void {
-    this.messageService.sendMessage(recipientUsername, content).subscribe({
-      next: (message) => {
-        // Message sent successfully, handle any UI updates or notifications
-        console.log('Message sent:', message);
-      },
-      error: (error) => {
-        // Handle error, display error message to user or perform any other actions
-        console.error('Error sending message:', error);
-      },
-    });
+    this.user = await this.accountService.getAuthenticatedUser(this.user);
+
+    if (!this.selectedUser) return;
+
+    this.messageService
+      .sendMessage(this.selectedUser.id, this.messageContent)
+      .subscribe({
+        next: (message) => {
+          // Message sent successfully, handle notifications
+          // console.log('Message sent:', message);
+          this.messageThread.push(message);
+          this.messageForm?.reset();
+        },
+        error: (error) => {
+          console.error('Error sending message:', error);
+        },
+      });
   }
 }

@@ -10,7 +10,7 @@
   padding: 20px; /* Adjust as needed */
 }
 
-.nav-pills li a:hover {
+.nav-pills a:hover {
   background-color: #78c2ad;
 }
 

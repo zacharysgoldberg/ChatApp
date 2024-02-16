@@ -33,17 +33,12 @@ export class MessageService {
     return this.http.get<MessageModel[]>(this.apiUrl + 'messages/thread/' + id);
   }
 
-  sendMessage(
-    recipientUsername: string,
-    content: string
-  ): Observable<MessageModel> {
-    const createMessageDTO: any = {
-      recipientUsername,
-      content,
-    };
-
+  sendMessage(recipientId: number, content: string): Observable<MessageModel> {
     return this.http
-      .post<MessageModel>(this.apiUrl + 'messages', createMessageDTO)
+      .post<MessageModel>(this.apiUrl + 'messages', {
+        recipientId: recipientId,
+        content: content,
+      })
       .pipe(
         catchError((error) => {
           throw error;

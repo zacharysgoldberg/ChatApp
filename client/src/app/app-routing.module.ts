@@ -11,7 +11,6 @@ import { ChatComponent } from './chat/chat.component';
 import { LoginComponent } from './login/login.component';
 import { RegisterComponent } from './register/register.component';
 import { ProfileDetailsComponent } from './profile/profile-details/profile-details.component';
-import { MessagesComponent } from './messages/messages.component';
 
 const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -25,7 +24,6 @@ const routes: Routes = [
       { path: 'profile', component: ProfileDetailsComponent },
       { path: 'contacts', component: ContactsComponent },
       { path: 'chat', component: ChatComponent },
-      { path: 'messages', component: MessagesComponent },
       { path: 'notifications', component: NotificationsComponent },
     ],
   },

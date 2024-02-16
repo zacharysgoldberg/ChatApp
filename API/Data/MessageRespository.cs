@@ -47,7 +47,7 @@ public class MessageRespository : IMessageRepository
         {
             "Inbox" => query.Where(u => u.RecipientId == messageParams.Id),
             "Outbox" => query.Where(u => u.SenderId == messageParams.Id),
-            _ => query.Where(u => u.RecipientId == messageParams.Id && u.DateRead == null)
+            _ => query.Where(u => u.RecipientId == messageParams.Id)
         };
 
         IQueryable<MessageDTO> messages = query.ProjectTo<MessageDTO>(_mapper.ConfigurationProvider);
@@ -73,22 +73,8 @@ public class MessageRespository : IMessageRepository
             .ToListAsync();
 
         ICollection<Message> unreadMessages = messages
-            .Where
-            (
-                m => m.DateRead == null && 
-                m.RecipientId == currentUserId
-            )
+            .Where(m => m.RecipientId == currentUserId)
             .ToList();
-
-        if(unreadMessages.Any())
-        {
-            foreach(Message message in unreadMessages)
-            {
-                message.DateRead = DateTime.UtcNow;
-            }
-
-            await _context.SaveChangesAsync();
-        }
 
         List<MessageDTO> messageDTOs = new();
 
