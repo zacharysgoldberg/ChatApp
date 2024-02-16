@@ -1,7 +1,10 @@
 <app-navbar></app-navbar>
 
+<!-- Divider start -->
 <div class="divider bg-primary"></div>
+<!-- Divider end -->
 
+<!-- Chat Container start -->
 <div class="chat container bg-dark">
   <!-- Page header start -->
   <div class="page-title bg-dark">
@@ -9,51 +12,108 @@
       <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 col-12"> </div>
     </div>
   </div>
-  <!-- Page header end -->
-
+  <!-- Page header end -->`
   <!-- Content wrapper start -->
   <div class="content-wrapper bg-dark">
-
     <!-- Row start -->
     <div class="row gutters bg-dark">
-
       <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
-
         <div class="card m-0 bg-dark">
-
           <!-- Row start -->
           <div class="row no-gutters">
-            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-3 col-3">
-              <div class="users-container">
+            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-3 col-3 ">
+              <div class="users-container overflow-auto">
                 <span class="py-2 fs-5 fw-semibold text-white">Chats</span>
 
-                <form class="d-flex my-2" style="padding-bottom: 40px;">
+                <!-- Search Message Thread start -->
+                <form class="d-flex my-2 mx-4" style="padding-bottom: 40px; ">
                   <input class="form-control me-sm-1 bg-dark text-white" type="search" placeholder="Search">
                   <button class="btn btn-secondary my-2 my-sm-0" type="submit"><i class="fa fa-search"></i></button>
                 </form>
+                <!-- Search Message Thread end -->
 
+                <!-- List of Contacts with Message Thread start -->
                 <ul class="nav nav-pills" *ngFor="let contact of contactsWithMessageThreads">
                   <li class="nav-item py-1" aria-current="page" data-chat="person1" (click)="selectUser(contact)">
                     <a class="nav-link">
                       <span class="status online"></span>
                       <p class="name-time">
                         <span class="name text-white">{{contact.userName}} </span>
-                        <span class="time"> {{contact.lastActive | date: 'medium'}}</span>
+                        <span class="time"> {{contact.lastActive | date: 'MM-dd-yyyy'}}</span>
                       </p>
                     </a>
                   </li>
                 </ul>
               </div>
-            </div>
 
+              <!-- Add Multiple Contacts for Group Message start -->
+              <button class="btn btn-secondary mt-2 float-end mx-4">
+                <i class="fa fa-pencil"></i>
+              </button>
+              <!-- Add Multiple Contacts for Group Message end -->
+
+            </div>
+            <!-- List of Contacts with Message Thread end -->
+
+            <!-- Selected User(s) Info start -->
             <div class="col-xl-8 col-lg-8 col-md-8 col-sm-9 col-9 ">
               <div class="selected-user" *ngIf="selectedUser">
-                <!-- <span>To: <span class="name">Emily Russell</span></span> -->
-                <span><img src="{{selectedUser.photoUrl}}" class="rounded-circle me-2" width="50" height="50"
-                    alt=""><span class="name text-white">{{ selectedUser.userName }}</span></span>
+                <span><img *ngIf="selectedUser.photoUrl" src="{{selectedUser.photoUrl}}" class="rounded-circle me-2"
+                    width="50" height="50"><span class="name text-white">{{ selectedUser.userName }},</span></span>
               </div>
+              <!-- Selected User(s) Info end-->
 
-              <!-- <div class="chat-container" *ngIf="selectedUser">
+              <!-- Message Thread UI start -->
+              <div class="card bg-dark" *ngIf="messageThread.length > 0">
+                <div class="card-body overflow-auto" style="height: 70vh;">
+                  <ul class="chats">
+                    <li *ngFor="let message of messageThread">
+                      <div>
+                        <span class="chat-img float-end">
+                          <img class="rounded-circle" width="40px" height="40px" src="{{message.senderPhotoUrl}}"
+                            alt="img of sender">
+                        </span>
+                        <strong class="text-white float-end px-2">{{ message.senderUsername }}</strong>
+                        <div class="chat-body">
+                          <div class="header">
+                            <small class="text-muted">
+                              <span class="fa fa-clock-o">{{ message.messageSent | date: "short" }}</span>
+                            </small>
+                          </div>
+                          <p class="text-white">{{message.content}}</p>
+                        </div>
+                      </div>
+                    </li>
+                  </ul>
+                </div>
+                <div class="card-footer my-2">
+                  <form #messageForm="ngForm" autocomplete="off" class="form-group" (ngSubmit)="sendMessage()">
+                    <textarea name="messageContent" class="form-control bg-dark text-white" type="text"
+                      placeholder="Type a message..." [(ngModel)]="messageContent"></textarea>
+                    <button [disabled]="messageContent.length === 0" type="submit" class="btn btn-primary mt-2">
+                      <li class="fa fa-send"></li>
+                    </button>
+                  </form>
+                </div>
+              </div>
+              <!-- Message Thread UI end -->
+
+            </div>
+          </div>
+          <!-- Row end -->
+        </div>
+      </div>
+    </div>
+    <!-- Row end -->
+  </div>
+  <!-- Content wrapper end -->
+</div>
+<!-- Chat Container end -->
+
+
+<!--------------- Chat Container for Mobile start --------------->
+
+<!-- <div class="chat-container" *ngIf="selectedUser">
                 <ul class="chat-box chatContainerScroll" *ngFor="let message of messageThread">
 
                   <li class="chat-left" *ngIf="message.senderId !== member?.id">
@@ -90,49 +150,4 @@
                   </form>
                 </div>
               </div> -->
-
-              <div class="card bg-dark" *ngIf="messageThread.length > 0">
-                <div class="card-body overflow-auto" style="height: 70vh;">
-                  <ul class="chats">
-                    <li *ngFor="let message of messageThread">
-                      <div>
-                        <span class="chat-img float-end">
-                          <img class="rounded-circle" width="40px" height="40px" src="{{message.senderPhotoUrl}}"
-                            alt="img of sender">
-                        </span>
-                        <strong class="text-white float-end px-2">{{ message.senderUsername }}</strong>
-                        <div class="chat-body">
-                          <div class="header">
-                            <small class="text-muted">
-                              <span class="fa fa-clock-o">{{message.messageSent | date: "short"}}</span>
-                            </small>
-                          </div>
-                          <p class="text-white">{{message.content}}</p>
-                        </div>
-                      </div>
-                    </li>
-                  </ul>
-                </div>
-                <div class="card-footer my-2">
-                  <form #messageForm="ngForm" autocomplete="off" class="form-group" (ngSubmit)="sendMessage()">
-                    <textarea name="messageContent" class="form-control bg-dark text-white" type="text"
-                      placeholder="Type a message..." [(ngModel)]="messageContent"></textarea>
-                    <button [disabled]="!messageForm.valid" type="submit" class="btn btn-primary mt-2">Send</button>
-                  </form>
-                </div>
-              </div>
-
-
-            </div>
-          </div>
-          <!-- Row end -->
-        </div>
-
-      </div>
-
-    </div>
-    <!-- Row end -->
-
-  </div>
-  <!-- Content wrapper end -->
-</div>
+<!--------------- Chat Container for Mobile end --------------->
