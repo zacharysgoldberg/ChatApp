@@ -39,11 +39,11 @@
                 <ul class="users" *ngFor="let contact of contactsWithMessageThreads">
                   <li class="person" data-chat="person1" (click)="selectUser(contact)">
                     <div class="user">
-                      <span class="status busy"></span>
+                      <span class="status away"></span>
                     </div>
                     <p class="name-time">
                       <span class="name">{{contact.userName | titlecase}} </span>
-                      <span class="time"> {{contact.lastActive | date}}</span>
+                      <span class="time"> {{contact.lastActive | date: 'medium'}}</span>
                     </p>
                   </li>
                   <!-- <li class="person" data-chat="person1">
@@ -82,20 +82,22 @@
 
                   <li class="chat-left" *ngIf="message.senderId !== member?.id">
                     <div class="chat-avatar">
-                      <div class="chat-name">{{message.senderUsername}}</div>
+                      <div class="chat-name">{{ message.senderUsername }}</div>
                     </div>
-                    <div class="chat-text">{{message.content}}
+                    <div class="chat-text">{{ message.content }}
                     </div>
-                    <div class="chat-hour">08:55 <span class="fa fa-check-circle"></span></div>
+                    <div class="chat-hour">{{ message.messageSent | date: 'short'}}<span
+                        class="fa fa-check-circle"></span></div>
                   </li>
 
                   <li class="chat-right" *ngIf="message.senderId === member?.id">
-                    <div class="chat-hour">08:56 <span class="fa fa-check-circle"></span></div>
-                    <div class="chat-text">{{message.content}}
+                    <div class="chat-hour">{{ message.messageSent | date: 'short' }}<span
+                        class="fa fa-check-circle"></span></div>
+                    <div class="chat-text">{{ message.content }}
                       <br>
                     </div>
                     <div class="chat-avatar">
-                      <div class="chat-name">{{message.senderUsername}}</div>
+                      <div class="chat-name">{{ message.senderUsername }}</div>
                     </div>
                   </li>
 

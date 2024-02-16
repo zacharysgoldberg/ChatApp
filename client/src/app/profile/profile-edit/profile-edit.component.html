@@ -1,15 +1,16 @@
 <div class="modal">
   <div class="modal-dialog modal-dialog-centered" role="document">
     <!-- Edit Username || Email || Phone Number -->
-    <div class="modal-content bg-light"
+    <div class="modal-content bg-dark text-white" style="width: 400px"
       *ngIf="editField == 'Username' || editField == 'Email' || editField == 'Phone Number'">
       <div class="modal-header">
         <h5 class="modal-title">Edit {{editField}}</h5>
       </div>
-      <input *ngIf="editField == 'Username'" type="text" class="form-control bg-light"
+      <input *ngIf="editField == 'Username'" type="text" class="form-control bg-dark text-white"
         [(ngModel)]="memberUpdate.userName">
-      <input *ngIf="editField == 'Email'" type="email" class="form-control bg-light" [(ngModel)]="memberUpdate.email">
-      <input *ngIf="editField == 'Phone Number'" type="tel" class="form-control bg-light">
+      <input *ngIf="editField == 'Email'" type="email" class="form-control bg-dark text-white"
+        [(ngModel)]="memberUpdate.email">
+      <input *ngIf="editField == 'Phone Number'" type="tel" class="form-control bg-dark text-white">
       <div class="modal-footer">
         <button type="button" class="btn btn-primary" (click)="save(editField)">Save</button>
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" (click)="cancel()">Close</button>
@@ -17,21 +18,23 @@
     </div>
 
     <!-- Edit Password -->
-    <div class="modal-content bg-light" *ngIf="editField == 'Password'">
+    <div class="modal-content bg-dark text-white" style="width: 400px;" *ngIf="editField == 'Password'">
       <div class="form-group">
         <label class="form-label mt-4"></label>
-        <div class="form-floating mb-3">
+        <div class="form-floating mb-3 bg-dark">
           Current Password
-          <input type="text" class="form-control" placeholder="Password" [(ngModel)]="changePassword.currentPassword">
+          <input type="text" class="form-control bg-dark text-white" placeholder="Password"
+            [(ngModel)]="changePassword.currentPassword">
         </div>
         <div class="form-floating mb-3">
           New Password
-          <input type="password" class="form-control" placeholder="Password" [(ngModel)]="changePassword.password">
+          <input type="password" class="form-control bg-dark text-white" placeholder="Password"
+            [(ngModel)]="changePassword.password">
         </div>
         <div class="form-floating">
           Confirm Password
-          <input type="password" class="form-control" placeholder="Confirm Password" autocomplete="off"
-            [(ngModel)]="changePassword.confirmPassword">
+          <input type="password" class="form-control bg-dark text-white" placeholder="Confirm Password"
+            autocomplete="off" [(ngModel)]="changePassword.confirmPassword">
         </div>
       </div>
       <div class="modal-footer">

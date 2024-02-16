@@ -8,5 +8,5 @@ export interface MessageModel {
   recipientPhotoUrl: string;
   content: string;
   dateRead?: Date;
-  messageSent: boolean;
+  messageSent: Date;
 }
