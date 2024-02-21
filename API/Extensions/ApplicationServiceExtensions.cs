@@ -5,32 +5,33 @@ using Microsoft.EntityFrameworkCore;
 
 namespace API.Extensions;
 
-public static class ApplicationServiceExtensions 
+public static class ApplicationServiceExtensions
 {
-    public static IServiceCollection AddApplicationServices(this IServiceCollection services, 
-        IConfiguration config)
-    {
-        string connectionString = config.GetConnectionString("SqlConnectionString");
+	public static IServiceCollection AddApplicationServices(this IServiceCollection services,
+			IConfiguration config)
+	{
+		string connectionString = config.GetConnectionString("SqlConnectionString");
 
-        // System.Console.WriteLine($"---------\n\n{connectionString}\n\n---------" );
-        // ADO.NET (SQL authentication) - UseSqlServer
-        services.AddDbContext<ApplicationDbContext>(opt => 
-        { 
-            opt.UseSqlite(connectionString);
-        });
+		// System.Console.WriteLine($"---------\n\n{connectionString}\n\n---------" );
+		// ADO.NET (SQL authentication) - UseSqlServer
+		services.AddDbContext<DataContext>(opt =>
+		{
+			opt.UseSqlite(connectionString);
+		});
 
-        services.AddCors();
+		services.AddCors();
 
-        services.AddScoped<ITokenService, TokenService>();
-        services.AddScoped<IPhotoService, PhotoService>();
-        services.AddScoped<IUserRepository, UserRepository>();
-        services.AddScoped<IContactRepository, ContactRepository>();
-        services.AddScoped<IMessageRepository, MessageRespository>();
+		services.AddScoped<IAuthService, AuthService>();
+		services.AddScoped<ITokenService, TokenService>();
+		services.AddScoped<IPhotoService, PhotoService>();
+		services.AddScoped<IUserRepository, UserRepository>();
+		services.AddScoped<IContactRepository, ContactRepository>();
+		services.AddScoped<IMessageRepository, MessageRespository>();
 
-        services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-        
-        services.Configure<CloudinarySettings>(config.GetSection("CloudinarySettings"));
+		services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
-        return services;
-    }
+		services.Configure<CloudinarySettings>(config.GetSection("CloudinarySettings"));
+
+		return services;
+	}
 }

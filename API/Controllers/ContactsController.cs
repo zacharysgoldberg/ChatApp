@@ -6,84 +6,84 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
 
-public class ContactsController: BaseApiController
+public class ContactsController : BaseApiController
 {
-    private readonly IUserRepository _userRepository;
-    private readonly IContactRepository _contactRepository;
+	private readonly IUserRepository _userRepository;
+	private readonly IContactRepository _contactRepository;
 
-    public ContactsController(IUserRepository userRepository, IContactRepository contactRepository)
-    {
-        _userRepository     = userRepository;
-        _contactRepository  = contactRepository;
-    }
+	public ContactsController(IUserRepository userRepository, IContactRepository contactRepository)
+	{
+		_userRepository = userRepository;
+		_contactRepository = contactRepository;
+	}
 
-        
-    [HttpGet("{contactId}")] // /api/contacts/2
-    public async Task<ActionResult<ContactDTO>> GetContact(int contactId)
-    {
-        string usernameOrEmail  = User.GetUsernameOrEmail();
-        MemberDTO user          = await _userRepository.GetMemberAsync(usernameOrEmail);
-        ContactDTO contact      = await _contactRepository.GetContactAsync(user.Id, contactId);
 
-        if(contact == null)
-            return NotFound();
+	[HttpGet("{contactId}")] // /api/contacts/2
+	public async Task<ActionResult<ContactDTO>> GetContact(int contactId)
+	{
+		string usernameOrEmail = User.GetUsernameOrEmail();
+		MemberDTO user = await _userRepository.GetMemberAsync(usernameOrEmail);
+		ContactDTO contact = await _contactRepository.GetContactAsync(user.Id, contactId);
 
-        return contact;
-    }
+		if (contact == null)
+			return NotFound();
 
-    [HttpGet] // /api/contacts/1
-    public async Task<ActionResult<IEnumerable<ContactDTO>>> GetContacts()
-    {
-        string usernameOrEmail  = User.GetUsernameOrEmail();
-        MemberDTO user          = await _userRepository.GetMemberAsync(usernameOrEmail);
+		return contact;
+	}
 
-        return Ok(await _contactRepository.GetContactsAsync(user.Id));
-    }
+	[HttpGet] // /api/contacts/1
+	public async Task<ActionResult<IEnumerable<ContactDTO>>> GetContacts()
+	{
+		string usernameOrEmail = User.GetUsernameOrEmail();
+		MemberDTO user = await _userRepository.GetMemberAsync(usernameOrEmail);
 
-    [HttpPost] // /api/contacts
-    public async Task<ActionResult<MemberDTO>> AddContact([FromBody] 
-        ContactUsernameDTO contactUsernameDTO)
-    {
-        string usernameOrEmail  = User.GetUsernameOrEmail();
-        AppUser user            = await _userRepository.GetUserAsync(usernameOrEmail);
+		return Ok(await _contactRepository.GetContactsAsync(user.Id));
+	}
 
-        if(user == null || 
-            contactUsernameDTO.UsernameOrEmail == user.UserName || 
-            contactUsernameDTO.UsernameOrEmail == user.Email)
-            return BadRequest("You cannot add yourself as a contact");
+	[HttpPost] // /api/contacts
+	public async Task<ActionResult<MemberDTO>> AddContact([FromBody]
+				ContactUsernameDTO contactUsernameDTO)
+	{
+		string usernameOrEmail = User.GetUsernameOrEmail();
+		AppUser user = await _userRepository.GetUserAsync(usernameOrEmail);
 
-        MemberDTO contact = await _userRepository.GetMemberAsync(contactUsernameDTO.UsernameOrEmail);
+		if (user == null ||
+				contactUsernameDTO.UsernameOrEmail == user.UserName ||
+				contactUsernameDTO.UsernameOrEmail == user.Email)
+			return BadRequest("You cannot add yourself as a contact");
 
-        if(contact == null)
-            return BadRequest($"{contactUsernameDTO.UsernameOrEmail} does not exist");
+		MemberDTO contact = await _userRepository.GetMemberAsync(contactUsernameDTO.UsernameOrEmail);
 
-        bool userContactExists = await _contactRepository.UserContactExists(user.Id, contact.Id);
+		if (contact == null)
+			return BadRequest($"{contactUsernameDTO.UsernameOrEmail} does not exist");
 
-        if(contact == null || userContactExists)
-            return BadRequest($"{contactUsernameDTO.UsernameOrEmail} already exists in contact list");
+		bool userContactExists = await _contactRepository.UserContactExists(user.Id, contact.Id);
 
-        bool succeeded = await _contactRepository.AddContactAsync(user, contact.Id);
+		if (contact == null || userContactExists)
+			return BadRequest($"{contactUsernameDTO.UsernameOrEmail} already exists in contact list");
 
-        if(!succeeded)
-            return BadRequest($"\nFailed to add contact {contactUsernameDTO.UsernameOrEmail}");
-            
-        return contact;
-    }
+		bool succeeded = await _contactRepository.AddContactAsync(user, contact.Id);
 
-    [HttpPost("delete/{contactId}")] // /api/contacts/delete/2
-    public async Task<IActionResult> DeleteContact(int contactId)
-    {
-        string usernameOrEmail  = User.GetUsernameOrEmail();
-        AppUser user            = await _userRepository.GetUserAsync(usernameOrEmail);
+		if (!succeeded)
+			return BadRequest($"\nFailed to add contact {contactUsernameDTO.UsernameOrEmail}");
 
-        if(user == null)
-            return NotFound();
+		return contact;
+	}
 
-        bool succeeded = await _contactRepository.DeleteContactAsync(user, contactId);
+	[HttpPost("delete/{contactId}")] // /api/contacts/delete/2
+	public async Task<IActionResult> DeleteContact(int contactId)
+	{
+		string usernameOrEmail = User.GetUsernameOrEmail();
+		AppUser user = await _userRepository.GetUserAsync(usernameOrEmail);
 
-        if(!succeeded)
-            return BadRequest("\nFailed to remove contact");
-            
-        return Ok();
-    }
+		if (user == null)
+			return NotFound();
+
+		bool succeeded = await _contactRepository.DeleteContactAsync(user, contactId);
+
+		if (!succeeded)
+			return BadRequest("\nFailed to remove contact");
+
+		return Ok();
+	}
 }

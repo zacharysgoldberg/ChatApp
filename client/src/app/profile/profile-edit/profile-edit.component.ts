@@ -88,7 +88,7 @@ export class ProfileEditComponent implements OnInit {
       next: (response: any) => {
         console.log(response);
         this.accountService.logout();
-        this.router.navigateByUrl('/login');
+        this.router.navigateByUrl('/');
       },
       error: (err: any) => {
         console.error('Error updating profile:', err);

@@ -8,9 +8,9 @@ namespace API.Controllers;
 
 public class BuggyController: BaseApiController
 {
-    private readonly ApplicationDbContext _context;
+    private readonly DataContext _context;
     private readonly UserManager<AppUser> _userManager;
-    public BuggyController(ApplicationDbContext context, UserManager<AppUser> userManager)
+    public BuggyController(DataContext context, UserManager<AppUser> userManager)
     {
         _context = context;
         _userManager = userManager;

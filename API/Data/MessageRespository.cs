@@ -11,15 +11,15 @@ namespace API;
 
 public class MessageRespository : IMessageRepository
 {
-    private readonly ApplicationDbContext _context;
+    private readonly DataContext _context;
     private readonly IUserRepository _userRepository;
     private readonly IMapper _mapper;
 
-    public MessageRespository(ApplicationDbContext context, IUserRepository userRepository, IMapper mapper)
+    public MessageRespository(DataContext context, IUserRepository userRepository, IMapper mapper)
     {
-        _context    = context;
+        _context        = context;
         _userRepository = userRepository;
-        _mapper     = mapper;
+        _mapper         = mapper;
     }
 
     public void AddMessageAsync(Message message)

@@ -13,7 +13,7 @@ import { RegisterComponent } from './register/register.component';
 import { ProfileDetailsComponent } from './profile/profile-details/profile-details.component';
 
 const routes: Routes = [
-  { path: 'login', component: LoginComponent },
+  { path: '', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
   {
     path: '',

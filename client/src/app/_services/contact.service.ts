@@ -19,7 +19,7 @@ export class ContactService {
   constructor(private http: HttpClient) {}
 
   addContact(contactUsername: string) {
-    const contactUsernameDTO = { username: contactUsername };
+    const contactUsernameDTO = { usernameOrEmail: contactUsername };
 
     return this.http.post<ContactModel>(
       this.apiUrl + 'contacts',

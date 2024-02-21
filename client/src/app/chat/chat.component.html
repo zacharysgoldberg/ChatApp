@@ -23,14 +23,23 @@
           <div class="row no-gutters">
             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-3 col-3 ">
               <div class="users-container overflow-auto">
-                <span class="py-2 fs-5 fw-semibold text-white">Chats</span>
 
                 <!-- Search Message Thread start -->
-                <form class="d-flex my-2 mx-4" style="padding-bottom: 40px; ">
-                  <input class="form-control me-sm-1 bg-dark text-white" type="search" placeholder="Search">
+                <!-- <div class="input-group">
+                  <input type="search" class="form-control text-white bg-dark" placeholder="Search" aria-label="Submit"
+                    aria-describedby="button-addon2">
                   <button class="btn btn-secondary my-2 my-sm-0" type="submit"><i class="fa fa-search"></i></button>
-                </form>
+                </div> -->
                 <!-- Search Message Thread end -->
+
+                <!-- Add Multiple Contacts for Group Message start -->
+                <div class="d-flex justify-content-center">
+                  <strong class="text-white">Create new chat</strong>
+                  <button class="btn btn-secondary mt-2 float-end mx-4">
+                    <i class="fa fa-pencil"></i>
+                  </button>
+                </div>
+                <!-- Add Multiple Contacts for Group Message end -->
 
                 <!-- List of Contacts with Message Thread start -->
                 <ul class="nav nav-pills" *ngFor="let contact of contactsWithMessageThreads">
@@ -46,12 +55,6 @@
                 </ul>
               </div>
 
-              <!-- Add Multiple Contacts for Group Message start -->
-              <button class="btn btn-secondary mt-2 float-end mx-4">
-                <i class="fa fa-pencil"></i>
-              </button>
-              <!-- Add Multiple Contacts for Group Message end -->
-
             </div>
             <!-- List of Contacts with Message Thread end -->
 
@@ -65,7 +68,7 @@
 
               <!-- Message Thread UI start -->
               <div class="card bg-dark" *ngIf="messageThread.length > 0">
-                <div class="card-body overflow-auto" style="height: 70vh;">
+                <div class="card-body scrollable-message-thread ">
                   <ul class="chats">
                     <li *ngFor="let message of messageThread">
                       <div>
@@ -86,7 +89,7 @@
                     </li>
                   </ul>
                 </div>
-                <div class="card-footer my-2">
+                <div class="chat-form my-2">
                   <form #messageForm="ngForm" autocomplete="off" class="form-group" (ngSubmit)="sendMessage()">
                     <textarea name="messageContent" class="form-control bg-dark text-white" type="text"
                       placeholder="Type a message..." [(ngModel)]="messageContent"></textarea>

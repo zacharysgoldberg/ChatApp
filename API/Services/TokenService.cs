@@ -2,86 +2,95 @@
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using API.Entities;
 using API.Interfaces;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 
 namespace API.Services;
 
 public class TokenService : ITokenService
 {
-    private readonly SymmetricSecurityKey _key;
+	private readonly SymmetricSecurityKey _key;
+	private readonly UserManager<AppUser> _userManager;
 
-    public TokenService(IConfiguration config)
-    {
-        _key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["JWT:TokenKey"]));
-    }
 
-    // Create a JWT and return it as a string
-    public string GenerateAccessToken(string usernameOrEmail, IEnumerable<Claim> claims = null)
-    {
-        if (claims == null)
-        {
-            claims = new List<Claim>
-            {
-                new Claim(JwtRegisteredClaimNames.UniqueName, usernameOrEmail),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            };
-        }
+	public TokenService(IConfiguration config, UserManager<AppUser> userManager)
+	{
+		_key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["JWT:TokenKey"]));
+		_userManager = userManager;
+	}
 
-        var creds           = new SigningCredentials(_key, SecurityAlgorithms.HmacSha512);
+	// Create a JWT and return it as a string
+	public async Task<string> GenerateAccessToken(AppUser user, List<Claim> claims = null)
+	{
+		if (claims == null)
+		{
+			claims = new List<Claim>()
+						{
+								new Claim(JwtRegisteredClaimNames.UniqueName, user.UserName),
+								new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+						};
+		}
 
-        var tokenDescriptor = new SecurityTokenDescriptor
-        {
-            Subject             = new ClaimsIdentity(claims),
-            Expires             = DateTime.Now.AddMinutes(2),
-            NotBefore           = DateTime.Now,
-            SigningCredentials  = creds,
-        };
+		var roles = await _userManager.GetRolesAsync(user);
 
-        var tokenHandler    = new JwtSecurityTokenHandler();
-        SecurityToken token = tokenHandler.CreateToken(tokenDescriptor);
+		claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
 
-        return tokenHandler.WriteToken(token);
-    }
+		var creds = new SigningCredentials(_key, SecurityAlgorithms.HmacSha512);
 
-    // Create and return a random string of characters in base 64
-    public string GenerateRefreshToken()
-    {
-        var randomNumber    = new byte[64];
-        using var rng       = RandomNumberGenerator.Create();
-        rng.GetBytes(randomNumber);
-        return Convert.ToBase64String(randomNumber);
-    }
+		var tokenDescriptor = new SecurityTokenDescriptor
+		{
+			Subject = new ClaimsIdentity(claims),
+			Expires = DateTime.Now.AddMinutes(2),
+			NotBefore = DateTime.Now,
+			SigningCredentials = creds,
+		};
 
-    // Validate the incomming expired token and return it's principal claim
-    public ClaimsPrincipal GetPrincipalFromExpiredToken(string token)
-    {
-        var tokenValidationParameters = new TokenValidationParameters
-        {
-            IssuerSigningKey            = _key,
-            ValidateIssuerSigningKey    = true,
-            ValidateAudience            = false,
-            ValidateIssuer              = false,
-            // Here we're saying that we don't care about the token's expiration date/time
-            ValidateLifetime            = false 
-        };
+		var tokenHandler = new JwtSecurityTokenHandler();
+		SecurityToken token = tokenHandler.CreateToken(tokenDescriptor);
 
-        SecurityToken securityToken;
+		return tokenHandler.WriteToken(token);
+	}
 
-        var tokenHandler                    = new JwtSecurityTokenHandler();
-        ClaimsPrincipal principal           = tokenHandler.ValidateToken(token, 
-                                                               tokenValidationParameters, 
-                                                               out securityToken);
+	// Create and return a random string of characters in base 64
+	public string GenerateRefreshToken()
+	{
+		var randomNumber = new byte[64];
+		using var rng = RandomNumberGenerator.Create();
+		rng.GetBytes(randomNumber);
+		return Convert.ToBase64String(randomNumber);
+	}
 
-        JwtSecurityToken jwtSecurityToken   = securityToken as JwtSecurityToken;
-        bool isSecurityTokenHmacSha512      = jwtSecurityToken.Header.Alg.Equals(
-                                                SecurityAlgorithms.HmacSha512, 
-                                                StringComparison.InvariantCultureIgnoreCase
-                                                );
+	// Validate the incomming expired token and return it's principal claim
+	public ClaimsPrincipal GetPrincipalFromExpiredToken(string token)
+	{
+		var tokenValidationParameters = new TokenValidationParameters
+		{
+			IssuerSigningKey = _key,
+			ValidateIssuerSigningKey = true,
+			ValidateAudience = false,
+			ValidateIssuer = false,
+			// Here we're saying that we don't care about the token's expiration date/time
+			ValidateLifetime = false
+		};
 
-        if (!isSecurityTokenHmacSha512|| jwtSecurityToken == null)
-            throw new SecurityTokenException("Invalid token");
+		SecurityToken securityToken;
 
-        return principal;
-    }
+		var tokenHandler = new JwtSecurityTokenHandler();
+		ClaimsPrincipal principal = tokenHandler.ValidateToken(token,
+																													 tokenValidationParameters,
+																													 out securityToken);
+
+		JwtSecurityToken jwtSecurityToken = securityToken as JwtSecurityToken;
+		bool isSecurityTokenHmacSha512 = jwtSecurityToken.Header.Alg.Equals(
+																						SecurityAlgorithms.HmacSha512,
+																						StringComparison.InvariantCultureIgnoreCase
+																						);
+
+		if (!isSecurityTokenHmacSha512 || jwtSecurityToken == null)
+			throw new SecurityTokenException("Invalid token");
+
+		return principal;
+	}
 }

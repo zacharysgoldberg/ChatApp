@@ -50,7 +50,7 @@ export class NavbarComponent implements OnInit {
     // });
 
     this.accountService.logout();
-    this.router.navigateByUrl('/login');
+    this.router.navigateByUrl('/');
   }
 
   navigateToProfile() {

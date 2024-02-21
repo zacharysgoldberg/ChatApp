@@ -11,84 +11,84 @@ namespace API;
 
 public class MessagesController : BaseApiController
 {
-    private readonly IUserRepository _userRepository;
-    private readonly IMessageRepository _messageRepository;
-    private readonly IMapper _mapper;
+	private readonly IUserRepository _userRepository;
+	private readonly IMessageRepository _messageRepository;
+	private readonly IMapper _mapper;
 
-    public MessagesController(IUserRepository userRepository, IMessageRepository messageRepository, IMapper mapper)
-    {
-        _userRepository     = userRepository;
-        _messageRepository  = messageRepository;
-        _mapper             = mapper;
-    }
+	public MessagesController(IUserRepository userRepository, IMessageRepository messageRepository, IMapper mapper)
+	{
+		_userRepository = userRepository;
+		_messageRepository = messageRepository;
+		_mapper = mapper;
+	}
 
-    [HttpPost]
-    public async Task<ActionResult<MessageDTO>> CreateMessage(CreateMessageDTO createMessageDTO)
-    {
-        string usernameOrEmail  = User.GetUsernameOrEmail(); 
-        AppUser sender          = await _userRepository.GetUserAsync(usernameOrEmail);
-        AppUser recipient       = await _userRepository.GetUserByIdAsync(createMessageDTO.RecipientId);
+	[HttpPost]
+	public async Task<ActionResult<MessageDTO>> CreateMessage(CreateMessageDTO createMessageDTO)
+	{
+		string usernameOrEmail = User.GetUsernameOrEmail();
+		AppUser sender = await _userRepository.GetUserAsync(usernameOrEmail);
+		AppUser recipient = await _userRepository.GetUserByIdAsync(createMessageDTO.RecipientId);
 
-        if(sender == null || recipient == null)
-            return NotFound();
+		if (sender == null || recipient == null)
+			return NotFound();
 
-        if(sender.Id == createMessageDTO.RecipientId)
-            return BadRequest("Cannot send messages to self");
+		if (sender.Id == createMessageDTO.RecipientId)
+			return BadRequest("Cannot send messages to self");
 
-        var message = new Message
-        {
-            Sender              = sender,
-            Recipient           = recipient,
-            Content             = createMessageDTO.Content
-        };
+		var message = new Message
+		{
+			Sender = sender,
+			Recipient = recipient,
+			Content = createMessageDTO.Content
+		};
 
-        _messageRepository.AddMessageAsync(message);
+		_messageRepository.AddMessageAsync(message);
 
-        if(await _messageRepository.SaveAllAsync())
-            return Ok(_mapper.Map<MessageDTO>(message));
-        
-        return BadRequest("Failed to send message");
-    }
+		if (await _messageRepository.SaveAllAsync())
+			return Ok(_mapper.Map<MessageDTO>(message));
 
-    [HttpGet]
-    public async Task<ActionResult<PagedList<MessageDTO>>> GetMessagesForUser(
-        [FromQuery] MessageParams messageParams)
-    {
-        string usernameOrEmail          = User.GetUsernameOrEmail();
-        MemberDTO user                  = await _userRepository.GetMemberAsync(usernameOrEmail);  
+		return BadRequest("Failed to send message");
+	}
 
-        if(user == null)
-            return NotFound();
+	[HttpGet]
+	public async Task<ActionResult<PagedList<MessageDTO>>> GetMessagesForUser(
+			[FromQuery] MessageParams messageParams)
+	{
+		string usernameOrEmail = User.GetUsernameOrEmail();
+		MemberDTO user = await _userRepository.GetMemberAsync(usernameOrEmail);
 
-        messageParams.Id                = user.Id;    
-        PagedList<MessageDTO> messages  = await _messageRepository.GetMessagesAsync(messageParams);
+		if (user == null)
+			return NotFound();
 
-        Response.AddPaginationHeader(new PaginationHeader(messages.CurrentPage, messages.PageSize, messages.TotalCount, messages.TotalPages));
+		messageParams.Id = user.Id;
+		PagedList<MessageDTO> messages = await _messageRepository.GetMessagesAsync(messageParams);
 
-        return messages;
-    }
+		Response.AddPaginationHeader(new PaginationHeader(messages.CurrentPage, messages.PageSize, messages.TotalCount, messages.TotalPages));
 
-    [HttpGet("thread/{recipientId}")]
-    public async Task<ActionResult<IEnumerable<MessageDTO>>> GetMessageThread(int recipientId)
-    {
-        string usernameOrEmail  = User.GetUsernameOrEmail();
-        MemberDTO user          = await _userRepository.GetMemberAsync(usernameOrEmail);
+		return messages;
+	}
 
-        if(user == null)
-            return NotFound();
+	[HttpGet("thread/{recipientId}")]
+	public async Task<ActionResult<IEnumerable<MessageDTO>>> GetMessageThread(int recipientId)
+	{
+		string usernameOrEmail = User.GetUsernameOrEmail();
+		MemberDTO user = await _userRepository.GetMemberAsync(usernameOrEmail);
 
-        return Ok(await _messageRepository.GetMessageThreadAsync(user.Id, recipientId));
-    }
+		if (user == null)
+			return NotFound();
 
-    [HttpGet("contacts")]
-    public async Task<ActionResult<IEnumerable<ContactDTO>>> GetContactsWithMessageThread()
-    {
-        string usernameOrEmail  = User.GetUsernameOrEmail();
-        MemberDTO user          = await _userRepository.GetMemberAsync(usernameOrEmail);
+		return Ok(await _messageRepository.GetMessageThreadAsync(user.Id, recipientId));
+	}
 
-        if(user == null)
-            return NotFound();
+	[HttpGet("contacts")]
+	public async Task<ActionResult<IEnumerable<ContactDTO>>> GetContactsWithMessageThread()
+	{
+		string usernameOrEmail = User.GetUsernameOrEmail();
+		MemberDTO user = await _userRepository.GetMemberAsync(usernameOrEmail);
 
-        return Ok(await _messageRepository.GetContactsWithMessageThreadAsync(user.Id));
-    }
+		if (user == null)
+			return NotFound();
+
+		return Ok(await _messageRepository.GetContactsWithMessageThreadAsync(user.Id));
+	}
 }

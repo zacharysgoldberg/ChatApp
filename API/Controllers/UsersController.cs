@@ -9,173 +9,179 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
 
-[Authorize] // (AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)
+// [Authorize] // (AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)
 public class UsersController : BaseApiController
 {
-    private readonly UserManager<AppUser> _userManager;
-    private readonly IUserRepository _userRepository;
-    private readonly IPhotoService _photoService;
+	private readonly UserManager<AppUser> _userManager;
+	private readonly IUserRepository _userRepository;
+	private readonly IPhotoService _photoService;
 
-    public UsersController(UserManager<AppUser> userManager, IUserRepository userRepository,
-        IPhotoService photoService)
-    {
-        _userManager    = userManager;
-        _userRepository = userRepository;
-        _photoService = photoService;
-    }
+	public UsersController(UserManager<AppUser> userManager, IUserRepository userRepository,
+			IPhotoService photoService)
+	{
+		_userManager = userManager;
+		_userRepository = userRepository;
+		_photoService = photoService;
+	}
 
-    // ===================================================
-    // ================= GET Requests ====================
-    // ===================================================
-    [AllowAnonymous] // Development Only
-    // [Authorize(Roles="Admin")]
-    [HttpGet("{usernameOrEmail}")] // /api/users/test@test.com
-    public async Task<AppUser> GetUser(string usernameOrEmail)
-    {
-        return await _userRepository.GetUserAsync(usernameOrEmail);
-    }
+	// ===================================================
+	// ================= GET Requests ====================
+	// ===================================================
+	// [Authorize(Roles = "Admin")]
+	[AllowAnonymous] // Development opnly
+	[HttpGet("{usernameOrEmail}")] // /api/users/test@test.com
+	public async Task<AppUser> GetUser(string usernameOrEmail)
+	{
+		return await _userRepository.GetUserAsync(usernameOrEmail);
+	}
 
-    [HttpGet("members/{usernameOrEmail}")] // /api/users/members/test@test.com
-    public async Task<ActionResult<MemberDTO>> GetMember(string usernameOrEmail)
-    {
-        return await _userRepository.GetMemberAsync(usernameOrEmail);
-    }
+	[Authorize(Roles = "Member")]
+	[HttpGet("members/{usernameOrEmail}")] // /api/users/members/test@test.com
+	public async Task<ActionResult<MemberDTO>> GetMember(string usernameOrEmail)
+	{
+		return await _userRepository.GetMemberAsync(usernameOrEmail);
+	}
 
-    [HttpGet("members")] // /api/users/members
-    public async Task<ActionResult<IEnumerable<MemberDTO>>> GetMembers()
-    {
-        return Ok(await _userRepository.GetMembersAsync());
-    }
-    
-    // ===================================================
-    // ================= POST Requests ===================
-    // ===================================================
-    [HttpPost("update-photo")] // /api/users/update-photo
-    public async Task<ActionResult<PhotoDTO>> UpdatePhoto(IFormFile file)
-    {
-        string usernameOrEmail  = User.GetUsernameOrEmail();
-        AppUser user            = await _userRepository.GetUserAsync(usernameOrEmail);
+	[Authorize(Roles = "Admin")]
+	[HttpGet("members")] // /api/users/members
+	public async Task<ActionResult<IEnumerable<MemberDTO>>> GetMembers()
+	{
+		return Ok(await _userRepository.GetMembersAsync());
+	}
 
-        if(user == null)
-            return NotFound();
-        
-        var result = await _photoService.AddPhotoAsync(file);
+	// ===================================================
+	// ================= POST Requests ===================
+	// ===================================================
+	[Authorize(Roles = "Member")]
+	[HttpPost("update-photo")] // /api/users/update-photo
+	public async Task<ActionResult<PhotoDTO>> UpdatePhoto(IFormFile file)
+	{
+		string usernameOrEmail = User.GetUsernameOrEmail();
+		AppUser user = await _userRepository.GetUserAsync(usernameOrEmail);
 
-        if(result.Error != null) 
-            return BadRequest(result.Error.Message);
-        
-        var photo = new Photo
-        {
-            Url      = result.SecureUrl.AbsoluteUri,
-            PublicId = result.PublicId
-        };
-        
-        user.Photo      = photo;
-        bool succeeded  = await _userRepository.UpdateAsync(user);
+		if (user == null)
+			return NotFound();
 
-        if(!succeeded)
-            return BadRequest("Failed to add photo");
+		var result = await _photoService.AddPhotoAsync(file);
 
-        return Ok();
-    }
+		if (result.Error != null)
+			return BadRequest(result.Error.Message);
 
-    // ===================================================
-    // ================= PUT Requests ====================
-    // ===================================================
-    [HttpPut("update-username")] // /api/users/update-username
-    public async Task<ActionResult> UpdateUsername(MemberUpdateDTO memberUpdateDTO)
-    {   
-        string username     = memberUpdateDTO.UserName;
-        bool usernameExists = await _userRepository.UsernameExistsAsync(username);
+		var photo = new Photo
+		{
+			Url = result.SecureUrl.AbsoluteUri,
+			PublicId = result.PublicId
+		};
 
-        if(usernameExists)
-            return BadRequest($"Username \"{username}\" is already in use");
+		user.Photo = photo;
+		bool succeeded = await _userRepository.UpdateUserAsync(user);
 
-        string usernameOrEmail  = User.GetUsernameOrEmail();     
-        AppUser user            = await _userRepository.GetUserAsync(usernameOrEmail);
+		if (!succeeded)
+			return BadRequest("Failed to add photo");
 
-        if(user == null)
-            return NotFound();
-            
-        user.UserName   = username;
-        bool succeeded  = await _userRepository.UpdateAsync(user);
-        
-        if(!succeeded)
-            return BadRequest("Failed to update username");
-            
-        return NoContent();
-    }
+		return Ok();
+	}
 
-    [HttpPut("update-email")] // /api/users/update-email
-    public async Task<ActionResult> UpdateEmail(MemberUpdateDTO memberUpdateDTO)
-    {
-        string email        = memberUpdateDTO.Email.ToLower();
-        bool emailExists    = await _userRepository.EmailExistsAsync(email);
+	// ===================================================
+	// ================= PUT Requests ====================
+	// ===================================================
+	[Authorize(Roles = "Member")]
+	[HttpPut("update-username")] // /api/users/update-username
+	public async Task<ActionResult> UpdateUsername(MemberUpdateDTO memberUpdateDTO)
+	{
+		string username = memberUpdateDTO.UserName;
+		bool usernameExists = await _userRepository.UsernameExistsAsync(username);
 
-        if(emailExists)
-            return BadRequest($"Email \"{email}\" is already in use");
+		if (usernameExists)
+			return BadRequest($"Username \"{username}\" is already in use");
 
-        string usernameOrEmail  = User.GetUsernameOrEmail();
-        AppUser user            = await _userRepository.GetUserAsync(usernameOrEmail);
+		string usernameOrEmail = User.GetUsernameOrEmail();
+		AppUser user = await _userRepository.GetUserAsync(usernameOrEmail);
 
-        if(user == null)
-            return NotFound();
-            
-        user.Email      = email;
-        bool succeeded  = await _userRepository.UpdateAsync(user);
-        
-        if(!succeeded)
-            return BadRequest("Failed to update email");
-        
-        return NoContent();
-    }
+		if (user == null)
+			return NotFound();
 
-    [HttpPut("update-password")] // /api/users/reset-password
-    public async Task<ActionResult> UpdatePassword(ChangePasswordDTO changePasswordDTO)
-    {
-        string usernameOrEmail  = User.GetUsernameOrEmail();     
-        AppUser user            = await _userRepository.GetUserAsync(usernameOrEmail);
+		user.UserName = username;
+		bool succeeded = await _userRepository.UpdateUserAsync(user);
 
-        if(user == null)
-            return NotFound();
-            
-        // DebugUtil.PrintDebug(user);
-        // _mapper.Map(newUsername, user);
+		if (!succeeded)
+			return BadRequest("Failed to update username");
 
-        await _userManager.ChangePasswordAsync(user, 
-                                            changePasswordDTO.CurrentPassword, 
-                                            changePasswordDTO.Password);
+		return NoContent();
+	}
 
-        return NoContent();
-    }
+	[Authorize(Roles = "Member")]
+	[HttpPut("update-email")] // /api/users/update-email
+	public async Task<ActionResult> UpdateEmail(MemberUpdateDTO memberUpdateDTO)
+	{
+		string email = memberUpdateDTO.Email.ToLower();
+		bool emailExists = await _userRepository.EmailExistsAsync(email);
 
-    // ===================================================
-    // ================= DELETE Requests ====================
-    // ===================================================
-    [HttpDelete("delete-photo")]
-    public async Task<ActionResult> DeletePhoto()
-    {
-        string usernameOrEmail  = User.GetUsernameOrEmail();
-        AppUser user            = await _userRepository.GetUserAsync(usernameOrEmail);
-        Photo photo             = user.Photo;
+		if (emailExists)
+			return BadRequest($"Email \"{email}\" is already in use");
 
-        if(photo == null)
-            return NotFound();
-        
-        if(photo.PublicId != null)
-        {
-            var result = await _photoService.DeletePhotoAsync(photo.PublicId);
+		string usernameOrEmail = User.GetUsernameOrEmail();
+		AppUser user = await _userRepository.GetUserAsync(usernameOrEmail);
 
-            if(result.Error != null)
-                return BadRequest(result.Error.Message);
-        }
+		if (user == null)
+			return NotFound();
 
-        user.Photo      = null;
-        bool succeeded  = await _userRepository.UpdateAsync(user);
+		user.Email = email;
+		bool succeeded = await _userRepository.UpdateUserAsync(user);
 
-        if(!succeeded)
-            return BadRequest("Failed to delete photo");
-        
-        return Ok();
-    }
+		if (!succeeded)
+			return BadRequest("Failed to update email");
+
+		return NoContent();
+	}
+
+	[Authorize(Roles = "Member")]
+	[HttpPut("update-password")] // /api/users/reset-password
+	public async Task<ActionResult> UpdatePassword(ChangePasswordDTO changePasswordDTO)
+	{
+		string usernameOrEmail = User.GetUsernameOrEmail();
+		AppUser user = await _userRepository.GetUserAsync(usernameOrEmail);
+
+		if (user == null)
+			return NotFound();
+
+		// DebugUtil.PrintDebug(user);
+		// _mapper.Map(newUsername, user);
+
+		await _userManager.ChangePasswordAsync(user,
+																				changePasswordDTO.CurrentPassword,
+																				changePasswordDTO.Password);
+
+		return NoContent();
+	}
+
+	// ======================================================
+	// ================= DELETE Requests ====================
+	// ======================================================
+	[HttpDelete("delete-photo")]
+	public async Task<ActionResult> DeletePhoto()
+	{
+		string usernameOrEmail = User.GetUsernameOrEmail();
+		AppUser user = await _userRepository.GetUserAsync(usernameOrEmail);
+		Photo photo = user.Photo;
+
+		if (photo == null)
+			return NotFound();
+
+		if (photo.PublicId != null)
+		{
+			var result = await _photoService.DeletePhotoAsync(photo.PublicId);
+
+			if (result.Error != null)
+				return BadRequest(result.Error.Message);
+		}
+
+		user.Photo = null;
+		bool succeeded = await _userRepository.UpdateUserAsync(user);
+
+		if (!succeeded)
+			return BadRequest("Failed to delete photo");
+
+		return Ok();
+	}
 }
