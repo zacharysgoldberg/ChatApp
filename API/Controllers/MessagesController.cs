@@ -5,6 +5,7 @@ using API.Extensions;
 using API.Helpers;
 using API.Interfaces;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API;
@@ -22,6 +23,30 @@ public class MessagesController : BaseApiController
 		_mapper = mapper;
 	}
 
+	[Authorize(Roles = "Member")]
+	[HttpPost("thread")]
+	public async Task<ActionResult<IEnumerable<MessageDTO>>> CreateMessageThread(CreateMessageDTO createMessageDTO)
+	{
+		string usernameOrEmail = User.GetUsernameOrEmail();
+		AppUser sender = await _userRepository.GetUserAsync(usernameOrEmail);
+		AppUser recipient = await _userRepository.GetUserByIdAsync(createMessageDTO.RecipientId);
+
+		if (sender == null || recipient == null)
+			return NotFound();
+
+		if (sender.Id == createMessageDTO.RecipientId)
+			return BadRequest("Cannot create message thread with self");
+
+		IEnumerable<MessageDTO> messageThread = await _messageRepository.AddMessageThreadAsync(sender.Id, recipient.Id);
+
+		if (messageThread.Any())
+			return Ok(messageThread);
+		else
+			return NoContent();
+	}
+
+
+	[Authorize(Roles = "Admin,Member")]
 	[HttpPost]
 	public async Task<ActionResult<MessageDTO>> CreateMessage(CreateMessageDTO createMessageDTO)
 	{
@@ -50,6 +75,7 @@ public class MessagesController : BaseApiController
 		return BadRequest("Failed to send message");
 	}
 
+	[Authorize(Roles = "Admin,Member")]
 	[HttpGet]
 	public async Task<ActionResult<PagedList<MessageDTO>>> GetMessagesForUser(
 			[FromQuery] MessageParams messageParams)
@@ -68,6 +94,7 @@ public class MessagesController : BaseApiController
 		return messages;
 	}
 
+	[Authorize(Roles = "Admin,Member")]
 	[HttpGet("thread/{recipientId}")]
 	public async Task<ActionResult<IEnumerable<MessageDTO>>> GetMessageThread(int recipientId)
 	{
@@ -80,6 +107,7 @@ public class MessagesController : BaseApiController
 		return Ok(await _messageRepository.GetMessageThreadAsync(user.Id, recipientId));
 	}
 
+	[Authorize(Roles = "Admin,Member")]
 	[HttpGet("contacts")]
 	public async Task<ActionResult<IEnumerable<ContactDTO>>> GetContactsWithMessageThread()
 	{

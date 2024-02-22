@@ -17,6 +17,23 @@ public static class IdentityServiceExtensions
 						.AddEntityFrameworkStores<DataContext>()
 						.AddDefaultTokenProviders();
 
+		services.Configure<IdentityOptions>(options =>
+				{
+					// Default User settings.
+					options.User.AllowedUserNameCharacters =
+									"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@";
+					options.User.RequireUniqueEmail = true;
+
+					// Default Password settings.
+					options.Password.RequireUppercase = true;
+					options.Password.RequireLowercase = true;
+					options.Password.RequireNonAlphanumeric = false;
+					options.Password.RequireDigit = true;
+					options.Password.RequiredUniqueChars = 1;
+					options.Password.RequiredLength = 6;
+
+				});
+
 		services.AddAuthentication(options =>
 		{
 			options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -39,24 +56,11 @@ public static class IdentityServiceExtensions
 			};
 		});
 
-		// services.AddAuthorization();
-
-		services.Configure<IdentityOptions>(options =>
-				{
-					// Default User settings.
-					options.User.AllowedUserNameCharacters =
-									"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@";
-					options.User.RequireUniqueEmail = true;
-
-					// Default Password settings.
-					options.Password.RequireUppercase = true;
-					options.Password.RequireLowercase = true;
-					options.Password.RequireNonAlphanumeric = false;
-					options.Password.RequireDigit = true;
-					options.Password.RequiredUniqueChars = 1;
-					options.Password.RequiredLength = 6;
-
-				});
+		services.AddAuthorization(opt =>
+		{
+			opt.AddPolicy("RequireAdminRole", policy => policy.RequireRole("Admin"));
+			opt.AddPolicy("ModeratePhotoRole", policy => policy.RequireRole("Admin", "Moderator"));
+		});
 
 		return services;
 	}

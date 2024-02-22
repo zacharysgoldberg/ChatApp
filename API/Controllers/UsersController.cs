@@ -2,56 +2,45 @@
 using API.Entities;
 using API.Extensions;
 using API.Interfaces;
-using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
 
-// [Authorize] // (AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)
 public class UsersController : BaseApiController
 {
-	private readonly UserManager<AppUser> _userManager;
 	private readonly IUserRepository _userRepository;
 	private readonly IPhotoService _photoService;
 
-	public UsersController(UserManager<AppUser> userManager, IUserRepository userRepository,
-			IPhotoService photoService)
+	public UsersController(IUserRepository userRepository, IPhotoService photoService)
 	{
-		_userManager = userManager;
 		_userRepository = userRepository;
 		_photoService = photoService;
 	}
-
-	// ===================================================
-	// ================= GET Requests ====================
-	// ===================================================
-	// [Authorize(Roles = "Admin")]
-	[AllowAnonymous] // Development opnly
+	// ==================== GET Requests ====================
+	[Authorize(Roles = "Admin")]
+	// [AllowAnonymous] // Development opnly
 	[HttpGet("{usernameOrEmail}")] // /api/users/test@test.com
 	public async Task<AppUser> GetUser(string usernameOrEmail)
 	{
 		return await _userRepository.GetUserAsync(usernameOrEmail);
 	}
 
-	[Authorize(Roles = "Member")]
+	[Authorize(Roles = "Admin,Member")]
 	[HttpGet("members/{usernameOrEmail}")] // /api/users/members/test@test.com
 	public async Task<ActionResult<MemberDTO>> GetMember(string usernameOrEmail)
 	{
 		return await _userRepository.GetMemberAsync(usernameOrEmail);
 	}
 
-	[Authorize(Roles = "Admin")]
+	[Authorize(Roles = "Admin,Member")]
 	[HttpGet("members")] // /api/users/members
 	public async Task<ActionResult<IEnumerable<MemberDTO>>> GetMembers()
 	{
 		return Ok(await _userRepository.GetMembersAsync());
 	}
-
-	// ===================================================
-	// ================= POST Requests ===================
-	// ===================================================
+	// ==================== POST Requests ====================
 	[Authorize(Roles = "Member")]
 	[HttpPost("update-photo")] // /api/users/update-photo
 	public async Task<ActionResult<PhotoDTO>> UpdatePhoto(IFormFile file)
@@ -74,18 +63,12 @@ public class UsersController : BaseApiController
 		};
 
 		user.Photo = photo;
-		bool succeeded = await _userRepository.UpdateUserAsync(user);
+		IdentityResult updateUserResult = await _userRepository.UpdateUserAsync(user);
 
-		if (!succeeded)
-			return BadRequest("Failed to add photo");
-
-		return Ok();
+		return !updateUserResult.Succeeded ? BadRequest(updateUserResult.Errors) : Ok();
 	}
-
-	// ===================================================
-	// ================= PUT Requests ====================
-	// ===================================================
-	[Authorize(Roles = "Member")]
+	// ==================== PUT Requests ====================
+	[Authorize(Roles = "Admin,Member")]
 	[HttpPut("update-username")] // /api/users/update-username
 	public async Task<ActionResult> UpdateUsername(MemberUpdateDTO memberUpdateDTO)
 	{
@@ -102,15 +85,12 @@ public class UsersController : BaseApiController
 			return NotFound();
 
 		user.UserName = username;
-		bool succeeded = await _userRepository.UpdateUserAsync(user);
+		IdentityResult updateUserResult = await _userRepository.UpdateUserAsync(user);
 
-		if (!succeeded)
-			return BadRequest("Failed to update username");
-
-		return NoContent();
+		return !updateUserResult.Succeeded ? BadRequest(updateUserResult.Errors) : NoContent();
 	}
 
-	[Authorize(Roles = "Member")]
+	[Authorize(Roles = "Admin,Member")]
 	[HttpPut("update-email")] // /api/users/update-email
 	public async Task<ActionResult> UpdateEmail(MemberUpdateDTO memberUpdateDTO)
 	{
@@ -127,15 +107,12 @@ public class UsersController : BaseApiController
 			return NotFound();
 
 		user.Email = email;
-		bool succeeded = await _userRepository.UpdateUserAsync(user);
+		IdentityResult updateUserResult = await _userRepository.UpdateUserAsync(user);
 
-		if (!succeeded)
-			return BadRequest("Failed to update email");
-
-		return NoContent();
+		return !updateUserResult.Succeeded ? BadRequest(updateUserResult.Errors) : NoContent();
 	}
 
-	[Authorize(Roles = "Member")]
+	[Authorize(Roles = "Admin,Member")]
 	[HttpPut("update-password")] // /api/users/reset-password
 	public async Task<ActionResult> UpdatePassword(ChangePasswordDTO changePasswordDTO)
 	{
@@ -145,19 +122,14 @@ public class UsersController : BaseApiController
 		if (user == null)
 			return NotFound();
 
-		// DebugUtil.PrintDebug(user);
-		// _mapper.Map(newUsername, user);
+		IdentityResult updatePasswordResult = await _userRepository.UpdateUserPasswordAsync(user,
+																									changePasswordDTO.CurrentPassword,
+																									changePasswordDTO.NewPassword);
 
-		await _userManager.ChangePasswordAsync(user,
-																				changePasswordDTO.CurrentPassword,
-																				changePasswordDTO.Password);
-
-		return NoContent();
+		return !updatePasswordResult.Succeeded ? BadRequest(updatePasswordResult.Errors) : NoContent();
 	}
-
-	// ======================================================
-	// ================= DELETE Requests ====================
-	// ======================================================
+	// ==================== DELETE Requests ====================
+	[Authorize(Roles = "Admin,Member")]
 	[HttpDelete("delete-photo")]
 	public async Task<ActionResult> DeletePhoto()
 	{
@@ -177,11 +149,8 @@ public class UsersController : BaseApiController
 		}
 
 		user.Photo = null;
-		bool succeeded = await _userRepository.UpdateUserAsync(user);
+		IdentityResult updateUserResult = await _userRepository.UpdateUserAsync(user);
 
-		if (!succeeded)
-			return BadRequest("Failed to delete photo");
-
-		return Ok();
+		return !updateUserResult.Succeeded ? BadRequest(updateUserResult.Errors) : Ok();
 	}
 }

@@ -1,4 +1,5 @@
 using API.DTOs;
+using Microsoft.AspNetCore.Identity;
 
 namespace API.Interfaces;
 

@@ -39,10 +39,12 @@ public class TokenService : ITokenService
 
 		var creds = new SigningCredentials(_key, SecurityAlgorithms.HmacSha512);
 
+		int minutes = roles.Contains("Admin") ? 60 : 5;
+
 		var tokenDescriptor = new SecurityTokenDescriptor
 		{
 			Subject = new ClaimsIdentity(claims),
-			Expires = DateTime.Now.AddMinutes(2),
+			Expires = DateTime.Now.AddMinutes(minutes),
 			NotBefore = DateTime.Now,
 			SigningCredentials = creds,
 		};

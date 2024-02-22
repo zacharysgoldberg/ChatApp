@@ -35,13 +35,6 @@ public class UserRepository : IUserRepository
 										.FirstOrDefaultAsync(u => u.Id == id);
 	}
 
-	public async Task<IEnumerable<AppUser>> GetUsersAsync()
-	{
-		return await _userManager.Users
-										.Include(u => u.UserContacts)
-										.ToListAsync();
-	}
-
 	public async Task<MemberDTO> GetMemberAsync(string usernameOrEmail)
 	{
 		return await _userManager.Users
@@ -70,43 +63,39 @@ public class UserRepository : IUserRepository
 	{
 		AppUser user = await _userManager.FindByEmailAsync(email);
 
-		if (user != null)
-			return true;
-		return false;
+		return user != null;
 	}
 
 	public async Task<bool> UsernameExistsAsync(string username)
 	{
 		AppUser user = await _userManager.FindByNameAsync(username);
 
-		if (user != null)
-			return true;
-		return false;
-	}
-
-	public async Task<bool> CreateUserAsync(AppUser user, string password)
-	{
-		IdentityResult result = await _userManager.CreateAsync(user, password);
-
-		return result.Succeeded;
-	}
-
-	public async Task<bool> UpdateUserAsync(AppUser user)
-	{
-		var result = await _userManager.UpdateAsync(user);
-
-		return result.Succeeded;
-	}
-
-	public async Task<bool> AddRoleToUserAsync(AppUser user, string role)
-	{
-		var result = await _userManager.AddToRoleAsync(user, role);
-
-		return result.Succeeded;
+		return user != null;
 	}
 
 	public async Task<bool> PasswordMatchesAsync(AppUser user, string password)
 	{
 		return await _userManager.CheckPasswordAsync(user, password);
+	}
+
+	public async Task<IdentityResult> CreateUserAsync(AppUser user, string password)
+	{
+		return await _userManager.CreateAsync(user, password);
+	}
+
+	public async Task<IdentityResult> AddRoleToUserAsync(AppUser user, string role)
+	{
+		return await _userManager.AddToRoleAsync(user, role);
+	}
+
+	public async Task<IdentityResult> UpdateUserAsync(AppUser user)
+	{
+		return await _userManager.UpdateAsync(user);
+	}
+
+	public async Task<IdentityResult> UpdateUserPasswordAsync(AppUser user, string currentPassword,
+		string newPassword)
+	{
+		return await _userManager.ChangePasswordAsync(user, currentPassword, newPassword);
 	}
 }

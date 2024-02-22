@@ -3,7 +3,7 @@ using API.DTOs;
 using API.Entities;
 using API.Interfaces;
 using AutoMapper;
-using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace API.Services;
@@ -44,8 +44,9 @@ public class ContactRepository : IContactRepository
 
 		_context.UserContacts.Add(userContact);
 		await _context.SaveChangesAsync();
+		IdentityResult updateUserResult = await _userRepository.UpdateUserAsync(user);
 
-		return await _userRepository.UpdateUserAsync(user);
+		return updateUserResult.Succeeded;
 	}
 
 	public async Task<ContactDTO> GetContactAsync(int userId, int contactId)
@@ -97,8 +98,9 @@ public class ContactRepository : IContactRepository
 			return false;
 
 		_context.UserContacts.Remove(userContact);
+		IdentityResult updateUserResult = await _userRepository.UpdateUserAsync(user);
 
-		return await _userRepository.UpdateUserAsync(user);
+		return updateUserResult.Succeeded;
 	}
 
 	public async Task<bool> UserContactExists(int userId, int contactId)

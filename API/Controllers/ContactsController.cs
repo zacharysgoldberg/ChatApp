@@ -2,6 +2,7 @@ using API.DTOs;
 using API.Entities;
 using API.Extensions;
 using API.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
@@ -17,7 +18,7 @@ public class ContactsController : BaseApiController
 		_contactRepository = contactRepository;
 	}
 
-
+	[Authorize(Roles = "Admin,Member")]
 	[HttpGet("{contactId}")] // /api/contacts/2
 	public async Task<ActionResult<ContactDTO>> GetContact(int contactId)
 	{
@@ -25,12 +26,10 @@ public class ContactsController : BaseApiController
 		MemberDTO user = await _userRepository.GetMemberAsync(usernameOrEmail);
 		ContactDTO contact = await _contactRepository.GetContactAsync(user.Id, contactId);
 
-		if (contact == null)
-			return NotFound();
-
-		return contact;
+		return contact == null ? NotFound() : contact;
 	}
 
+	[Authorize(Roles = "Admin,Member")]
 	[HttpGet] // /api/contacts/1
 	public async Task<ActionResult<IEnumerable<ContactDTO>>> GetContacts()
 	{
@@ -40,6 +39,7 @@ public class ContactsController : BaseApiController
 		return Ok(await _contactRepository.GetContactsAsync(user.Id));
 	}
 
+	[Authorize(Roles = "Member")]
 	[HttpPost] // /api/contacts
 	public async Task<ActionResult<MemberDTO>> AddContact([FromBody]
 				ContactUsernameDTO contactUsernameDTO)
@@ -57,19 +57,16 @@ public class ContactsController : BaseApiController
 		if (contact == null)
 			return BadRequest($"{contactUsernameDTO.UsernameOrEmail} does not exist");
 
-		bool userContactExists = await _contactRepository.UserContactExists(user.Id, contact.Id);
-
-		if (contact == null || userContactExists)
+		if (contact == null || await _contactRepository.UserContactExists(user.Id, contact.Id))
 			return BadRequest($"{contactUsernameDTO.UsernameOrEmail} already exists in contact list");
 
-		bool succeeded = await _contactRepository.AddContactAsync(user, contact.Id);
-
-		if (!succeeded)
-			return BadRequest($"\nFailed to add contact {contactUsernameDTO.UsernameOrEmail}");
+		if (!await _contactRepository.AddContactAsync(user, contact.Id))
+			return BadRequest($"Failed to add contact {contactUsernameDTO.UsernameOrEmail}");
 
 		return contact;
 	}
 
+	[Authorize(Roles = "Member")]
 	[HttpPost("delete/{contactId}")] // /api/contacts/delete/2
 	public async Task<IActionResult> DeleteContact(int contactId)
 	{
@@ -79,10 +76,8 @@ public class ContactsController : BaseApiController
 		if (user == null)
 			return NotFound();
 
-		bool succeeded = await _contactRepository.DeleteContactAsync(user, contactId);
-
-		if (!succeeded)
-			return BadRequest("\nFailed to remove contact");
+		if (!await _contactRepository.DeleteContactAsync(user, contactId))
+			return BadRequest("Failed to remove contact");
 
 		return Ok();
 	}

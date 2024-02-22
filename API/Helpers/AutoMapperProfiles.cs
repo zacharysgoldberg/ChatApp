@@ -6,24 +6,21 @@ namespace API.Helpers;
 
 public class AutoMapperProfiles : Profile
 {
-    public AutoMapperProfiles()
-    {
-        CreateMap<AppUser, MemberDTO>()
-            .ForMember(dest => dest.PhotoUrl, opt => opt.MapFrom(src => src.Photo.Url));
+	public AutoMapperProfiles()
+	{
+		CreateMap<AppUser, MemberDTO>()
+			.ForMember(dest => dest.PhotoUrl, opt => opt.MapFrom(src => src.Photo.Url));
 
-        CreateMap<AppUser, Contact>();
+		CreateMap<AppUser, Contact>();
 
-        CreateMap<MemberDTO, ContactDTO>();
+		CreateMap<MemberDTO, ContactDTO>();
 
-        CreateMap<Photo, PhotoDTO>();
-        
-        CreateMap<MemberUpdateDTO, AppUser>();
+		CreateMap<Photo, PhotoDTO>();
 
-        CreateMap<Message, MessageDTO>()
-            .ForMember(dest => dest.SenderPhotoUrl, 
-                opt => opt.MapFrom(src => src.Sender.Photo.Url));
-        CreateMap<Message, MessageDTO>()
-            .ForMember(dest => dest.RecipientPhotoUrl, 
-                opt => opt.MapFrom(src => src.Sender.Photo.Url));
-    }
+		CreateMap<MemberUpdateDTO, AppUser>();
+
+		CreateMap<Message, MessageDTO>()
+			.ForMember(dest => dest.SenderPhotoUrl, opt => opt.MapFrom(src => src.Sender.Photo.Url))
+			.ForMember(dest => dest.RecipientPhotoUrl, opt => opt.MapFrom(src => src.Recipient.Photo.Url));
+	}
 }

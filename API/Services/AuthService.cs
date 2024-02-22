@@ -1,6 +1,4 @@
-using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using API.Data;
 using API.DTOs;
 using API.Entities;
 using API.Interfaces;
@@ -33,43 +31,43 @@ public class AuthService : IAuthService
 			SecurityStamp = Guid.NewGuid().ToString(),
 		};
 
-		bool createdUser = await _userRepository.CreateUserAsync(user, registerDTO.Password);
+		IdentityResult createUserResult = await _userRepository.CreateUserAsync(user, registerDTO.Password);
 
-		if (!createdUser)
-			return (null, "User registration failed");
+		if (!createUserResult.Succeeded)
+			return (null, "Registration Failed");
 
 		if (!await _roleManager.RoleExistsAsync(role))
 			await _roleManager.CreateAsync(new IdentityRole<int>(role));
 
 		if (await _roleManager.RoleExistsAsync(UserRolesDTO.Member))
 		{
-			bool addedRole = await _userRepository.AddRoleToUserAsync(user, role);
-			if (!addedRole)
-				return (null, "Failed to add role to user");
+			IdentityResult addRoleToUserResult = await _userRepository.AddRoleToUserAsync(user, role);
+
+			if (!addRoleToUserResult.Succeeded)
+				return (null, "Role Assignment Failed");
 		}
 
 		string accessToken = await _tokenService.GenerateAccessToken(user);
 		string refreshToken = _tokenService.GenerateRefreshToken();
-		bool parsedValidRefreshToken = int.TryParse(_config["JWT:RefreshTokenValidityInDays"],
-																								out int refreshTokenValidityInDays);
+		bool castValidRefreshToken = int.TryParse(_config["JWT:RefreshTokenValidityInDays"], out int
+																							refreshTokenValidityInDays);
 
-		if (!parsedValidRefreshToken)
+		if (!castValidRefreshToken)
 			return (null, "Failed to convert refresh token validity into a 32-bit signed integer");
 
 		user.RefreshToken = refreshToken;
 		user.RefreshTokenExpiryTime = DateTime.Now.AddDays(refreshTokenValidityInDays);
+		IdentityResult updateUserResult = await _userRepository.UpdateUserAsync(user);
 
-		bool updatedUser = await _userRepository.UpdateUserAsync(user);
-
-		if (!updatedUser)
-			return (null, "Failed to update user");
+		if (!updateUserResult.Succeeded)
+			return (null, "User Update Failed");
 
 		return (new UserDTO
 		{
 			Username = user.UserName,
 			AccessToken = accessToken,
 			RefreshToken = refreshToken
-		}, "User created successfully");
+		}, null);
 	}
 
 	public async Task<(UserDTO, string)> Authenticate(LoginDTO loginDTO)
@@ -84,27 +82,26 @@ public class AuthService : IAuthService
 
 		string accessToken = await _tokenService.GenerateAccessToken(user);
 		string refreshToken = _tokenService.GenerateRefreshToken();
-		bool parsedValidRefreshToken = int.TryParse(_config["JWT:RefreshTokenValidityInDays"],
-																								out int refreshTokenValidityInDays);
+		bool castValidRefreshToken = int.TryParse(_config["JWT:RefreshTokenValidityInDays"], out int
+																							refreshTokenValidityInDays);
 
-		if (!parsedValidRefreshToken)
+		if (!castValidRefreshToken)
 			return (null, "Failed to convert refresh token validity into a 32-bit signed integer");
 
 		user.RefreshToken = refreshToken;
 		user.RefreshTokenExpiryTime = DateTime.Now.AddDays(refreshTokenValidityInDays);
 		user.LastActive = DateTime.UtcNow;
+		IdentityResult updateUserResult = await _userRepository.UpdateUserAsync(user);
 
-		bool updatedUser = await _userRepository.UpdateUserAsync(user);
-
-		if (!updatedUser)
-			return (null, "Failed to update user");
+		if (!updateUserResult.Succeeded)
+			return (null, "User Update Failed");
 
 		return (new UserDTO
 		{
 			Username = user.UserName,
 			AccessToken = accessToken,
 			RefreshToken = refreshToken
-		}, "User signed in successfully");
+		}, null);
 	}
 
 	public async Task<(UserDTO, string)> RefreshToken(UserDTO userDTO)
@@ -112,9 +109,7 @@ public class AuthService : IAuthService
 		string accessToken = userDTO.AccessToken;
 		string refreshToken = userDTO.RefreshToken;
 		ClaimsPrincipal principal = _tokenService.GetPrincipalFromExpiredToken(accessToken);
-		string usernameOrEmail = principal.Identity.Name;
-
-		AppUser user = await _userRepository.GetUserAsync(usernameOrEmail);
+		AppUser user = await _userRepository.GetUserAsync(principal.Identity.Name);
 
 		if (user == null ||
 				user.RefreshToken != refreshToken ||
@@ -125,17 +120,16 @@ public class AuthService : IAuthService
 		string newAccessToken = await _tokenService.GenerateAccessToken(user, claims);
 		string newRefreshToken = _tokenService.GenerateRefreshToken();
 		user.RefreshToken = newRefreshToken;
+		IdentityResult updateUserResult = await _userRepository.UpdateUserAsync(user);
 
-		bool updatedUser = await _userRepository.UpdateUserAsync(user);
-
-		if (!updatedUser)
-			return (null, "Failed to update user");
+		if (!updateUserResult.Succeeded)
+			return (null, "User Update Failed");
 
 		return (new UserDTO()
 		{
 			Username = user.UserName,
 			AccessToken = newAccessToken,
 			RefreshToken = newRefreshToken
-		}, "Refreshed tokens successfully");
+		}, null);
 	}
 }
