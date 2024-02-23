@@ -11,6 +11,7 @@ public interface IUserRepository
 	Task<MemberDTO> GetMemberAsync(string usernameOrEmail);
 	Task<MemberDTO> GetMemberByIdAsync(int id);
 	Task<IEnumerable<MemberDTO>> GetMembersAsync();
+	Task<bool> UserIdExists(int id);
 	Task<bool> EmailExistsAsync(string email);
 	Task<bool> UsernameExistsAsync(string username);
 	Task<bool> PasswordMatchesAsync(AppUser user, string password);

@@ -1,10 +1,10 @@
 using API.Data;
 using API.DTOs;
 using API.Entities;
+using API.Helpers;
 using API.Interfaces;
 using AutoMapper;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 
 namespace API.Services;
 
@@ -24,44 +24,33 @@ public class ContactRepository : IContactRepository
 
 	public async Task<bool> AddContactAsync(AppUser user, int contactId)
 	{
+		if (user.Contacts.Any(c => c.Id == contactId))
+			// Contact already exists, return false indicating failure
+			return false;
+
 		Contact contact = await _context.Contacts.FindAsync(contactId);
 
 		// Create a new Contact entity if it doesn't exist
 		if (contact == null)
 		{
-			var newContact = new Contact { Id = contactId };
-			var addedContact = await _context.Contacts.AddAsync(newContact);
-
-			if (addedContact == null)
-				return false;
+			contact = new Contact { Id = contactId, UserId = user.Id };
+			await _context.Contacts.AddAsync(contact);
+			await _context.SaveChangesAsync();
 		}
 
-		var userContact = new UserContact
-		{
-			AppUserId = user.Id,
-			ContactId = contactId
-		};
+		user.Contacts.Add(contact);
+		IdentityResult addedContactResult = await _userRepository.UpdateUserAsync(user);
 
-		_context.UserContacts.Add(userContact);
-		await _context.SaveChangesAsync();
-		IdentityResult updateUserResult = await _userRepository.UpdateUserAsync(user);
-
-		return updateUserResult.Succeeded;
+		return addedContactResult.Succeeded;
 	}
 
 	public async Task<ContactDTO> GetContactAsync(int userId, int contactId)
 	{
-		Contact contact = await _context.UserContacts
-				.Where(uc => uc.AppUserId == userId && uc.ContactId == contactId)
-				.Select(uc => uc.Contact)
-				.FirstOrDefaultAsync();
+		MemberDTO memberDTO = await _userRepository.GetMemberByIdAsync(contactId);
 
-		if (contact == null)
+		if (memberDTO == null)
 			return null;
 
-		// Once you have the UserContact/Contact entry, you can access the corresponding Member DTO
-		MemberDTO memberDTO = await _userRepository.GetMemberByIdAsync(contact.Id);
-		// Then cast the member into a Contact DTO
 		ContactDTO contactDTO = _mapper.Map<ContactDTO>(memberDTO);
 
 		return contactDTO;
@@ -69,13 +58,13 @@ public class ContactRepository : IContactRepository
 
 	public async Task<IEnumerable<ContactDTO>> GetContactsAsync(int userId)
 	{
-		IEnumerable<Contact> contacts = await _context.UserContacts
-				.Where(uc => uc.AppUserId == userId)
-				.Select(uc => uc.Contact)
-				.ToListAsync();
+		AppUser user = await _userRepository.GetUserByIdAsync(userId);
+		ICollection<Contact> contacts = user.Contacts;
+
+		DebugUtil.PrintDebug(contacts);
 
 		if (contacts == null)
-			return null;
+			return Enumerable.Empty<ContactDTO>();
 
 		List<ContactDTO> contactDTOs = new();
 
@@ -85,19 +74,20 @@ public class ContactRepository : IContactRepository
 			MemberDTO memberDTO = await _userRepository.GetMemberByIdAsync(contact.Id);
 			contactDTOs.Add(_mapper.Map<ContactDTO>(memberDTO));
 		}
+
 		return contactDTOs;
 	}
 
 	public async Task<bool> DeleteContactAsync(AppUser user, int contactId)
 	{
-		UserContact userContact = await _context.UserContacts
-				.Where(uc => uc.AppUserId == user.Id && uc.ContactId == contactId)
-				.FirstOrDefaultAsync();
+		Contact contact = user.Contacts.FirstOrDefault(c => c.Id == contactId);
 
-		if (userContact == null)
+		if (contact == null)
 			return false;
 
-		_context.UserContacts.Remove(userContact);
+		// _context.Contacts.Remove(contact);
+		// await _context.SaveChangesAsync();
+		user.Contacts.Remove(contact);
 		IdentityResult updateUserResult = await _userRepository.UpdateUserAsync(user);
 
 		return updateUserResult.Succeeded;
@@ -105,7 +95,12 @@ public class ContactRepository : IContactRepository
 
 	public async Task<bool> UserContactExists(int userId, int contactId)
 	{
-		return await _context.UserContacts
-				.AnyAsync(uc => uc.AppUserId == userId && uc.ContactId == contactId);
+		// return await _context.UserContacts
+		// 		.AnyAsync(uc => uc.AppUserId == userId && uc.ContactId == contactId);
+
+		AppUser user = await _userRepository.GetUserByIdAsync(userId);
+		Contact contact = user.Contacts.FirstOrDefault(c => c.Id == contactId);
+
+		return contact != null;
 	}
 }

@@ -1,6 +1,7 @@
 using API.DTOs;
 using API.Entities;
 using API.Extensions;
+using API.Helpers;
 using API.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -39,7 +40,7 @@ public class ContactsController : BaseApiController
 		return Ok(await _contactRepository.GetContactsAsync(user.Id));
 	}
 
-	[Authorize(Roles = "Member")]
+	[Authorize(Roles = "Admin,Member")]
 	[HttpPost] // /api/contacts
 	public async Task<ActionResult<MemberDTO>> AddContact([FromBody]
 				ContactUsernameDTO contactUsernameDTO)
@@ -57,16 +58,13 @@ public class ContactsController : BaseApiController
 		if (contact == null)
 			return BadRequest($"{contactUsernameDTO.UsernameOrEmail} does not exist");
 
-		if (contact == null || await _contactRepository.UserContactExists(user.Id, contact.Id))
-			return BadRequest($"{contactUsernameDTO.UsernameOrEmail} already exists in contact list");
-
 		if (!await _contactRepository.AddContactAsync(user, contact.Id))
 			return BadRequest($"Failed to add contact {contactUsernameDTO.UsernameOrEmail}");
 
 		return contact;
 	}
 
-	[Authorize(Roles = "Member")]
+	[Authorize(Roles = "Admin,Member")]
 	[HttpPost("delete/{contactId}")] // /api/contacts/delete/2
 	public async Task<IActionResult> DeleteContact(int contactId)
 	{

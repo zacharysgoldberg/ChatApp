@@ -28,6 +28,7 @@ public static class ApplicationServiceExtensions
 		services.AddScoped<IUserRepository, UserRepository>();
 		services.AddScoped<IContactRepository, ContactRepository>();
 		services.AddScoped<IMessageRepository, MessageRespository>();
+		services.AddScoped<IGroupMessageRepository, GroupMessageRepository>();
 
 		services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 

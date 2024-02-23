@@ -18,7 +18,7 @@ export class AccountService {
   currentUser$ = this.currentUserSource.asObservable();
 
   constructor(private http: HttpClient, private jwtHelper: JwtHelperService) {
-    const userString = JSON.stringify(localStorage.getItem('username'));
+    const userString = JSON.stringify(localStorage.getItem('user'));
 
     if (userString) {
       const user: UserModel = JSON.parse(userString);
@@ -59,7 +59,6 @@ export class AccountService {
 
   logout() {
     // const username = this.getUsername();
-
     localStorage.removeItem('user');
     this.currentUserSource.next(null);
 
@@ -70,8 +69,24 @@ export class AccountService {
     localStorage.setItem('user', JSON.stringify(user));
   }
 
-  setCurrentUserSource(user: UserModel): void {
+  setCurrentUserSource(user: UserModel) {
+    if (user.accessToken) {
+      const roles = this.getDecodedToken(user.accessToken).role;
+      if (roles) {
+        Array.isArray(roles) ? (user.roles = roles) : user.roles.push(roles);
+        // console.log(user.roles);
+      }
+    }
     this.currentUserSource.next(user);
+  }
+
+  getDecodedToken(token: string) {
+    const tokenParts = token.split('.');
+    if (tokenParts.length !== 3) {
+      console.error('Token does not have expected format');
+      return null;
+    }
+    return JSON.parse(atob(tokenParts[1]));
   }
 
   async tryRefreshingTokens(token: string | null): Promise<boolean> {

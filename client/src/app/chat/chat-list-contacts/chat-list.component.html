@@ -43,7 +43,7 @@
 
                 <!-- List of Contacts with Message Thread start -->
                 <ul class="nav nav-pills" *ngFor="let contact of contactsWithMessageThreads">
-                  <li class="nav-item py-1" aria-current="page" data-chat="person1" (click)="selectUser(contact)">
+                  <li class="nav-item py-1" aria-current="page" data-chat="person1" (click)="selectUser(contact.id)">
                     <a class="nav-link">
                       <span class="status online"></span>
                       <p class="name-time">
@@ -58,48 +58,10 @@
             </div>
             <!-- List of Contacts with Message Thread end -->
 
-            <!-- Selected User(s) Info start -->
             <div class="col-xl-8 col-lg-8 col-md-8 col-sm-9 col-9 ">
-              <div class="selected-user" *ngIf="selectedUser">
-                <span><img *ngIf="selectedUser.photoUrl" src="{{selectedUser.photoUrl}}" class="rounded-circle me-2"
-                    width="50" height="50"><span class="name text-white">{{ selectedUser.userName }},</span></span>
-              </div>
-              <!-- Selected User(s) Info end-->
 
-              <!-- Message Thread UI start -->
-              <div class="card bg-dark" *ngIf="messageThread.length > 0">
-                <div class="card-body scrollable-message-thread ">
-                  <ul class="chats">
-                    <li *ngFor="let message of messageThread">
-                      <div>
-                        <span class="chat-img float-end">
-                          <img class="rounded-circle" width="40px" height="40px" src="{{message.senderPhotoUrl}}"
-                            alt="img of sender">
-                        </span>
-                        <strong class="text-white float-end px-2">{{ message.senderUsername }}</strong>
-                        <div class="chat-body">
-                          <div class="header">
-                            <small class="text-muted">
-                              <span class="fa fa-clock-o">{{ message.messageSent | date: "short" }}</span>
-                            </small>
-                          </div>
-                          <p class="text-white">{{message.content}}</p>
-                        </div>
-                      </div>
-                    </li>
-                  </ul>
-                </div>
-                <div class="chat-form my-2">
-                  <form #messageForm="ngForm" autocomplete="off" class="form-group" (ngSubmit)="sendMessage()">
-                    <textarea name="messageContent" class="form-control bg-dark text-white" type="text"
-                      placeholder="Type a message..." [(ngModel)]="messageContent"></textarea>
-                    <button [disabled]="messageContent.length === 0" type="submit" class="btn btn-primary mt-2">
-                      <li class="fa fa-send"></li>
-                    </button>
-                  </form>
-                </div>
-              </div>
-              <!-- Message Thread UI end -->
+              <!-- Message Thread Component -->
+              <app-chat-message-thread [contact]="contact" [messageThread]="messageThread"></app-chat-message-thread>
 
             </div>
           </div>

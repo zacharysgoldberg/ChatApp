@@ -8,11 +8,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace API.Data
+namespace API.Data.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20240221012949_Initial")]
-    partial class Initial
+    [Migration("20240223195210_GroupMessageEntity")]
+    partial class GroupMessageEntity
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -108,9 +108,39 @@ namespace API.Data
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<int>("UserId")
+                        .HasColumnType("INTEGER");
+
                     b.HasKey("Id");
 
+                    b.HasIndex("UserId");
+
                     b.ToTable("Contacts");
+                });
+
+            modelBuilder.Entity("API.Entities.GroupMessage", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid>("ChannelId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Content")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("SenderId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SenderId");
+
+                    b.ToTable("GroupMessages");
                 });
 
             modelBuilder.Entity("API.Entities.Message", b =>
@@ -122,16 +152,10 @@ namespace API.Data
                     b.Property<string>("Content")
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTime?>("MessageSent")
+                    b.Property<DateTime?>("CreatedAt")
                         .HasColumnType("TEXT");
 
-                    b.Property<bool>("RecipientDeleted")
-                        .HasColumnType("INTEGER");
-
                     b.Property<int>("RecipientId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<bool>("SenderDeleted")
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("SenderId")
@@ -161,6 +185,21 @@ namespace API.Data
                     b.HasKey("Id");
 
                     b.ToTable("Photo");
+                });
+
+            modelBuilder.Entity("AppUserGroupMessage", b =>
+                {
+                    b.Property<int>("GroupMessagesId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("UsersId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("GroupMessagesId", "UsersId");
+
+                    b.HasIndex("UsersId");
+
+                    b.ToTable("AppUserGroupMessage");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<int>", b =>
@@ -289,21 +328,6 @@ namespace API.Data
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("UserContact", b =>
-                {
-                    b.Property<int>("AppUserId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("ContactId")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("AppUserId", "ContactId");
-
-                    b.HasIndex("ContactId");
-
-                    b.ToTable("UserContacts");
-                });
-
             modelBuilder.Entity("API.Entities.AppUser", b =>
                 {
                     b.HasOne("API.Entities.Photo", "Photo")
@@ -311,6 +335,28 @@ namespace API.Data
                         .HasForeignKey("PhotoId");
 
                     b.Navigation("Photo");
+                });
+
+            modelBuilder.Entity("API.Entities.Contact", b =>
+                {
+                    b.HasOne("API.Entities.AppUser", "AppUser")
+                        .WithMany("Contacts")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AppUser");
+                });
+
+            modelBuilder.Entity("API.Entities.GroupMessage", b =>
+                {
+                    b.HasOne("API.Entities.AppUser", "Sender")
+                        .WithMany()
+                        .HasForeignKey("SenderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Sender");
                 });
 
             modelBuilder.Entity("API.Entities.Message", b =>
@@ -330,6 +376,21 @@ namespace API.Data
                     b.Navigation("Recipient");
 
                     b.Navigation("Sender");
+                });
+
+            modelBuilder.Entity("AppUserGroupMessage", b =>
+                {
+                    b.HasOne("API.Entities.GroupMessage", null)
+                        .WithMany()
+                        .HasForeignKey("GroupMessagesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("API.Entities.AppUser", null)
+                        .WithMany()
+                        .HasForeignKey("UsersId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
@@ -383,32 +444,13 @@ namespace API.Data
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("UserContact", b =>
-                {
-                    b.HasOne("API.Entities.AppUser", "AppUser")
-                        .WithMany("UserContacts")
-                        .HasForeignKey("AppUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("API.Entities.Contact", "Contact")
-                        .WithMany()
-                        .HasForeignKey("ContactId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("AppUser");
-
-                    b.Navigation("Contact");
-                });
-
             modelBuilder.Entity("API.Entities.AppUser", b =>
                 {
+                    b.Navigation("Contacts");
+
                     b.Navigation("MessagesReceived");
 
                     b.Navigation("MessagesSent");
-
-                    b.Navigation("UserContacts");
                 });
 #pragma warning restore 612, 618
         }

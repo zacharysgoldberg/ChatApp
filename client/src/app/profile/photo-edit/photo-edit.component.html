@@ -18,7 +18,7 @@
         <input class="btn btn-info btn-sm" type="file" ng2FileSelect [uploader]="uploader" />
 
         <!-- Button to delete the photo -->
-        <button class="btn btn-sm btn-danger" (click)="deletePhoto()">
+        <button class="btn btn-sm btn-danger" (click)="deletePhoto()" [disabled]="!member?.photoUrl">
           <li class="fa fa-trash"> Delete Photo </li>
         </button>
       </div>

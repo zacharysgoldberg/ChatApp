@@ -16,5 +16,5 @@ public record MemberDTO
 		DateTime LastActive,
 		string PhotoUrl,
 		PhotoDTO Photo,
-		ICollection<UserContact> UserContacts
+		ICollection<Contact> Contacts
 );

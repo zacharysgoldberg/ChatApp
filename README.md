@@ -1,3 +1,3 @@
 # ChatApp
 
-## ASP.NET Core API with MSSQL Server and Angular Client
+## ASP.NET Core API with SQL, SignalR, and Angular Client

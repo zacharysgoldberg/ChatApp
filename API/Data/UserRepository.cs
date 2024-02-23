@@ -22,7 +22,7 @@ public class UserRepository : IUserRepository
 	public async Task<AppUser> GetUserAsync(string usernameOrEmail)
 	{
 		return await _userManager.Users
-										// .Include(u => u.UserContacts) // include contacts list
+										.Include(u => u.Contacts) // include contacts list
 										.Include(u => u.Photo)
 										.FirstOrDefaultAsync(u => u.UserName == usernameOrEmail ||
 																				u.Email == usernameOrEmail.ToLower());
@@ -59,18 +59,20 @@ public class UserRepository : IUserRepository
 										.ToListAsync();
 	}
 
+	public async Task<bool> UserIdExists(int id)
+	{
+		return await _userManager.Users.FirstOrDefaultAsync(user => user.Id == id) != null;
+	}
+
 	public async Task<bool> EmailExistsAsync(string email)
 	{
-		AppUser user = await _userManager.FindByEmailAsync(email);
-
-		return user != null;
+		return await _userManager.FindByEmailAsync(email) != null;
 	}
 
 	public async Task<bool> UsernameExistsAsync(string username)
 	{
-		AppUser user = await _userManager.FindByNameAsync(username);
 
-		return user != null;
+		return await _userManager.FindByNameAsync(username) != null;
 	}
 
 	public async Task<bool> PasswordMatchesAsync(AppUser user, string password)

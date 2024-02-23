@@ -6,11 +6,9 @@ namespace API.Interfaces;
 
 public interface IMessageRepository
 {
-	Task<IEnumerable<MessageDTO>> AddMessageThreadAsync(int senderId, int recipientId);
-	void AddMessageAsync(Message message);
-	void DeleteMessageAsync(Message message);
-	Task<Message> GetMessageAsync(int id);
-	Task<PagedList<MessageDTO>> GetMessagesAsync(MessageParams messageParams);
+	Task<IEnumerable<MessageDTO>> CreateMessageThreadAsync(int senderId, int recipientId);
+	Task<bool> CreateMessageAsync(Message message);
+	Task<bool> DeleteMessageAsync(Message message);
 	Task<IEnumerable<MessageDTO>> GetMessageThreadAsync(int currentUserId, int recipientId);
 	Task<IEnumerable<ContactDTO>> GetContactsWithMessageThreadAsync(int currentUserId);
 	Task<bool> SaveAllAsync();

@@ -8,7 +8,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace API;
+namespace API.Controllers;
 
 public class MessagesController : BaseApiController
 {
@@ -23,28 +23,28 @@ public class MessagesController : BaseApiController
 		_mapper = mapper;
 	}
 
-	[Authorize(Roles = "Member")]
+	[Authorize(Roles = "Admin,Member")]
 	[HttpPost("thread")]
 	public async Task<ActionResult<IEnumerable<MessageDTO>>> CreateMessageThread(CreateMessageDTO createMessageDTO)
 	{
 		string usernameOrEmail = User.GetUsernameOrEmail();
-		AppUser sender = await _userRepository.GetUserAsync(usernameOrEmail);
-		AppUser recipient = await _userRepository.GetUserByIdAsync(createMessageDTO.RecipientId);
+		MemberDTO sender = await _userRepository.GetMemberAsync(usernameOrEmail);
+		bool recipientExists = await _userRepository.UserIdExists(createMessageDTO.RecipientId);
 
-		if (sender == null || recipient == null)
+		if (sender == null || !recipientExists)
 			return NotFound();
 
 		if (sender.Id == createMessageDTO.RecipientId)
 			return BadRequest("Cannot create message thread with self");
 
-		IEnumerable<MessageDTO> messageThread = await _messageRepository.AddMessageThreadAsync(sender.Id, recipient.Id);
+		IEnumerable<MessageDTO> messageThread = await
+			_messageRepository.CreateMessageThreadAsync(sender.Id, createMessageDTO.RecipientId);
 
 		if (messageThread.Any())
 			return Ok(messageThread);
 		else
 			return NoContent();
 	}
-
 
 	[Authorize(Roles = "Admin,Member")]
 	[HttpPost]
@@ -67,35 +67,14 @@ public class MessagesController : BaseApiController
 			Content = createMessageDTO.Content
 		};
 
-		_messageRepository.AddMessageAsync(message);
-
-		if (await _messageRepository.SaveAllAsync())
+		if (await _messageRepository.CreateMessageAsync(message))
 			return Ok(_mapper.Map<MessageDTO>(message));
 
 		return BadRequest("Failed to send message");
 	}
 
 	[Authorize(Roles = "Admin,Member")]
-	[HttpGet]
-	public async Task<ActionResult<PagedList<MessageDTO>>> GetMessagesForUser(
-			[FromQuery] MessageParams messageParams)
-	{
-		string usernameOrEmail = User.GetUsernameOrEmail();
-		MemberDTO user = await _userRepository.GetMemberAsync(usernameOrEmail);
-
-		if (user == null)
-			return NotFound();
-
-		messageParams.Id = user.Id;
-		PagedList<MessageDTO> messages = await _messageRepository.GetMessagesAsync(messageParams);
-
-		Response.AddPaginationHeader(new PaginationHeader(messages.CurrentPage, messages.PageSize, messages.TotalCount, messages.TotalPages));
-
-		return messages;
-	}
-
-	[Authorize(Roles = "Admin,Member")]
-	[HttpGet("thread/{recipientId}")]
+	[HttpGet("{recipientId}")]
 	public async Task<ActionResult<IEnumerable<MessageDTO>>> GetMessageThread(int recipientId)
 	{
 		string usernameOrEmail = User.GetUsernameOrEmail();

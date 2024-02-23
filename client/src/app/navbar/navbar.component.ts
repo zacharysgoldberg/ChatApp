@@ -38,17 +38,6 @@ export class NavbarComponent implements OnInit {
   }
 
   logout() {
-    // this.accountService.logout(this.model).subscribe({
-    //   next: () => {
-    //     // console.log(response);
-    //     this.router.navigateByUrl('/');
-    //   },
-
-    //   error: (error) => {
-    //     this.toastr.error(error.error), console.log(error);
-    //   },
-    // });
-
     this.accountService.logout();
     this.router.navigateByUrl('/');
   }

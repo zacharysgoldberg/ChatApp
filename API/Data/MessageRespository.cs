@@ -4,7 +4,6 @@ using API.Entities;
 using API.Helpers;
 using API.Interfaces;
 using AutoMapper;
-using AutoMapper.QueryableExtensions;
 using Microsoft.EntityFrameworkCore;
 
 namespace API;
@@ -22,7 +21,7 @@ public class MessageRespository : IMessageRepository
 		_mapper = mapper;
 	}
 
-	public async Task<IEnumerable<MessageDTO>> AddMessageThreadAsync(int senderId, int recipientId)
+	public async Task<IEnumerable<MessageDTO>> CreateMessageThreadAsync(int senderId, int recipientId)
 	{
 		// Check if a message thread already exists between sender and recipient
 		IEnumerable<Message> existingThread = await _context.Messages
@@ -31,93 +30,77 @@ public class MessageRespository : IMessageRepository
 				.Where(m =>
 					(m.RecipientId == senderId && m.SenderId == recipientId) ||
 					(m.RecipientId == recipientId && m.SenderId == senderId))
-				.OrderBy(m => m.MessageSent)
+				.OrderBy(m => m.CreatedAt)
 				.ToListAsync();
 
-		// If an existing thread is found, fetch the messages associated with that thread
+		// If an existing thread is found, fetch the messages associated
 		if (existingThread.Any())
 		{
-			var messageDTOs = existingThread.Select(message => new MessageDTO
+			var usersInfo = await _context.Users
+					.Where(u => u.Id == senderId || u.Id == recipientId)
+					.Select(u => new
+					{
+						Id = u.Id,
+						UserName = u.UserName,
+						PhotoUrl = u.Photo.Url
+					})
+					.ToListAsync();
+
+			string senderUsername = usersInfo.FirstOrDefault(u => u.Id == senderId)?.UserName ?? "";
+			string senderPhotoUrl = usersInfo.FirstOrDefault(u => u.Id == senderId)?.PhotoUrl ?? "";
+			string recipientUsername = usersInfo.FirstOrDefault(u => u.Id == recipientId)?.UserName ?? "";
+			string recipientPhotoUrl = usersInfo.FirstOrDefault(u => u.Id == recipientId)?.PhotoUrl ?? "";
+
+			IEnumerable<MessageDTO> messageDTOs = existingThread.Select(message => new MessageDTO
 			{
 				// Map message properties to DTO properties
 				Id = message.Id,
 				SenderId = message.SenderId,
 				RecipientId = message.RecipientId,
 				Content = message.Content,
-				MessageSent = message.MessageSent,
-				// Project sender and recipient usernames using foreign keys (may need to update to LinQ)
-				SenderUsername = message.Sender.UserName,
-				RecipientUsername = message.Recipient.UserName
+				CreatedAt = message.CreatedAt,
+				SenderUsername = senderUsername,
+				SenderPhotoUrl = senderPhotoUrl,
+				RecipientUsername = recipientUsername,
+				RecipientPhotoUrl = recipientPhotoUrl,
 			});
 
 			return messageDTOs;
 		}
-		else
-			// No existing thread found, return an empty collection
-			return Enumerable.Empty<MessageDTO>();
+		// No existing thread found, return an empty collection
+		return Enumerable.Empty<MessageDTO>();
 	}
 
-	public void AddMessageAsync(Message message)
+	public async Task<bool> CreateMessageAsync(Message message)
 	{
 		_context.Messages.Add(message);
+		return await SaveAllAsync();
 	}
 
-	public void DeleteMessageAsync(Message message)
+	public async Task<IEnumerable<MessageDTO>> GetMessageThreadAsync(int userId, int recipientId)
 	{
-		_context.Remove(message);
-	}
+		var usersInfo = await _context.Users
+				.Where(u => u.Id == userId || u.Id == recipientId)
+				.Select(u => new
+				{
+					Id = u.Id,
+					UserName = u.UserName,
+					PhotoUrl = u.Photo.Url
+				})
+				.ToListAsync();
 
-	public async Task<Message> GetMessageAsync(int id)
-	{
-		return await _context.Messages.FindAsync(id);
-	}
-
-	public async Task<PagedList<MessageDTO>> GetMessagesAsync(MessageParams messageParams)
-	{
-		IQueryable<Message> query = _context.Messages
-				.OrderByDescending(x => x.MessageSent)
-				.AsQueryable();
-
-		query = messageParams.Container switch
-		{
-			"Inbox" => query.Where(u => u.RecipientId == messageParams.Id),
-			"Outbox" => query.Where(u => u.SenderId == messageParams.Id),
-			_ => query.Where(u => u.RecipientId == messageParams.Id)
-		};
-
-		IQueryable<MessageDTO> messages = query.ProjectTo<MessageDTO>(_mapper.ConfigurationProvider);
-
-		return await PagedList<MessageDTO>
-				.CreateAsync(messages, messageParams.PageNumber, messageParams.PageSize);
-	}
-
-	public async Task<IEnumerable<MessageDTO>> GetMessageThreadAsync(int currentUserId, int recipientId)
-	{
-		// Query sender and recipient usernames and photoUrls
-		string senderUsername = _context.Users
-						.Where(u => u.Id == currentUserId)
-						.Select(u => u.UserName)
-						.FirstOrDefault();
-		string recipientUsername = _context.Users
-						.Where(u => u.Id == recipientId)
-						.Select(u => u.UserName)
-						.FirstOrDefault();
-		string senderPhotoUrl = _context.Users
-						.Where(u => u.Id == currentUserId)
-						.Select(u => u.Photo.Url)
-						.FirstOrDefault();
-		string recipientPhotoUrl = _context.Users
-						.Where(u => u.Id == recipientId)
-						.Select(u => u.Photo.Url)
-						.FirstOrDefault();
+		string senderUsername = usersInfo.FirstOrDefault(u => u.Id == userId)?.UserName ?? "";
+		string senderPhotoUrl = usersInfo.FirstOrDefault(u => u.Id == userId)?.PhotoUrl ?? "";
+		string recipientUsername = usersInfo.FirstOrDefault(u => u.Id == recipientId)?.UserName ?? "";
+		string recipientPhotoUrl = usersInfo.FirstOrDefault(u => u.Id == recipientId)?.PhotoUrl ?? "";
 
 		IEnumerable<MessageDTO> messages = await _context.Messages
 				.Include(m => m.Sender)
 				.ThenInclude(m => m.Photo)
 				.Where(m =>
-					(m.RecipientId == currentUserId && m.SenderId == recipientId) ||
-					(m.RecipientId == recipientId && m.SenderId == currentUserId))
-				.OrderBy(m => m.MessageSent)
+					(m.RecipientId == userId && m.SenderId == recipientId) ||
+					(m.RecipientId == recipientId && m.SenderId == userId))
+				.OrderBy(m => m.CreatedAt)
 				.Select(message => new MessageDTO
 				{
 					// Map message properties to DTO properties
@@ -129,18 +112,18 @@ public class MessageRespository : IMessageRepository
 					RecipientUsername = recipientUsername,
 					RecipientPhotoUrl = recipientPhotoUrl,
 					Content = message.Content,
-					MessageSent = message.MessageSent
+					CreatedAt = message.CreatedAt
 				})
 				.ToListAsync();
 
 		return messages;
 	}
 
-	public async Task<IEnumerable<ContactDTO>> GetContactsWithMessageThreadAsync(int currentUserId)
+	public async Task<IEnumerable<ContactDTO>> GetContactsWithMessageThreadAsync(int userId)
 	{
 		IEnumerable<int> usersIds = await _context.Messages
-				.Where(m => m.RecipientId == currentUserId || m.SenderId == currentUserId)
-				.Select(m => m.RecipientId == currentUserId ? m.SenderId : m.RecipientId)
+				.Where(m => m.RecipientId == userId || m.SenderId == userId)
+				.Select(m => m.RecipientId == userId ? m.SenderId : m.RecipientId)
 				.Distinct()
 				.ToListAsync();
 
@@ -149,12 +132,18 @@ public class MessageRespository : IMessageRepository
 
 		List<ContactDTO> contactDTOs = new();
 
-		foreach (int userId in usersIds)
+		foreach (int id in usersIds)
 		{
-			MemberDTO memberDTO = await _userRepository.GetMemberByIdAsync(userId);
+			MemberDTO memberDTO = await _userRepository.GetMemberByIdAsync(id);
 			contactDTOs.Add(_mapper.Map<ContactDTO>(memberDTO));
 		}
 		return contactDTOs;
+	}
+
+	public async Task<bool> DeleteMessageAsync(Message message)
+	{
+		_context.Remove(message);
+		return await SaveAllAsync();
 	}
 
 	public async Task<bool> SaveAllAsync()

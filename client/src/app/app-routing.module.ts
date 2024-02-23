@@ -7,10 +7,13 @@ import { TestErrorComponent } from './errors/test-error/test-error.component';
 import { NotFoundComponent } from './errors/not-found/not-found.component';
 import { ServerErrorComponent } from './errors/server-error/server-error.component';
 import { ContactsComponent } from './contacts/contacts.component';
-import { ChatComponent } from './chat/chat.component';
+import { ChatListComponent } from './chat/chat-list-contacts/chat-list.component';
 import { LoginComponent } from './login/login.component';
 import { RegisterComponent } from './register/register.component';
 import { ProfileDetailsComponent } from './profile/profile-details/profile-details.component';
+import { AdminPanelComponent } from './admin/admin-panel/admin-panel.component';
+import { AdminGuard } from './_guards/admin.guard';
+import { ChatMessageThreadComponent } from './chat/chat-message-thread/chat-message-thread.component';
 
 const routes: Routes = [
   { path: '', component: LoginComponent },
@@ -23,8 +26,13 @@ const routes: Routes = [
       { path: 'home', component: HomeComponent },
       { path: 'profile', component: ProfileDetailsComponent },
       { path: 'contacts', component: ContactsComponent },
-      { path: 'chat', component: ChatComponent },
+      { path: 'chat', component: ChatListComponent },
       { path: 'notifications', component: NotificationsComponent },
+      {
+        path: 'admin',
+        component: AdminPanelComponent,
+        canActivate: [AdminGuard],
+      },
     ],
   },
   { path: 'errors', component: TestErrorComponent },

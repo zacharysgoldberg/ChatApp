@@ -13,6 +13,9 @@ public class AutoMapperProfiles : Profile
 
 		CreateMap<AppUser, Contact>();
 
+		CreateMap<AppUser, ContactDTO>()
+			.ForMember(dest => dest.PhotoUrl, opt => opt.MapFrom(src => src.Photo.Url));
+
 		CreateMap<MemberDTO, ContactDTO>();
 
 		CreateMap<Photo, PhotoDTO>();
@@ -22,5 +25,10 @@ public class AutoMapperProfiles : Profile
 		CreateMap<Message, MessageDTO>()
 			.ForMember(dest => dest.SenderPhotoUrl, opt => opt.MapFrom(src => src.Sender.Photo.Url))
 			.ForMember(dest => dest.RecipientPhotoUrl, opt => opt.MapFrom(src => src.Recipient.Photo.Url));
+
+		CreateMap<GroupMessage, GroupMessageDTO>()
+			.ForMember(dest => dest.SenderUsername, opt => opt.MapFrom(src => src.Sender.UserName))
+			.ForMember(dest => dest.SenderPhotoUrl, opt => opt.MapFrom(src => src.Sender.Photo.Url))
+			.ForMember(dest => dest.Contacts, opt => opt.MapFrom(src => src.Users));
 	}
 }

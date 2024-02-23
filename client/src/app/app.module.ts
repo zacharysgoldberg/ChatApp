@@ -18,7 +18,7 @@ import { JwtInterceptor, JwtModule } from '@auth0/angular-jwt';
 import { AuthGuard } from './_guards/auth.guard';
 import { ContactsComponent } from './contacts/contacts.component';
 import { environment } from 'src/environments/environment.development';
-import { ChatComponent } from './chat/chat.component';
+import { ChatListComponent } from './chat/chat-list-contacts/chat-list.component';
 import { LoginComponent } from './login/login.component';
 import { ProfileDetailsComponent } from './profile/profile-details/profile-details.component';
 import { ProfileEditComponent } from './profile/profile-edit/profile-edit.component';
@@ -26,6 +26,8 @@ import { LoadingInterceptor } from './_interceptors/loading.interceptor';
 import { PhotoEditComponent } from './profile/photo-edit/photo-edit.component';
 import { UserModel } from './_models/user.model';
 import { TextInputComponent } from './_forms/text-input/text-input.component';
+import { AdminPanelComponent } from './admin/admin-panel/admin-panel.component';
+import { ChatMessageThreadComponent } from './chat/chat-message-thread/chat-message-thread.component';
 
 export function tokenGetter() {
   const userString = localStorage.getItem('user');
@@ -48,12 +50,14 @@ export function tokenGetter() {
     NotFoundComponent,
     ServerErrorComponent,
     ContactsComponent,
-    ChatComponent,
+    ChatListComponent,
+    ChatMessageThreadComponent,
     LoginComponent,
     ProfileDetailsComponent,
     ProfileEditComponent,
     PhotoEditComponent,
     TextInputComponent,
+    AdminPanelComponent,
   ],
   imports: [
     BrowserModule,

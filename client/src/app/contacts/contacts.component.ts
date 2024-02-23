@@ -1,10 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { Router } from '@angular/router';
 import { ContactModel } from 'src/app/_models/contact.model';
 import { ContactService } from 'src/app/_services/contact.service';
 import { AccountService } from '../_services/account.service';
 import { ToastrService } from 'ngx-toastr';
 import { Observable } from 'rxjs';
+import { MessageService } from '../_services/message.service';
 
 @Component({
   selector: 'app-contacts',
@@ -19,8 +20,9 @@ export class ContactsComponent implements OnInit {
   constructor(
     public accountService: AccountService,
     private contactService: ContactService,
+    private messageService: MessageService,
     private toastr: ToastrService,
-    private route: ActivatedRoute
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -54,5 +56,8 @@ export class ContactsComponent implements OnInit {
     });
   }
 
-  message() {}
+  message(contactId: number) {
+    this.messageService.createMessageThread(contactId);
+    this.router.navigate(['/chat']);
+  }
 }
