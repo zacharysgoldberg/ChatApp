@@ -11,7 +11,6 @@ public interface IGroupMessageRepository
 	Task<bool> CreateGroupMessageAsync(GroupMessage message);
 	Task<IEnumerable<GroupMessageDTO>> GetGroupMessageChannelAsync(Guid channelId);
 	Task<IEnumerable<GroupMessageChannelDTO>> GetGroupMessageChannelsForUserAsync(int userId);
-	Task<IEnumerable<ContactDTO>> GetContactsInGroupMessageChannelAsync(Guid channelId);
 	Task<bool> DeleteGroupMessageAsync(GroupMessage message);
 	Task<bool> SaveAllAsync();
 }

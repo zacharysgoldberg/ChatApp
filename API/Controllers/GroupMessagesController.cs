@@ -1,4 +1,3 @@
-using System.Numerics;
 using API.Data;
 using API.DTOs;
 using API.Entities;
@@ -79,10 +78,10 @@ public class GroupMessagesController : BaseApiController
 	[HttpGet("{channelId}")]
 	public async Task<ActionResult<IEnumerable<GroupMessageDTO>>> GetGroupMessageChannel(Guid channelId)
 	{
-		GroupMessage result =
-			await _context.GroupMessages.FirstOrDefaultAsync(gm => gm.ChannelId == channelId);
+		string usernameOrEmail = User.GetUsernameOrEmail();
+		MemberDTO user = await _userRepository.GetMemberAsync(usernameOrEmail);
 
-		if (result == null)
+		if (user == null)
 			return NotFound();
 
 		return Ok(await _groupMessageRepository.GetGroupMessageChannelAsync(channelId));
@@ -102,20 +101,6 @@ public class GroupMessagesController : BaseApiController
 	}
 
 	[Authorize(Roles = "Admin,Member")]
-	[HttpGet("contacts/{channelId}")]
-	public async Task<ActionResult<IEnumerable<ContactDTO>>> GetContactsInGroupMessageChannel
-		(Guid channelId)
-	{
-		IEnumerable<ContactDTO> contacts = await
-			_groupMessageRepository.GetContactsInGroupMessageChannelAsync(channelId);
-
-		if (contacts == null)
-			return NotFound();
-
-		return Ok(contacts);
-	}
-
-	[Authorize(Roles = "Admin,Member")]
 	[HttpDelete("{groupMessageId}")]
 	public async Task<ActionResult> DeleteGroupMessage(int groupMessageId)
 	{
@@ -124,6 +109,7 @@ public class GroupMessagesController : BaseApiController
 
 		if (deletedMessage)
 			return NoContent();
-		return BadRequest("Falied to delete group message");
+
+		return BadRequest("Failed to delete group message");
 	}
 }

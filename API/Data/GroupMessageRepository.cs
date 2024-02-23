@@ -1,7 +1,3 @@
-using System.Collections.Generic;
-using System.Linq;
-using System.Numerics;
-using API.Data;
 using API.DTOs;
 using API.Interfaces;
 using API.Entities;
@@ -14,13 +10,11 @@ namespace API.Data
 	public class GroupMessageRepository : IGroupMessageRepository
 	{
 		private readonly DataContext _context;
-		private readonly IUserRepository _userRepository;
 		private readonly IMapper _mapper;
 
-		public GroupMessageRepository(DataContext context, IUserRepository userRepository, IMapper mapper)
+		public GroupMessageRepository(DataContext context, IMapper mapper)
 		{
 			_context = context;
-			_userRepository = userRepository;
 			_mapper = mapper;
 		}
 
@@ -136,28 +130,6 @@ namespace API.Data
 					.ToListAsync();
 
 			return groupMessageChannels;
-		}
-
-
-		public async Task<IEnumerable<ContactDTO>> GetContactsInGroupMessageChannelAsync(Guid channelId)
-		{
-			IEnumerable<int> usersIds = await _context.GroupMessages
-				.Where(m => m.ChannelId == channelId)
-				.Select(m => m.SenderId)
-				.Distinct()
-				.ToListAsync();
-
-			if (usersIds == null)
-				return null;
-
-			List<ContactDTO> contactDTOs = new();
-
-			foreach (int id in usersIds)
-			{
-				MemberDTO memberDTO = await _userRepository.GetMemberByIdAsync(id);
-				contactDTOs.Add(_mapper.Map<ContactDTO>(memberDTO));
-			}
-			return contactDTOs;
 		}
 
 		public async Task<bool> DeleteGroupMessageAsync(GroupMessage groupMessage)
