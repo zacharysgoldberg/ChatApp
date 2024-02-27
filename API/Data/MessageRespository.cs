@@ -26,7 +26,7 @@ public class MessageRespository : IMessageRepository
 		// Check if a message thread already exists between sender and recipient
 		IEnumerable<Message> existingThread = await _context.Messages
 				.Include(m => m.Sender)
-				.ThenInclude(m => m.Photo)
+					.ThenInclude(m => m.Photo)
 				.Where(m =>
 					(m.RecipientId == senderId && m.SenderId == recipientId) ||
 					(m.RecipientId == recipientId && m.SenderId == senderId))
@@ -46,23 +46,18 @@ public class MessageRespository : IMessageRepository
 					})
 					.ToListAsync();
 
-			string senderUsername = usersInfo.FirstOrDefault(u => u.Id == senderId)?.UserName ?? "";
-			string senderPhotoUrl = usersInfo.FirstOrDefault(u => u.Id == senderId)?.PhotoUrl ?? "";
-			string recipientUsername = usersInfo.FirstOrDefault(u => u.Id == recipientId)?.UserName ?? "";
-			string recipientPhotoUrl = usersInfo.FirstOrDefault(u => u.Id == recipientId)?.PhotoUrl ?? "";
-
 			IEnumerable<MessageDTO> messageDTOs = existingThread.Select(message => new MessageDTO
 			{
 				// Map message properties to DTO properties
 				Id = message.Id,
 				SenderId = message.SenderId,
+				SenderUsername = usersInfo.FirstOrDefault(u => u.Id == message.SenderId).UserName,
+				SenderPhotoUrl = usersInfo.FirstOrDefault(u => u.Id == message.SenderId)?.PhotoUrl,
 				RecipientId = message.RecipientId,
+				RecipientUsername = usersInfo.FirstOrDefault(u => u.Id == message.RecipientId).UserName,
+				RecipientPhotoUrl = usersInfo.FirstOrDefault(u => u.Id == message.RecipientId)?.PhotoUrl,
 				Content = message.Content,
 				CreatedAt = message.CreatedAt,
-				SenderUsername = senderUsername,
-				SenderPhotoUrl = senderPhotoUrl,
-				RecipientUsername = recipientUsername,
-				RecipientPhotoUrl = recipientPhotoUrl,
 			});
 
 			return messageDTOs;
@@ -80,43 +75,40 @@ public class MessageRespository : IMessageRepository
 	public async Task<IEnumerable<MessageDTO>> GetMessageThreadAsync(int userId, int recipientId)
 	{
 		var usersInfo = await _context.Users
-				.Where(u => u.Id == userId || u.Id == recipientId)
-				.Select(u => new
-				{
-					Id = u.Id,
-					UserName = u.UserName,
-					PhotoUrl = u.Photo.Url
-				})
-				.ToListAsync();
+			.Where(u => u.Id == userId || u.Id == recipientId)
+			.Select(u => new
+			{
+				Id = u.Id,
+				UserName = u.UserName,
+				PhotoUrl = u.Photo.Url
+			})
+			.ToListAsync();
 
-		string senderUsername = usersInfo.FirstOrDefault(u => u.Id == userId)?.UserName ?? "";
-		string senderPhotoUrl = usersInfo.FirstOrDefault(u => u.Id == userId)?.PhotoUrl ?? "";
-		string recipientUsername = usersInfo.FirstOrDefault(u => u.Id == recipientId)?.UserName ?? "";
-		string recipientPhotoUrl = usersInfo.FirstOrDefault(u => u.Id == recipientId)?.PhotoUrl ?? "";
+		var messages = await _context.Messages
+			.Include(m => m.Sender)
+				.ThenInclude(u => u.Photo)
+			.Include(m => m.Recipient)
+				.ThenInclude(u => u.Photo)
+			.Where(m =>
+				(m.RecipientId == userId && m.SenderId == recipientId) ||
+				(m.RecipientId == recipientId && m.SenderId == userId))
+			.OrderBy(m => m.CreatedAt)
+			.ToListAsync();
 
-		IEnumerable<MessageDTO> messages = await _context.Messages
-				.Include(m => m.Sender)
-				.ThenInclude(m => m.Photo)
-				.Where(m =>
-					(m.RecipientId == userId && m.SenderId == recipientId) ||
-					(m.RecipientId == recipientId && m.SenderId == userId))
-				.OrderBy(m => m.CreatedAt)
-				.Select(message => new MessageDTO
-				{
-					// Map message properties to DTO properties
-					Id = message.Id,
-					SenderId = message.SenderId,
-					SenderUsername = senderUsername,
-					SenderPhotoUrl = senderPhotoUrl,
-					RecipientId = message.RecipientId,
-					RecipientUsername = recipientUsername,
-					RecipientPhotoUrl = recipientPhotoUrl,
-					Content = message.Content,
-					CreatedAt = message.CreatedAt
-				})
-				.ToListAsync();
+		var messageDTOs = messages.Select(message => new MessageDTO
+		{
+			Id = message.Id,
+			SenderId = message.SenderId,
+			SenderUsername = usersInfo.FirstOrDefault(u => u.Id == message.SenderId).UserName,
+			SenderPhotoUrl = usersInfo.FirstOrDefault(u => u.Id == message.SenderId)?.PhotoUrl,
+			RecipientId = message.RecipientId,
+			RecipientUsername = usersInfo.FirstOrDefault(u => u.Id == message.RecipientId).UserName,
+			RecipientPhotoUrl = usersInfo.FirstOrDefault(u => u.Id == message.RecipientId)?.PhotoUrl,
+			Content = message.Content,
+			CreatedAt = message.CreatedAt
+		}).ToList();
 
-		return messages;
+		return messageDTOs;
 	}
 
 	public async Task<IEnumerable<ContactDTO>> GetContactsWithMessageThreadAsync(int userId)

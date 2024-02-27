@@ -9,447 +9,450 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace API.Data.Migrations
 {
-    [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
-    {
-        protected override void BuildModel(ModelBuilder modelBuilder)
-        {
+	[DbContext(typeof(DataContext))]
+	partial class DataContextModelSnapshot : ModelSnapshot
+	{
+		protected override void BuildModel(ModelBuilder modelBuilder)
+		{
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "7.0.14");
+			modelBuilder.HasAnnotation("ProductVersion", "7.0.14");
 
-            modelBuilder.Entity("API.Entities.AppUser", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+			modelBuilder.Entity("API.Entities.AppUser", b =>
+					{
+						b.Property<int>("Id")
+											.ValueGeneratedOnAdd()
+											.HasColumnType("INTEGER");
 
-                    b.Property<int>("AccessFailedCount")
-                        .HasColumnType("INTEGER");
+						b.Property<int>("AccessFailedCount")
+											.HasColumnType("INTEGER");
 
-                    b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken()
-                        .HasColumnType("TEXT");
+						b.Property<string>("ConcurrencyStamp")
+											.IsConcurrencyToken()
+											.HasColumnType("TEXT");
 
-                    b.Property<DateTime>("Created")
-                        .HasColumnType("TEXT");
+						b.Property<DateTime>("Created")
+											.HasColumnType("TEXT");
 
-                    b.Property<string>("Email")
-                        .HasMaxLength(256)
-                        .HasColumnType("TEXT");
+						b.Property<string>("Email")
+											.HasMaxLength(256)
+											.HasColumnType("TEXT");
 
-                    b.Property<bool>("EmailConfirmed")
-                        .HasColumnType("INTEGER");
+						b.Property<bool>("EmailConfirmed")
+											.HasColumnType("INTEGER");
 
-                    b.Property<DateTime>("LastActive")
-                        .HasColumnType("TEXT");
+						b.Property<DateTime>("LastActive")
+											.HasColumnType("TEXT");
 
-                    b.Property<bool>("LockoutEnabled")
-                        .HasColumnType("INTEGER");
+						b.Property<bool>("LockoutEnabled")
+											.HasColumnType("INTEGER");
 
-                    b.Property<DateTimeOffset?>("LockoutEnd")
-                        .HasColumnType("TEXT");
+						b.Property<DateTimeOffset?>("LockoutEnd")
+											.HasColumnType("TEXT");
 
-                    b.Property<string>("NormalizedEmail")
-                        .HasMaxLength(256)
-                        .HasColumnType("TEXT");
+						b.Property<string>("NormalizedEmail")
+											.HasMaxLength(256)
+											.HasColumnType("TEXT");
 
-                    b.Property<string>("NormalizedUserName")
-                        .HasMaxLength(256)
-                        .HasColumnType("TEXT");
+						b.Property<string>("NormalizedUserName")
+											.HasMaxLength(256)
+											.HasColumnType("TEXT");
 
-                    b.Property<string>("PasswordHash")
-                        .HasColumnType("TEXT");
+						b.Property<string>("PasswordHash")
+											.HasColumnType("TEXT");
 
-                    b.Property<string>("PhoneNumber")
-                        .HasColumnType("TEXT");
+						b.Property<string>("PhoneNumber")
+											.HasColumnType("TEXT");
 
-                    b.Property<bool>("PhoneNumberConfirmed")
-                        .HasColumnType("INTEGER");
+						b.Property<bool>("PhoneNumberConfirmed")
+											.HasColumnType("INTEGER");
 
-                    b.Property<int?>("PhotoId")
-                        .HasColumnType("INTEGER");
+						b.Property<int?>("PhotoId")
+											.HasColumnType("INTEGER");
 
-                    b.Property<string>("RefreshToken")
-                        .HasColumnType("TEXT");
+						b.Property<string>("RefreshToken")
+											.HasColumnType("TEXT");
 
-                    b.Property<DateTime>("RefreshTokenExpiryTime")
-                        .HasColumnType("TEXT");
+						b.Property<DateTime>("RefreshTokenExpiryTime")
+											.HasColumnType("TEXT");
 
-                    b.Property<string>("SecurityStamp")
-                        .HasColumnType("TEXT");
+						b.Property<string>("SecurityStamp")
+											.HasColumnType("TEXT");
 
-                    b.Property<bool>("TwoFactorEnabled")
-                        .HasColumnType("INTEGER");
+						b.Property<bool>("TwoFactorEnabled")
+											.HasColumnType("INTEGER");
 
-                    b.Property<string>("UserName")
-                        .HasMaxLength(256)
-                        .HasColumnType("TEXT");
+						b.Property<string>("UserName")
+											.HasMaxLength(256)
+											.HasColumnType("TEXT");
 
-                    b.HasKey("Id");
+						b.HasKey("Id");
 
-                    b.HasIndex("NormalizedEmail")
-                        .HasDatabaseName("EmailIndex");
+						b.HasIndex("NormalizedEmail")
+											.HasDatabaseName("EmailIndex");
 
-                    b.HasIndex("NormalizedUserName")
-                        .IsUnique()
-                        .HasDatabaseName("UserNameIndex");
+						b.HasIndex("NormalizedUserName")
+											.IsUnique()
+											.HasDatabaseName("UserNameIndex");
 
-                    b.HasIndex("PhotoId");
+						b.HasIndex("PhotoId");
 
-                    b.ToTable("AspNetUsers", (string)null);
-                });
+						b.ToTable("AspNetUsers", (string)null);
+					});
 
-            modelBuilder.Entity("API.Entities.Contact", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+			modelBuilder.Entity("API.Entities.Contact", b =>
+					{
+						b.Property<int>("Id")
+											.ValueGeneratedOnAdd()
+											.HasColumnType("INTEGER");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("INTEGER");
+						b.Property<int>("UserId")
+											.HasColumnType("INTEGER");
 
-                    b.HasKey("Id");
+						b.HasKey("Id");
 
-                    b.HasIndex("UserId");
+						b.HasIndex("UserId");
 
-                    b.ToTable("Contacts");
-                });
+						b.ToTable("Contacts");
+					});
 
-            modelBuilder.Entity("API.Entities.GroupMessage", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+			modelBuilder.Entity("API.Entities.GroupMessage", b =>
+					{
+						b.Property<int>("Id")
+											.ValueGeneratedOnAdd()
+											.HasColumnType("INTEGER");
 
-                    b.Property<Guid>("ChannelId")
-                        .HasColumnType("TEXT");
+						b.Property<Guid>("ChannelId")
+											.HasColumnType("TEXT");
 
-                    b.Property<string>("Content")
-                        .HasColumnType("TEXT");
+						b.Property<string>("ChannelName")
+											.HasColumnType("TEXT");
 
-                    b.Property<DateTime?>("CreatedAt")
-                        .HasColumnType("TEXT");
+						b.Property<string>("Content")
+											.HasColumnType("TEXT");
 
-                    b.Property<int>("SenderId")
-                        .HasColumnType("INTEGER");
+						b.Property<DateTime?>("CreatedAt")
+											.HasColumnType("TEXT");
 
-                    b.HasKey("Id");
+						b.Property<int>("SenderId")
+											.HasColumnType("INTEGER");
 
-                    b.HasIndex("SenderId");
+						b.HasKey("Id");
 
-                    b.ToTable("GroupMessages");
-                });
+						b.HasIndex("SenderId");
 
-            modelBuilder.Entity("API.Entities.Message", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+						b.ToTable("GroupMessages");
+					});
 
-                    b.Property<string>("Content")
-                        .HasColumnType("TEXT");
+			modelBuilder.Entity("API.Entities.Message", b =>
+					{
+						b.Property<int>("Id")
+											.ValueGeneratedOnAdd()
+											.HasColumnType("INTEGER");
 
-                    b.Property<DateTime?>("CreatedAt")
-                        .HasColumnType("TEXT");
+						b.Property<string>("Content")
+											.HasColumnType("TEXT");
 
-                    b.Property<int>("RecipientId")
-                        .HasColumnType("INTEGER");
+						b.Property<DateTime?>("CreatedAt")
+											.HasColumnType("TEXT");
 
-                    b.Property<int>("SenderId")
-                        .HasColumnType("INTEGER");
+						b.Property<int>("RecipientId")
+											.HasColumnType("INTEGER");
 
-                    b.HasKey("Id");
+						b.Property<int>("SenderId")
+											.HasColumnType("INTEGER");
 
-                    b.HasIndex("RecipientId");
+						b.HasKey("Id");
 
-                    b.HasIndex("SenderId");
+						b.HasIndex("RecipientId");
 
-                    b.ToTable("Messages");
-                });
+						b.HasIndex("SenderId");
 
-            modelBuilder.Entity("API.Entities.Photo", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+						b.ToTable("Messages");
+					});
 
-                    b.Property<string>("PublicId")
-                        .HasColumnType("TEXT");
+			modelBuilder.Entity("API.Entities.Photo", b =>
+					{
+						b.Property<int>("Id")
+											.ValueGeneratedOnAdd()
+											.HasColumnType("INTEGER");
 
-                    b.Property<string>("Url")
-                        .HasColumnType("TEXT");
+						b.Property<string>("PublicId")
+											.HasColumnType("TEXT");
 
-                    b.HasKey("Id");
+						b.Property<string>("Url")
+											.HasColumnType("TEXT");
 
-                    b.ToTable("Photo");
-                });
+						b.HasKey("Id");
 
-            modelBuilder.Entity("AppUserGroupMessage", b =>
-                {
-                    b.Property<int>("GroupMessagesId")
-                        .HasColumnType("INTEGER");
+						b.ToTable("Photo");
+					});
 
-                    b.Property<int>("UsersId")
-                        .HasColumnType("INTEGER");
+			modelBuilder.Entity("AppUserGroupMessage", b =>
+					{
+						b.Property<int>("GroupMessagesId")
+											.HasColumnType("INTEGER");
 
-                    b.HasKey("GroupMessagesId", "UsersId");
+						b.Property<int>("UsersId")
+											.HasColumnType("INTEGER");
 
-                    b.HasIndex("UsersId");
+						b.HasKey("GroupMessagesId", "UsersId");
 
-                    b.ToTable("AppUserGroupMessage");
-                });
+						b.HasIndex("UsersId");
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<int>", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+						b.ToTable("AppUserGroupMessage");
+					});
 
-                    b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken()
-                        .HasColumnType("TEXT");
+			modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<int>", b =>
+					{
+						b.Property<int>("Id")
+											.ValueGeneratedOnAdd()
+											.HasColumnType("INTEGER");
 
-                    b.Property<string>("Name")
-                        .HasMaxLength(256)
-                        .HasColumnType("TEXT");
+						b.Property<string>("ConcurrencyStamp")
+											.IsConcurrencyToken()
+											.HasColumnType("TEXT");
 
-                    b.Property<string>("NormalizedName")
-                        .HasMaxLength(256)
-                        .HasColumnType("TEXT");
+						b.Property<string>("Name")
+											.HasMaxLength(256)
+											.HasColumnType("TEXT");
 
-                    b.HasKey("Id");
+						b.Property<string>("NormalizedName")
+											.HasMaxLength(256)
+											.HasColumnType("TEXT");
 
-                    b.HasIndex("NormalizedName")
-                        .IsUnique()
-                        .HasDatabaseName("RoleNameIndex");
+						b.HasKey("Id");
 
-                    b.ToTable("AspNetRoles", (string)null);
-                });
+						b.HasIndex("NormalizedName")
+											.IsUnique()
+											.HasDatabaseName("RoleNameIndex");
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+						b.ToTable("AspNetRoles", (string)null);
+					});
 
-                    b.Property<string>("ClaimType")
-                        .HasColumnType("TEXT");
+			modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
+					{
+						b.Property<int>("Id")
+											.ValueGeneratedOnAdd()
+											.HasColumnType("INTEGER");
 
-                    b.Property<string>("ClaimValue")
-                        .HasColumnType("TEXT");
+						b.Property<string>("ClaimType")
+											.HasColumnType("TEXT");
 
-                    b.Property<int>("RoleId")
-                        .HasColumnType("INTEGER");
+						b.Property<string>("ClaimValue")
+											.HasColumnType("TEXT");
 
-                    b.HasKey("Id");
+						b.Property<int>("RoleId")
+											.HasColumnType("INTEGER");
 
-                    b.HasIndex("RoleId");
+						b.HasKey("Id");
 
-                    b.ToTable("AspNetRoleClaims", (string)null);
-                });
+						b.HasIndex("RoleId");
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<int>", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+						b.ToTable("AspNetRoleClaims", (string)null);
+					});
 
-                    b.Property<string>("ClaimType")
-                        .HasColumnType("TEXT");
+			modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<int>", b =>
+					{
+						b.Property<int>("Id")
+											.ValueGeneratedOnAdd()
+											.HasColumnType("INTEGER");
 
-                    b.Property<string>("ClaimValue")
-                        .HasColumnType("TEXT");
+						b.Property<string>("ClaimType")
+											.HasColumnType("TEXT");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("INTEGER");
+						b.Property<string>("ClaimValue")
+											.HasColumnType("TEXT");
 
-                    b.HasKey("Id");
+						b.Property<int>("UserId")
+											.HasColumnType("INTEGER");
 
-                    b.HasIndex("UserId");
+						b.HasKey("Id");
 
-                    b.ToTable("AspNetUserClaims", (string)null);
-                });
+						b.HasIndex("UserId");
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<int>", b =>
-                {
-                    b.Property<string>("LoginProvider")
-                        .HasColumnType("TEXT");
+						b.ToTable("AspNetUserClaims", (string)null);
+					});
 
-                    b.Property<string>("ProviderKey")
-                        .HasColumnType("TEXT");
+			modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<int>", b =>
+					{
+						b.Property<string>("LoginProvider")
+											.HasColumnType("TEXT");
 
-                    b.Property<string>("ProviderDisplayName")
-                        .HasColumnType("TEXT");
+						b.Property<string>("ProviderKey")
+											.HasColumnType("TEXT");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("INTEGER");
+						b.Property<string>("ProviderDisplayName")
+											.HasColumnType("TEXT");
 
-                    b.HasKey("LoginProvider", "ProviderKey");
+						b.Property<int>("UserId")
+											.HasColumnType("INTEGER");
 
-                    b.HasIndex("UserId");
+						b.HasKey("LoginProvider", "ProviderKey");
 
-                    b.ToTable("AspNetUserLogins", (string)null);
-                });
+						b.HasIndex("UserId");
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<int>", b =>
-                {
-                    b.Property<int>("UserId")
-                        .HasColumnType("INTEGER");
+						b.ToTable("AspNetUserLogins", (string)null);
+					});
 
-                    b.Property<int>("RoleId")
-                        .HasColumnType("INTEGER");
+			modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<int>", b =>
+					{
+						b.Property<int>("UserId")
+											.HasColumnType("INTEGER");
 
-                    b.HasKey("UserId", "RoleId");
+						b.Property<int>("RoleId")
+											.HasColumnType("INTEGER");
 
-                    b.HasIndex("RoleId");
+						b.HasKey("UserId", "RoleId");
 
-                    b.ToTable("AspNetUserRoles", (string)null);
-                });
+						b.HasIndex("RoleId");
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<int>", b =>
-                {
-                    b.Property<int>("UserId")
-                        .HasColumnType("INTEGER");
+						b.ToTable("AspNetUserRoles", (string)null);
+					});
 
-                    b.Property<string>("LoginProvider")
-                        .HasColumnType("TEXT");
+			modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<int>", b =>
+					{
+						b.Property<int>("UserId")
+											.HasColumnType("INTEGER");
 
-                    b.Property<string>("Name")
-                        .HasColumnType("TEXT");
+						b.Property<string>("LoginProvider")
+											.HasColumnType("TEXT");
 
-                    b.Property<string>("Value")
-                        .HasColumnType("TEXT");
+						b.Property<string>("Name")
+											.HasColumnType("TEXT");
 
-                    b.HasKey("UserId", "LoginProvider", "Name");
+						b.Property<string>("Value")
+											.HasColumnType("TEXT");
 
-                    b.ToTable("AspNetUserTokens", (string)null);
-                });
+						b.HasKey("UserId", "LoginProvider", "Name");
 
-            modelBuilder.Entity("API.Entities.AppUser", b =>
-                {
-                    b.HasOne("API.Entities.Photo", "Photo")
-                        .WithMany()
-                        .HasForeignKey("PhotoId");
+						b.ToTable("AspNetUserTokens", (string)null);
+					});
 
-                    b.Navigation("Photo");
-                });
+			modelBuilder.Entity("API.Entities.AppUser", b =>
+					{
+						b.HasOne("API.Entities.Photo", "Photo")
+											.WithMany()
+											.HasForeignKey("PhotoId");
 
-            modelBuilder.Entity("API.Entities.Contact", b =>
-                {
-                    b.HasOne("API.Entities.AppUser", "AppUser")
-                        .WithMany("Contacts")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+						b.Navigation("Photo");
+					});
 
-                    b.Navigation("AppUser");
-                });
+			modelBuilder.Entity("API.Entities.Contact", b =>
+					{
+						b.HasOne("API.Entities.AppUser", "AppUser")
+											.WithMany("Contacts")
+											.HasForeignKey("UserId")
+											.OnDelete(DeleteBehavior.Cascade)
+											.IsRequired();
 
-            modelBuilder.Entity("API.Entities.GroupMessage", b =>
-                {
-                    b.HasOne("API.Entities.AppUser", "Sender")
-                        .WithMany()
-                        .HasForeignKey("SenderId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+						b.Navigation("AppUser");
+					});
 
-                    b.Navigation("Sender");
-                });
+			modelBuilder.Entity("API.Entities.GroupMessage", b =>
+					{
+						b.HasOne("API.Entities.AppUser", "Sender")
+											.WithMany()
+											.HasForeignKey("SenderId")
+											.OnDelete(DeleteBehavior.Cascade)
+											.IsRequired();
 
-            modelBuilder.Entity("API.Entities.Message", b =>
-                {
-                    b.HasOne("API.Entities.AppUser", "Recipient")
-                        .WithMany("MessagesReceived")
-                        .HasForeignKey("RecipientId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+						b.Navigation("Sender");
+					});
 
-                    b.HasOne("API.Entities.AppUser", "Sender")
-                        .WithMany("MessagesSent")
-                        .HasForeignKey("SenderId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+			modelBuilder.Entity("API.Entities.Message", b =>
+					{
+						b.HasOne("API.Entities.AppUser", "Recipient")
+											.WithMany("MessagesReceived")
+											.HasForeignKey("RecipientId")
+											.OnDelete(DeleteBehavior.Restrict)
+											.IsRequired();
 
-                    b.Navigation("Recipient");
+						b.HasOne("API.Entities.AppUser", "Sender")
+											.WithMany("MessagesSent")
+											.HasForeignKey("SenderId")
+											.OnDelete(DeleteBehavior.Restrict)
+											.IsRequired();
 
-                    b.Navigation("Sender");
-                });
+						b.Navigation("Recipient");
 
-            modelBuilder.Entity("AppUserGroupMessage", b =>
-                {
-                    b.HasOne("API.Entities.GroupMessage", null)
-                        .WithMany()
-                        .HasForeignKey("GroupMessagesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+						b.Navigation("Sender");
+					});
 
-                    b.HasOne("API.Entities.AppUser", null)
-                        .WithMany()
-                        .HasForeignKey("UsersId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
+			modelBuilder.Entity("AppUserGroupMessage", b =>
+					{
+						b.HasOne("API.Entities.GroupMessage", null)
+											.WithMany()
+											.HasForeignKey("GroupMessagesId")
+											.OnDelete(DeleteBehavior.Cascade)
+											.IsRequired();
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
-                {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole<int>", null)
-                        .WithMany()
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
+						b.HasOne("API.Entities.AppUser", null)
+											.WithMany()
+											.HasForeignKey("UsersId")
+											.OnDelete(DeleteBehavior.Cascade)
+											.IsRequired();
+					});
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<int>", b =>
-                {
-                    b.HasOne("API.Entities.AppUser", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
+			modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
+					{
+						b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole<int>", null)
+											.WithMany()
+											.HasForeignKey("RoleId")
+											.OnDelete(DeleteBehavior.Cascade)
+											.IsRequired();
+					});
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<int>", b =>
-                {
-                    b.HasOne("API.Entities.AppUser", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
+			modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<int>", b =>
+					{
+						b.HasOne("API.Entities.AppUser", null)
+											.WithMany()
+											.HasForeignKey("UserId")
+											.OnDelete(DeleteBehavior.Cascade)
+											.IsRequired();
+					});
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<int>", b =>
-                {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole<int>", null)
-                        .WithMany()
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+			modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<int>", b =>
+					{
+						b.HasOne("API.Entities.AppUser", null)
+											.WithMany()
+											.HasForeignKey("UserId")
+											.OnDelete(DeleteBehavior.Cascade)
+											.IsRequired();
+					});
 
-                    b.HasOne("API.Entities.AppUser", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
+			modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<int>", b =>
+					{
+						b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole<int>", null)
+											.WithMany()
+											.HasForeignKey("RoleId")
+											.OnDelete(DeleteBehavior.Cascade)
+											.IsRequired();
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<int>", b =>
-                {
-                    b.HasOne("API.Entities.AppUser", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
+						b.HasOne("API.Entities.AppUser", null)
+											.WithMany()
+											.HasForeignKey("UserId")
+											.OnDelete(DeleteBehavior.Cascade)
+											.IsRequired();
+					});
 
-            modelBuilder.Entity("API.Entities.AppUser", b =>
-                {
-                    b.Navigation("Contacts");
+			modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<int>", b =>
+					{
+						b.HasOne("API.Entities.AppUser", null)
+											.WithMany()
+											.HasForeignKey("UserId")
+											.OnDelete(DeleteBehavior.Cascade)
+											.IsRequired();
+					});
 
-                    b.Navigation("MessagesReceived");
+			modelBuilder.Entity("API.Entities.AppUser", b =>
+					{
+						b.Navigation("Contacts");
 
-                    b.Navigation("MessagesSent");
-                });
+						b.Navigation("MessagesReceived");
+
+						b.Navigation("MessagesSent");
+					});
 #pragma warning restore 612, 618
-        }
-    }
+		}
+	}
 }

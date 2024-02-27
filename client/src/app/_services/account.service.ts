@@ -18,7 +18,7 @@ export class AccountService {
   currentUser$ = this.currentUserSource.asObservable();
 
   constructor(private http: HttpClient, private jwtHelper: JwtHelperService) {
-    const userString = JSON.stringify(localStorage.getItem('user'));
+    const userString = localStorage.getItem('user');
 
     if (userString) {
       const user: UserModel = JSON.parse(userString);
@@ -70,6 +70,7 @@ export class AccountService {
   }
 
   setCurrentUserSource(user: UserModel) {
+    user.roles = [];
     if (user.accessToken) {
       const roles = this.getDecodedToken(user.accessToken).role;
       if (roles) {

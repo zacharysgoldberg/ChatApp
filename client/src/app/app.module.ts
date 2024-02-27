@@ -28,6 +28,8 @@ import { UserModel } from './_models/user.model';
 import { TextInputComponent } from './_forms/text-input/text-input.component';
 import { AdminPanelComponent } from './admin/admin-panel/admin-panel.component';
 import { ChatMessageThreadComponent } from './chat/chat-message-thread/chat-message-thread.component';
+import { ChatCreateChannelComponent } from './chat/chat-create-channel/chat-create-channel.component';
+import { ChatGroupMessageChannelComponent } from './chat/chat-group-message-channel/chat-group-message-channel.component';
 
 export function tokenGetter() {
   const userString = localStorage.getItem('user');
@@ -58,6 +60,8 @@ export function tokenGetter() {
     PhotoEditComponent,
     TextInputComponent,
     AdminPanelComponent,
+    ChatCreateChannelComponent,
+    ChatGroupMessageChannelComponent,
   ],
   imports: [
     BrowserModule,

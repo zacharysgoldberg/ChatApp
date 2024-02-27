@@ -1,0 +1,43 @@
+<div class="modal" id="addGroupMessageModal" tabindex="-1" aria-labelledby="addGroupMessageModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-dark">
+        <h5 class="modal-title text-white" id="addGroupMessageModalLabel">Create New Channel</h5>
+      </div>
+      <div class="modal-body bg-dark">
+        <div class="mb-3">
+          <label for="channelName" class="form-label text-white">Channel Name</label>
+          <input type="text" class="form-control bg-dark" id="channelName"
+            [(ngModel)]="createGroupMessageModel.channelName" placeholder="Enter channel name">
+        </div>
+        <!-- Added Contacts Section -->
+        <div class="mb-3">
+          <label for="addedContacts" class="form-label text-white">To:</label>
+          <div id="addedContacts" class="d-flex flex-wrap">
+            <span *ngFor="let addedContact of addedContacts" class="badge bg-primary me-2">{{ addedContact.userName }}
+              <span (click)="removeContact(addedContact)" style="cursor: pointer;">&times;</span>
+            </span>
+          </div>
+        </div>
+        <hr>
+        <!-- Select Contacts Section -->
+        <div class="mb-3">
+          <label for="contactInput" class="form-label text-white">Contacts</label>
+          <div class="list-group">
+            <button *ngFor="let contact of contacts" type="button"
+              class="list-group-item list-group-item-action text-white bg-dark"
+              (click)="toggleContactSelection(contact)">
+              {{ contact.userName }}
+              <span *ngIf="isSelectedContact(contact)" class="badge bg-success">&#10004;</span>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer bg-dark">
+        <button type="button" class="btn btn-primary" (click)="createChannel()">Create</button>
+        <button type="button" class="btn btn-secondary" (click)="cancel()" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>

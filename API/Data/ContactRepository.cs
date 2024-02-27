@@ -61,7 +61,7 @@ public class ContactRepository : IContactRepository
 		AppUser user = await _userRepository.GetUserByIdAsync(userId);
 		ICollection<Contact> contacts = user.Contacts;
 
-		DebugUtil.PrintDebug(contacts);
+		// DebugUtil.PrintDebug(ref contacts);
 
 		if (contacts == null)
 			return Enumerable.Empty<ContactDTO>();

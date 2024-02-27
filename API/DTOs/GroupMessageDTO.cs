@@ -8,6 +8,7 @@ public record GroupMessageDTO
 
 	public int Id { get; init; }
 	public Guid ChannelId { get; init; }
+	public string ChannelName { get; init; }
 	public int SenderId { get; set; }
 	public string SenderUsername { get; init; }
 	public string SenderPhotoUrl { get; init; }

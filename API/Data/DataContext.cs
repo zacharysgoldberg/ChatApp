@@ -19,12 +19,12 @@ public class DataContext : IdentityDbContext<AppUser, IdentityRole<int>, int>
 	{
 		base.OnModelCreating(builder);
 
-		// builder.Entity<GroupMessage>()
+		// builder.Entity<UserContact>()
 		// 		.HasKey(uc => new { uc.AppUserId, uc.ContactId });
 
-		// builder.Entity<GroupMessage>()
+		// builder.Entity<UserContact>()
 		// 		.HasOne(uc => uc.AppUser)
-		// 		.WithMany(u => u.UserContacts)
+		// 		.WithMany(u => u.Contacts)
 		// 		.HasForeignKey(uc => uc.AppUserId)
 		// 		.OnDelete(DeleteBehavior.Cascade);
 

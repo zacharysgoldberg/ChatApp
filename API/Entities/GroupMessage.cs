@@ -6,6 +6,7 @@ public class GroupMessage
 {
 	public int Id { get; set; }
 	public Guid ChannelId { get; set; }
+	public string ChannelName { get; set; }
 	public int SenderId { get; set; }
 	public AppUser Sender { get; set; }
 	public string Content { get; set; }

@@ -65,7 +65,7 @@ public class TokenService : ITokenService
 	}
 
 	// Validate the incomming expired token and return it's principal claim
-	public ClaimsPrincipal GetPrincipalFromExpiredToken(string token)
+	public ClaimsPrincipal GetPrincipalFromExpiredToken(ref string token)
 	{
 		var tokenValidationParameters = new TokenValidationParameters
 		{

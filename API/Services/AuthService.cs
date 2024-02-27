@@ -108,7 +108,7 @@ public class AuthService : IAuthService
 	{
 		string accessToken = userDTO.AccessToken;
 		string refreshToken = userDTO.RefreshToken;
-		ClaimsPrincipal principal = _tokenService.GetPrincipalFromExpiredToken(accessToken);
+		ClaimsPrincipal principal = _tokenService.GetPrincipalFromExpiredToken(ref accessToken);
 		AppUser user = await _userRepository.GetUserAsync(principal.Identity.Name);
 
 		if (user == null ||

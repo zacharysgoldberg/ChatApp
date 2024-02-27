@@ -5,6 +5,7 @@ using API.Helpers;
 using API.Interfaces;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
@@ -67,7 +68,15 @@ public class MessagesController : BaseApiController
 		};
 
 		if (await _messageRepository.CreateMessageAsync(message))
+		{
+			sender.LastActive = DateTime.UtcNow;
+			IdentityResult updateUserResult = await _userRepository.UpdateUserAsync(sender);
+
+			if (!updateUserResult.Succeeded)
+				return BadRequest("Failed to update user");
+
 			return Ok(_mapper.Map<MessageDTO>(message));
+		}
 
 		return BadRequest("Failed to send message");
 	}

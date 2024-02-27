@@ -1,12 +1,12 @@
 <section class="position-sticky bg-primary" *ngIf="(accountService.currentUser$ | async) as user">
-  <div class="sidebar d-flex flex-column flex-shrink-0 p-3 text-white bg-dark">
+  <div class="sidebar d-flex flex-column flex-shrink-0 p-3 text-white bg-dark" data-bs-theme="dark">
     <a class="navbar-brand my-3" routerLinkActive="active">
       <strong> Chat App </strong>
     </a>
     <hr>
     <ul class="nav nav-pills flex-column mb-auto">
       <ng-container>
-        <li class="nav-item my-sm-2 my-2 py-2" *ngIf="user.roles.includes('Admin')">
+        <li class="nav-item my-sm-2 my-2 py-2" *ngIf="user.roles.includes('Admin') || user.roles.includes('Moderator')">
           <a class="nav-link text-white text-center text-sm-start" routerLink="/admin" aria-current="page">
             <i class="fa fa-key"></i>
             <span class="ms-2 d-none d-sm-inline"> Admin </span>

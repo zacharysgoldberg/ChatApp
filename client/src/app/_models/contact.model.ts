@@ -6,5 +6,5 @@ export interface ContactModel {
   email: string;
   // created: Date;
   lastActive: Date;
-  photoUrl: string;
+  photoUrl?: string;
 }

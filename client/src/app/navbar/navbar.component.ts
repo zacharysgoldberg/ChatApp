@@ -4,9 +4,10 @@ import { ToastrService } from 'ngx-toastr';
 import { Component, OnInit } from '@angular/core';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { NotificationModel } from '../_models/notification.model';
-import { take } from 'rxjs';
+import { map, take } from 'rxjs';
 import { MemberModel } from '../_models/member.model';
 import { UserService } from '../_services/user.service';
+import { UserModel } from '../_models/user.model';
 
 @Component({
   selector: 'app-navbar',
@@ -17,6 +18,7 @@ export class NavbarComponent implements OnInit {
   member: MemberModel | undefined;
   notifications: NotificationModel[] = [];
   isDropup = true;
+  isAdmin = false;
 
   constructor(
     public accountService: AccountService,

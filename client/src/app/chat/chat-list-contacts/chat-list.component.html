@@ -34,21 +34,48 @@
 
                 <!-- Add Multiple Contacts for Group Message start -->
                 <div class="d-flex justify-content-center">
-                  <strong class="text-white">Create new chat</strong>
-                  <button class="btn btn-secondary mt-2 float-end mx-4">
+                  <strong class="text-white">Create Channel</strong>
+                  <button class="btn btn-secondary mt-2 float-end mx-4" (click)="toggleCreateNewChannelMode()">
                     <i class="fa fa-pencil"></i>
                   </button>
                 </div>
+
+                <app-chat-create-channel *ngIf="createNewChannelMode"
+                  (cancelEdit)="cancelCreateNewChannelMode($event)"></app-chat-create-channel>
                 <!-- Add Multiple Contacts for Group Message end -->
 
                 <!-- List of Contacts with Message Thread start -->
-                <ul class="nav nav-pills" *ngFor="let contact of contactsWithMessageThreads">
+                <!-- <ul class="nav nav-pills" *ngFor="let contact of contactsWithMessageThreads$ | async">
                   <li class="nav-item py-1" aria-current="page" data-chat="person1" (click)="selectUser(contact.id)">
                     <a class="nav-link">
                       <span class="status online"></span>
                       <p class="name-time">
                         <span class="name text-white">{{contact.userName}} </span>
                         <span class="time"> {{contact.lastActive | date: 'MM-dd-yyyy'}}</span>
+                      </p>
+                    </a>
+                  </li>
+                </ul> -->
+
+                <ul class="nav nav-pills" *ngFor="let contactOrChannel of contactsAndChannels$ | async">
+                  <li *ngIf="!instanceOfGroupMessage(contactOrChannel)" class="nav-item py-1" aria-current="page"
+                    data-chat="person1" (click)="selectUser(contactOrChannel.id)">
+                    <a class="nav-link">
+                      <span class="status online"></span>
+                      <p class="name-time">
+                        <span class="name text-white">{{ contactOrChannel.userName  }}</span>
+                        <span class="time"> {{ getLastActiveTimestamp(contactOrChannel) | date: 'MM-dd-yyyy' }}</span>
+                      </p>
+                    </a>
+                  </li>
+
+                  <li *ngIf="instanceOfGroupMessage(contactOrChannel)" class="nav-item py-1" aria-current="page"
+                    data-chat="person1" (click)="selectChannel(contactOrChannel.channelId)">
+                    <a class="nav-link">
+                      <span class="status online"></span>
+                      <p class="name-time">
+                        <span class="name text-white">{{ contactOrChannel.channelName   }}</span>
+                        <span class="time"> {{ getLastActiveTimestamp(contactOrChannel) | date: 'MM-dd-yyyy' }}</span>
                       </p>
                     </a>
                   </li>
@@ -61,7 +88,12 @@
             <div class="col-xl-8 col-lg-8 col-md-8 col-sm-9 col-9 ">
 
               <!-- Message Thread Component -->
-              <app-chat-message-thread [contact]="contact" [messageThread]="messageThread"></app-chat-message-thread>
+              <app-chat-message-thread *ngIf="messageThreadEnabled" [contact]="contact"
+                [messageThread]="messageThread"></app-chat-message-thread>
+
+              <!-- Group Message Channel Component -->
+              <app-chat-group-message-channel *ngIf="groupMessageChannelEnabled" [contacts]="contacts"
+                [groupMessageChannel]="groupMessageChannel"></app-chat-group-message-channel>
 
             </div>
           </div>

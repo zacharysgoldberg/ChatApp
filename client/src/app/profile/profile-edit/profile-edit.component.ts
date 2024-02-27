@@ -13,10 +13,8 @@ import { UserService } from 'src/app/_services/user.service';
   styleUrls: ['./profile-edit.component.css'],
 })
 export class ProfileEditComponent implements OnInit {
-  @Output() cancelEdit = new EventEmitter();
   @Input() editField: string | undefined;
   user: UserModel | undefined;
-
   changePassword: ChangePasswordModel = {
     currentPassword: '',
     password: '',
@@ -28,6 +26,7 @@ export class ProfileEditComponent implements OnInit {
     email: '',
     photoUrl: '',
   };
+  @Output() cancelEdit = new EventEmitter();
 
   constructor(
     private accountService: AccountService,
@@ -58,28 +57,30 @@ export class ProfileEditComponent implements OnInit {
 
     let request: Observable<Object>;
 
-    switch (editField) {
-      case 'Password':
-        if (this.changePassword) {
-          request = this.userService.changePassword(this.changePassword);
+    if (this.memberUpdate) {
+      switch (editField) {
+        case 'Password':
+          if (this.changePassword) {
+            request = this.userService.changePassword(this.changePassword);
+            this.submitHardUpate(request);
+          }
+          break;
+        case 'Username':
+          request = this.userService.updateUsername(this.memberUpdate);
           this.submitHardUpate(request);
-        }
-        break;
-      case 'Username':
-        request = this.userService.updateUsername(this.memberUpdate);
-        this.submitHardUpate(request);
-        break;
-      case 'Email':
-        request = this.userService.updateEmail(this.memberUpdate);
-        this.submitSoftUpdate(request);
-        break;
-      case 'Phone':
-        request = this.userService.updatePhone(this.memberUpdate);
-        this.submitSoftUpdate(request);
-        break;
-      default:
-        console.error('Invalid editField:', editField);
-        break;
+          break;
+        case 'Email':
+          request = this.userService.updateEmail(this.memberUpdate);
+          this.submitSoftUpdate(request);
+          break;
+        case 'Phone':
+          request = this.userService.updatePhone(this.memberUpdate);
+          this.submitSoftUpdate(request);
+          break;
+        default:
+          console.error('Invalid editField:', editField);
+          break;
+      }
     }
   }
 

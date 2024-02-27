@@ -2,20 +2,20 @@ import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { take } from 'rxjs';
 import { ContactModel } from 'src/app/_models/contact.model';
-import { MessageModel } from 'src/app/_models/message.model';
+import { GroupMessageModel } from 'src/app/_models/groupMessage.model';
 import { UserModel } from 'src/app/_models/user.model';
 import { AccountService } from 'src/app/_services/account.service';
 import { ContactService } from 'src/app/_services/contact.service';
 import { MessageService } from 'src/app/_services/message.service';
 
 @Component({
-  selector: 'app-chat-message-thread',
-  templateUrl: './chat-message-thread.component.html',
-  styleUrls: ['./chat-message-thread.component.css'],
+  selector: 'app-chat-group-message-channel',
+  templateUrl: './chat-group-message-channel.component.html',
+  styleUrls: ['./chat-group-message-channel.component.css'],
 })
-export class ChatMessageThreadComponent implements OnInit {
-  @Input() messageThread: MessageModel[] = [];
-  @Input() contact: ContactModel | undefined;
+export class ChatGroupMessageChannelComponent implements OnInit {
+  @Input() groupMessageChannel: GroupMessageModel[] = [];
+  @Input() contacts: ContactModel[] = [];
   user: UserModel | undefined; // for authentication only
   @ViewChild('messageForm') messageForm?: NgForm;
   messageContent = '';
@@ -38,26 +38,23 @@ export class ChatMessageThreadComponent implements OnInit {
       },
     });
 
-    this.contact = this.messageService.getContact();
+    // this.contact = this.messageService.getContact();
 
-    if (this.contact) this.loadMessageThread(this.contact.id);
+    if (this.groupMessageChannel.length > 0)
+      this.loadChannel(this.groupMessageChannel[0].channelId);
   }
 
-  async loadMessageThread(recipientId: number) {
+  async loadChannel(channelId: string) {
     if (!this.user) return;
 
     this.user = await this.accountService.getAuthenticatedUser(this.user);
 
-    this.contactService.getContact(recipientId).subscribe({
-      next: (contact) => (this.contact = contact),
-    });
-
-    this.messageService.getMessageThread(recipientId).subscribe({
-      next: (messageThread) => {
-        if (messageThread) this.messageThread = messageThread;
+    this.messageService.getGroupMessageChannel(channelId).subscribe({
+      next: (groupMessageChannel) => {
+        if (groupMessageChannel) this.groupMessageChannel = groupMessageChannel;
       },
       error: (error) => {
-        console.error('Error fetching message thread:', error);
+        console.error('Error fetching group message channel:', error);
       },
     });
   }
@@ -67,15 +64,17 @@ export class ChatMessageThreadComponent implements OnInit {
 
     this.user = await this.accountService.getAuthenticatedUser(this.user);
 
-    if (!this.contact) return;
-
     this.messageService
-      .createMessage(this.contact.id, this.messageContent)
+      .createGroupMessage(
+        this.groupMessageChannel[0].channelId,
+        this.groupMessageChannel[0].channelName,
+        this.messageContent
+      )
       .subscribe({
         next: (message) => {
           // Message sent successfully, handle notifications
           // console.log('Message sent:', message);
-          this.messageThread.push(message);
+          this.groupMessageChannel.push(message);
           this.messageForm?.reset();
         },
         error: (error) => {
