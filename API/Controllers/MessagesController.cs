@@ -25,7 +25,8 @@ public class MessagesController : BaseApiController
 
 	[Authorize(Roles = "Admin,Member")]
 	[HttpPost("thread")]
-	public async Task<ActionResult<IEnumerable<MessageDTO>>> CreateMessageThread(CreateMessageDTO createMessageDTO)
+	public async Task<ActionResult<IEnumerable<MessageDTO>>> CreateMessageThread
+		(CreateMessageDTO createMessageDTO)
 	{
 		string usernameOrEmail = User.GetUsernameOrEmail();
 		MemberDTO sender = await _userRepository.GetMemberAsync(usernameOrEmail);
@@ -82,19 +83,6 @@ public class MessagesController : BaseApiController
 	}
 
 	[Authorize(Roles = "Admin,Member")]
-	[HttpGet("{recipientId}")]
-	public async Task<ActionResult<IEnumerable<MessageDTO>>> GetMessageThread(int recipientId)
-	{
-		string usernameOrEmail = User.GetUsernameOrEmail();
-		MemberDTO user = await _userRepository.GetMemberAsync(usernameOrEmail);
-
-		if (user == null)
-			return NotFound();
-
-		return Ok(await _messageRepository.GetMessageThreadAsync(user.Id, recipientId));
-	}
-
-	[Authorize(Roles = "Admin,Member")]
 	[HttpGet("contacts")]
 	public async Task<ActionResult<IEnumerable<ContactDTO>>> GetContactsWithMessageThread()
 	{
@@ -105,5 +93,18 @@ public class MessagesController : BaseApiController
 			return NotFound();
 
 		return Ok(await _messageRepository.GetContactsWithMessageThreadAsync(user.Id));
+	}
+
+	[Authorize(Roles = "Admin,Member")]
+	[HttpGet("{recipientId}")]
+	public async Task<ActionResult<IEnumerable<MessageDTO>>> GetMessageThread(int recipientId)
+	{
+		string usernameOrEmail = User.GetUsernameOrEmail();
+		MemberDTO user = await _userRepository.GetMemberAsync(usernameOrEmail);
+
+		if (user == null)
+			return NotFound();
+
+		return Ok(await _messageRepository.GetMessageThreadAsync(user.Id, recipientId));
 	}
 }

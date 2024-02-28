@@ -1,21 +1,28 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
-import { getPaginatedResult, getPaginationHeaders } from './paginationHelper';
 import { MessageModel } from '../_models/message.model';
-import { Observable, catchError, map, of } from 'rxjs';
+import { BehaviorSubject, Observable, catchError, map, of, take } from 'rxjs';
 import { ContactModel } from '../_models/contact.model';
 import { ContactService } from './contact.service';
 import { CreateGroupMessageModel } from '../_models/createGroupMessage.model';
 import { GroupMessageModel } from '../_models/groupMessage.model';
+import { HubConnection, HubConnectionBuilder } from '@microsoft/signalr';
+import { UserModel } from '../_models/user.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class MessageService {
   apiUrl = environment.apiUrl;
-  contact: ContactModel | undefined;
+  hubUrl = environment.hubUrl;
+  private hubConnection?: HubConnection;
+
+  contact?: ContactModel;
   contactsWithMessageThreads: ContactModel[] = [];
+  private messageThreadSource = new BehaviorSubject<MessageModel[]>([]);
+  messageThread$ = this.messageThreadSource.asObservable();
+
   groupMessageChannelsForUser: GroupMessageModel[] = [];
   contactsForGroupMessageChannel: ContactModel[] = [];
 
@@ -24,41 +31,52 @@ export class MessageService {
     private contactService: ContactService
   ) {}
 
-  // getMessages(pageNumber: number, pageSize: number, container: string) {
-  //   let params = getPaginationHeaders(pageNumber, pageSize);
+  async createHubConnection(user: UserModel, recipientId: number) {
+    this.hubConnection = new HubConnectionBuilder()
+      .withUrl(this.hubUrl + 'message?recipientId=' + recipientId, {
+        accessTokenFactory: () => user.accessToken,
+      })
+      .withAutomaticReconnect()
+      .build();
 
-  //   params = params.append('Container', container);
-  //   return getPaginatedResult<MessageModel[]>(
-  //     this.apiUrl + 'messages',
-  //     params,
-  //     this.http
-  //   );
-  // }
+    await this.hubConnection.start().catch((error) => console.log(error));
 
-  createMessageThread(recipientId: number) {
-    this.contactService.getContact(recipientId).subscribe({
-      next: (contact) => (this.contact = contact),
+    this.setContactForMessageThread(recipientId);
+
+    this.hubConnection.on('ReceiveMessageThread', (messages) => {
+      this.messageThreadSource.next(messages);
     });
 
-    return this.http.post<MessageModel[]>(this.apiUrl + 'messages/thread', {
-      recipientId: recipientId,
+    this.hubConnection.on('NewMessage', (message) => {
+      this.messageThread$.pipe(take(1)).subscribe({
+        next: (messages) => {
+          this.messageThreadSource.next([...messages, message]);
+        },
+      });
     });
   }
 
-  createMessage(
-    recipientId: number,
-    content: string
-  ): Observable<MessageModel> {
-    return this.http
-      .post<MessageModel>(this.apiUrl + 'messages', {
+  stopHubConnection() {
+    if (this.hubConnection) this.hubConnection.stop();
+  }
+
+  async createMessage(recipientId: number, content: string) {
+    return this.hubConnection
+      ?.invoke('SendMessage', {
         recipientId: recipientId,
         content: content,
       })
-      .pipe(
-        catchError((error) => {
-          throw error;
-        })
-      );
+      .catch((error) => console.log(error));
+  }
+
+  setContactForMessageThread(recipientId: number) {
+    this.contactService.getContact(recipientId).subscribe({
+      next: (contact) => (this.contact = contact),
+    });
+  }
+
+  getMessageThread(): Observable<MessageModel[]> {
+    return this.messageThread$;
   }
 
   getContact() {
@@ -80,11 +98,13 @@ export class MessageService {
       );
   }
 
-  getMessageThread(recipientId: number) {
-    return this.http.get<MessageModel[]>(
-      this.apiUrl + 'messages/' + recipientId
-    );
-  }
+  // getMessageThread(recipientId: number) {
+  //   this.setContactForMessageThread(recipientId);
+
+  //   return this.http.get<MessageModel[]>(
+  //     this.apiUrl + 'messages/' + recipientId
+  //   );
+  // }
 
   createGroupMessageChannel(createGroupMessageModel: CreateGroupMessageModel) {
     return this.http.post<GroupMessageModel[]>(

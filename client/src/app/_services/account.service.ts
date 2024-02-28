@@ -7,6 +7,7 @@ import { Injectable } from '@angular/core';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { environment } from 'src/environments/environment';
 import { ResetPasswordModel } from '../_models/resetPassword.model';
+import { PresenceService } from './presence.service';
 
 @Injectable({
   providedIn: 'root',
@@ -17,28 +18,27 @@ export class AccountService {
   private currentUserSource = new BehaviorSubject<UserModel | null>(null);
   currentUser$ = this.currentUserSource.asObservable();
 
-  constructor(private http: HttpClient, private jwtHelper: JwtHelperService) {
+  constructor(
+    private http: HttpClient,
+    private jwtHelper: JwtHelperService,
+    private presenceService: PresenceService
+  ) {
     const userString = localStorage.getItem('user');
 
     if (userString) {
-      const user: UserModel = JSON.parse(userString);
-
-      this.setCurrentUserSource(user);
+      // const user: UserModel = JSON.parse(userString);
+      // this.setCurrentUserSource(user);
       this.currentUser$ = this.currentUserSource.asObservable();
     }
   }
 
   login(credentials: LoginModel) {
-    // console.log(this.apiUrl);
     return this.http
       .post<UserModel>(this.apiUrl + 'account/login', credentials)
       .pipe(
         map((response: UserModel) => {
           const user = response;
-          if (user) {
-            this.setUserAccess(user);
-            this.currentUserSource.next(user);
-          }
+          if (user) this.setCurrentUserSource(user);
         })
       );
   }
@@ -48,11 +48,7 @@ export class AccountService {
       .post<UserModel>(this.apiUrl + 'account/register', registration)
       .pipe(
         map((user) => {
-          if (user) {
-            this.setUserAccess(user);
-            this.currentUserSource.next(user);
-          }
-          // return user;
+          if (user) this.setCurrentUserSource(user);
         })
       );
   }
@@ -61,24 +57,24 @@ export class AccountService {
     // const username = this.getUsername();
     localStorage.removeItem('user');
     this.currentUserSource.next(null);
+    this.presenceService.stopHubConnection();
 
     // return this.http.post(this.apiUrl + `account/revoke/${username}`, model);
   }
 
-  setUserAccess(user: UserModel): void {
-    localStorage.setItem('user', JSON.stringify(user));
-  }
-
   setCurrentUserSource(user: UserModel) {
     user.roles = [];
-    if (user.accessToken) {
-      const roles = this.getDecodedToken(user.accessToken).role;
-      if (roles) {
-        Array.isArray(roles) ? (user.roles = roles) : user.roles.push(roles);
-        // console.log(user.roles);
-      }
+    const roles = this.getDecodedToken(user.accessToken).role;
+    if (roles) {
+      Array.isArray(roles) ? (user.roles = roles) : user.roles.push(roles);
+      this.setUserAccess(user);
+      this.currentUserSource.next(user);
+      this.presenceService.createHubConnection(user);
     }
-    this.currentUserSource.next(user);
+  }
+
+  setUserAccess(user: UserModel): void {
+    localStorage.setItem('user', JSON.stringify(user));
   }
 
   getDecodedToken(token: string) {

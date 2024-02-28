@@ -19,9 +19,6 @@ export class ChatGroupMessageChannelComponent implements OnInit {
   user: UserModel | undefined; // for authentication only
   @ViewChild('messageForm') messageForm?: NgForm;
   messageContent = '';
-  // pageNumber = 1;
-  // pageSize = 5;
-  // container = 'Unread';
 
   constructor(
     public accountService: AccountService,
@@ -32,9 +29,7 @@ export class ChatGroupMessageChannelComponent implements OnInit {
   ngOnInit(): void {
     this.accountService.currentUser$.pipe(take(1)).subscribe({
       next: (user) => {
-        if (user) {
-          this.user = user;
-        }
+        if (user) this.user = user;
       },
     });
 

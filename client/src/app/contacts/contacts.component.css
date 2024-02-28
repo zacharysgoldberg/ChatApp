@@ -36,6 +36,20 @@
   padding: 20px; /* Adjust as needed */
 }
 
+@keyframes fa-blink {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.4;
+  }
+}
+
+.is-online {
+  animation: fa-blink 1.5s linear infinite;
+  color: rgb(1, 189, 42);
+}
+
 /* @media (max-width: 991.98px) {
   .contact-list {
     width: calc(100% - 660px);

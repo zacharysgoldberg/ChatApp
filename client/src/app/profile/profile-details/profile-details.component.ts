@@ -20,6 +20,7 @@ import { PhotoEditComponent } from '../photo-edit/photo-edit.component';
   styleUrls: ['./profile-details.component.css'],
 })
 export class ProfileDetailsComponent implements OnInit {
+  user?: UserModel;
   member: MemberModel | undefined;
   editPhotoMode: boolean = false;
   editProfileMode: boolean = false;
@@ -27,11 +28,16 @@ export class ProfileDetailsComponent implements OnInit {
 
   constructor(
     private accountService: AccountService,
-    private userService: UserService,
-    private cdr: ChangeDetectorRef
+    private userService: UserService
   ) {}
 
   ngOnInit(): void {
+    this.accountService.currentUser$.pipe(take(1)).subscribe({
+      next: (user) => {
+        if (user) this.user = user;
+      },
+    });
+
     this.loadProfile();
   }
 

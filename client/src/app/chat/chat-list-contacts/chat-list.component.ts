@@ -17,26 +17,24 @@ import { GroupMessageModel } from 'src/app/_models/groupMessage.model';
   styleUrls: ['./chat-list.component.css'],
 })
 export class ChatListComponent implements OnInit {
-  user: UserModel | undefined; // for authentication only
+  user?: UserModel;
   contactsWithMessageThreads$: Observable<ContactModel[]> | undefined;
   groupMessageChannelsForUser$: Observable<GroupMessageModel[]> | undefined;
   contactsAndChannels$:
     | Observable<(ContactModel | GroupMessageModel)[]>
     | undefined;
-  pagination?: Pagination;
   createNewChannelMode: boolean = false;
   messageThreadEnabled: boolean = false;
   groupMessageChannelEnabled: boolean = false;
-  @Output() messageThread: MessageModel[] = [];
+  @Output() messageThread$: Observable<MessageModel[]> | undefined;
   @Output() groupMessageChannel: GroupMessageModel[] = [];
-  @Output() contact: ContactModel | undefined;
+  @Output() contact?: ContactModel;
   @Output() contacts: ContactModel[] = [];
 
   constructor(
     public accountService: AccountService,
     private contactService: ContactService,
-    private messageService: MessageService,
-    private userService: UserService
+    private messageService: MessageService
   ) {}
 
   ngOnInit(): void {
@@ -48,6 +46,11 @@ export class ChatListComponent implements OnInit {
         }
       },
     });
+
+    if (this.messageService.contact) {
+      this.messageThreadEnabled = true;
+      this.messageThread$ = this.messageService.getMessageThread();
+    }
   }
 
   sortContactAndChannels() {
@@ -55,9 +58,11 @@ export class ChatListComponent implements OnInit {
       map((contacts) => {
         // Sort the contacts based on the last message sent/received timestamp
         return contacts.sort((a, b) => {
-          const timestampA = a?.lastActive;
-          const timestampB = b?.lastActive;
-          return timestampA.getTime() - timestampB.getTime();
+          const timestampA =
+            a.lastActive instanceof Date ? a.lastActive.getTime() : 0;
+          const timestampB =
+            b.lastActive instanceof Date ? b.lastActive.getTime() : 0;
+          return timestampA - timestampB;
         });
       })
     );
@@ -106,20 +111,17 @@ export class ChatListComponent implements OnInit {
     return 'createdAt' in object && 'channelId' in object;
   }
 
-  async selectUser(contactId: number) {
+  async selectContact(contact: ContactModel) {
     if (!this.user) return;
 
     this.user = await this.accountService.getAuthenticatedUser(this.user);
 
-    this.contactService.getContact(contactId).subscribe({
-      next: (contact) => (this.contact = contact),
-    });
+    this.contact = contact;
 
-    this.messageService.getMessageThread(contactId).subscribe({
-      next: (messageThread) => {
-        this.messageThread = messageThread;
-      },
-    });
+    if (this.user && this.contact)
+      await this.messageService.createHubConnection(this.user, this.contact.id);
+
+    this.messageThread$ = this.messageService.getMessageThread();
 
     this.groupMessageChannelEnabled = false;
     this.messageThreadEnabled = true;

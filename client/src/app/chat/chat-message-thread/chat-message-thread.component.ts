@@ -1,11 +1,10 @@
-import { Component, Input, OnInit, ViewChild } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { take } from 'rxjs';
 import { ContactModel } from 'src/app/_models/contact.model';
 import { MessageModel } from 'src/app/_models/message.model';
 import { UserModel } from 'src/app/_models/user.model';
 import { AccountService } from 'src/app/_services/account.service';
-import { ContactService } from 'src/app/_services/contact.service';
 import { MessageService } from 'src/app/_services/message.service';
 
 @Component({
@@ -13,53 +12,34 @@ import { MessageService } from 'src/app/_services/message.service';
   templateUrl: './chat-message-thread.component.html',
   styleUrls: ['./chat-message-thread.component.css'],
 })
-export class ChatMessageThreadComponent implements OnInit {
-  @Input() messageThread: MessageModel[] = [];
+export class ChatMessageThreadComponent implements OnInit, OnDestroy {
   @Input() contact: ContactModel | undefined;
-  user: UserModel | undefined; // for authentication only
+  @Input() messageThread: MessageModel[] = [];
+  user?: UserModel;
   @ViewChild('messageForm') messageForm?: NgForm;
   messageContent = '';
-  // pageNumber = 1;
-  // pageSize = 5;
-  // container = 'Unread';
 
   constructor(
     public accountService: AccountService,
-    private messageService: MessageService,
-    private contactService: ContactService
+    public messageService: MessageService
   ) {}
 
   ngOnInit(): void {
     this.accountService.currentUser$.pipe(take(1)).subscribe({
       next: (user) => {
-        if (user) {
-          this.user = user;
-        }
+        if (user) this.user = user;
       },
     });
 
-    this.contact = this.messageService.getContact();
+    if (!this.contact) this.contact = this.messageService.getContact();
 
-    if (this.contact) this.loadMessageThread(this.contact.id);
+    if (this.contact && this.user)
+      this.messageService.createHubConnection(this.user, this.contact.id);
+    else this.messageService.stopHubConnection();
   }
 
-  async loadMessageThread(recipientId: number) {
-    if (!this.user) return;
-
-    this.user = await this.accountService.getAuthenticatedUser(this.user);
-
-    this.contactService.getContact(recipientId).subscribe({
-      next: (contact) => (this.contact = contact),
-    });
-
-    this.messageService.getMessageThread(recipientId).subscribe({
-      next: (messageThread) => {
-        if (messageThread) this.messageThread = messageThread;
-      },
-      error: (error) => {
-        console.error('Error fetching message thread:', error);
-      },
-    });
+  ngOnDestroy(): void {
+    this.messageService.stopHubConnection();
   }
 
   async sendMessage() {
@@ -71,16 +51,8 @@ export class ChatMessageThreadComponent implements OnInit {
 
     this.messageService
       .createMessage(this.contact.id, this.messageContent)
-      .subscribe({
-        next: (message) => {
-          // Message sent successfully, handle notifications
-          // console.log('Message sent:', message);
-          this.messageThread.push(message);
-          this.messageForm?.reset();
-        },
-        error: (error) => {
-          console.error('Error sending message:', error);
-        },
+      .then(() => {
+        this.messageForm?.reset();
       });
   }
 }
