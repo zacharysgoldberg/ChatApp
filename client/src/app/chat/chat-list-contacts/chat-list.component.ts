@@ -23,9 +23,9 @@ export class ChatListComponent implements OnInit {
   contactsAndChannels$:
     | Observable<(ContactModel | GroupMessageModel)[]>
     | undefined;
-  createNewChannelMode: boolean = false;
   messageThreadEnabled: boolean = false;
   groupMessageChannelEnabled: boolean = false;
+  createNewChannelMode: boolean = false;
   @Output() messageThread$: Observable<MessageModel[]> | undefined;
   @Output() groupMessageChannel: GroupMessageModel[] = [];
   @Output() contact?: ContactModel;
@@ -51,6 +51,47 @@ export class ChatListComponent implements OnInit {
       this.messageThreadEnabled = true;
       this.messageThread$ = this.messageService.getMessageThread();
     }
+  }
+
+  async selectContact(contact: ContactModel) {
+    if (!this.user) return;
+
+    this.user = await this.accountService.getAuthenticatedUser(this.user);
+
+    if (!this.messageService.isHubConnectionEstablished(contact.id.toString()))
+      this.messageService.stopHubConnection();
+
+    this.contact = contact;
+
+    if (this.user && this.contact) {
+      await this.messageService.createHubConnection(this.user, this.contact.id);
+      this.messageService.getMessageThread().subscribe((messageThread) => {
+        this.messageThread$ = of(messageThread); // Update messageThread$ when thread is received
+      });
+    }
+
+    this.messageThread$ = this.messageService.getMessageThread();
+
+    this.groupMessageChannelEnabled = false;
+    this.messageThreadEnabled = true;
+  }
+
+  async selectChannel(channelId: string) {
+    if (!this.user) return;
+
+    this.user = await this.accountService.getAuthenticatedUser(this.user);
+
+    this.messageService.getContactsForGroupMessageChannel(channelId).subscribe({
+      next: (contacts) => (this.contacts = contacts),
+    });
+
+    this.messageService.getGroupMessageChannel(channelId).subscribe({
+      next: (groupMessageChannel) =>
+        (this.groupMessageChannel = groupMessageChannel),
+    });
+
+    this.messageThreadEnabled = false;
+    this.groupMessageChannelEnabled = true;
   }
 
   sortContactAndChannels() {
@@ -109,40 +150,6 @@ export class ChatListComponent implements OnInit {
 
   instanceOfGroupMessage(object: any): object is GroupMessageModel {
     return 'createdAt' in object && 'channelId' in object;
-  }
-
-  async selectContact(contact: ContactModel) {
-    if (!this.user) return;
-
-    this.user = await this.accountService.getAuthenticatedUser(this.user);
-
-    this.contact = contact;
-
-    if (this.user && this.contact)
-      await this.messageService.createHubConnection(this.user, this.contact.id);
-
-    this.messageThread$ = this.messageService.getMessageThread();
-
-    this.groupMessageChannelEnabled = false;
-    this.messageThreadEnabled = true;
-  }
-
-  async selectChannel(channelId: string) {
-    if (!this.user) return;
-
-    this.user = await this.accountService.getAuthenticatedUser(this.user);
-
-    this.messageService.getContactsForGroupMessageChannel(channelId).subscribe({
-      next: (contacts) => (this.contacts = contacts),
-    });
-
-    this.messageService.getGroupMessageChannel(channelId).subscribe({
-      next: (groupMessageChannel) =>
-        (this.groupMessageChannel = groupMessageChannel),
-    });
-
-    this.messageThreadEnabled = false;
-    this.groupMessageChannelEnabled = true;
   }
 
   toggleCreateNewChannelMode() {

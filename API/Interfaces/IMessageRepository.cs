@@ -9,7 +9,6 @@ public interface IMessageRepository
 	Task<IEnumerable<MessageDTO>> CreateMessageThreadAsync(int senderId, int recipientId);
 	Task<bool> CreateMessageAsync(Message message);
 	Task<bool> DeleteMessageAsync(Message message);
-	Task<IEnumerable<MessageDTO>> GetMessageThreadAsync(int currentUserId, int recipientId);
 	Task<IEnumerable<ContactDTO>> GetContactsWithMessageThreadAsync(int currentUserId);
 	Task<bool> SaveAllAsync();
 }

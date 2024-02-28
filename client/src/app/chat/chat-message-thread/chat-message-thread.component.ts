@@ -31,11 +31,20 @@ export class ChatMessageThreadComponent implements OnInit, OnDestroy {
       },
     });
 
-    if (!this.contact) this.contact = this.messageService.getContact();
+    if (!this.contact) {
+      this.contact = this.messageService.getContact();
 
-    if (this.contact && this.user)
-      this.messageService.createHubConnection(this.user, this.contact.id);
-    else this.messageService.stopHubConnection();
+      if (this.contact && this.user) {
+        if (
+          !this.messageService.isHubConnectionEstablished(
+            this.contact.id.toString()
+          )
+        )
+          this.messageService.stopHubConnection();
+        else
+          this.messageService.createHubConnection(this.user, this.contact.id);
+      } else this.messageService.stopHubConnection();
+    }
   }
 
   ngOnDestroy(): void {

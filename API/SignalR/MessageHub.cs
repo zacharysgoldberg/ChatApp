@@ -16,22 +16,23 @@ public class MessageHub : Hub
 	private readonly IGroupMessageRepository _groupMessageRepository;
 	private readonly IUserRepository _userRepository;
 	private readonly IMapper _mapper;
+	IHubContext<PresenceHub> _presenceHub;
 
 	public MessageHub(IMessageRepository messageRepository,
 		IGroupMessageRepository groupMessageRepository, IUserRepository userRepository,
-		IMapper mapper)
+		IMapper mapper, IHubContext<PresenceHub> presenceHub)
 	{
 		_messageRepository = messageRepository;
 		_groupMessageRepository = groupMessageRepository;
 		_userRepository = userRepository;
 		_mapper = mapper;
+		_presenceHub = presenceHub;
 	}
 
 	public override async Task OnConnectedAsync()
 	{
 		var httpContext = Context.GetHttpContext();
-		int recipientId;
-		bool success = int.TryParse(httpContext.Request.Query["recipientId"], out recipientId);
+		bool success = int.TryParse(httpContext.Request.Query["recipientId"], out int recipientId);
 
 		if (!success)
 			throw new HubException("Failed to parse recipient id");
@@ -76,6 +77,13 @@ public class MessageHub : Hub
 			Content = createMessageDTO.Content
 		};
 
+		var connections = await PresenceTracker.GetConnectionsForUser(recipient.UserName);
+		if (connections != null)
+		{
+			await _presenceHub.Clients.Clients(connections).SendAsync("NewMessageReceived",
+				new { id = recipient.Id, username = sender.UserName });
+		}
+
 		if (await _messageRepository.CreateMessageAsync(message))
 		{
 			sender.LastActive = DateTime.UtcNow;
@@ -87,8 +95,8 @@ public class MessageHub : Hub
 			var group = GetGroupName(sender.UserName, recipient.UserName);
 			await Clients.Group(group).SendAsync("NewMessage", _mapper.Map<MessageDTO>(message));
 		}
-
-		throw new HubException("Failed to send message");
+		else
+			throw new HubException("Failed to send message");
 	}
 
 	private static string GetGroupName(string caller, string other)

@@ -12,8 +12,7 @@ public class DataContext : IdentityDbContext<AppUser, IdentityRole<int>, int>
 	public DbSet<Contact> Contacts { get; set; }
 	public DbSet<Message> Messages { get; set; }
 	public DbSet<GroupMessage> GroupMessages { get; set; }
-
-	// public DbSet<Entities.Notification>      Notification {get; set;}
+	public DbSet<Notification> Notifications { get; set; }
 
 	protected override void OnModelCreating(ModelBuilder builder)
 	{
@@ -33,12 +32,16 @@ public class DataContext : IdentityDbContext<AppUser, IdentityRole<int>, int>
 		// 		.WithMany()
 		// 		.HasForeignKey(uc => uc.ContactId);
 
+		// Contacts //
+
 		builder.Entity<Contact>()
 				.HasOne(c => c.AppUser)
 				.WithMany(u => u.Contacts)
 				.HasForeignKey(c => c.UserId)
 				.IsRequired()
 				.OnDelete(DeleteBehavior.Cascade);
+
+		// Messages //
 
 		builder.Entity<Message>()
 				.HasOne(u => u.Recipient)
@@ -50,11 +53,33 @@ public class DataContext : IdentityDbContext<AppUser, IdentityRole<int>, int>
 				.WithMany(m => m.MessagesSent)
 				.OnDelete(DeleteBehavior.Restrict);
 
+		// Group Messages //
+
 		builder.Entity<GroupMessage>()
 				.HasOne(gm => gm.Sender)
-				.WithMany()  // Assuming a channel can have multiple group messages
+				.WithMany()
 				.HasForeignKey(gm => gm.SenderId)
 				.IsRequired()
 				.OnDelete(DeleteBehavior.Cascade);
+
+		// Notifications //
+
+		builder.Entity<Notification>()
+				.HasOne(n => n.Recipient)
+				.WithMany(u => u.NotificationsReceived)
+				.HasForeignKey(n => n.RecipientId)
+				.OnDelete(DeleteBehavior.Restrict);
+
+		builder.Entity<Notification>()
+				.HasOne(n => n.Sender)
+				.WithMany(u => u.NotificationsSent)
+				.HasForeignKey(n => n.SenderId)
+				.OnDelete(DeleteBehavior.Restrict);
+
+		builder.Entity<Notification>()
+				.HasOne(n => n.Channel)
+				.WithMany(gm => gm.Notifications)
+				.HasForeignKey(n => n.ChannelId)
+				.OnDelete(DeleteBehavior.Restrict);
 	}
 }

@@ -14,10 +14,13 @@
     <button (click)="loadContact(contact.id)"
       class="list-group-item list-group-item-action py-4 lh-tight bg-dark text-white" aria-current="true">
       <div class="d-flex w-100 align-items-center justify-content-between">
-        <span [class.is-online]="(presenceService.onlineUser$ | async)?.includes(contact.userName)">
-          <li class="fa fa-user"></li>
-        </span>
-        <strong class="mb-1">{{contact.userName}}</strong>
+        <div class="chat-img float-end">
+          <span [class.is-online]="(presenceService.onlineUser$ | async)?.includes(contact.userName)">
+            <li class="fa fa-user-circle"></li>
+          </span>
+          <img class="rounded-circle mx-3" width="40px" height="40px" src="{{contact.photoUrl}}" alt="img of sender">
+          <strong class="mb-1 mx-1">{{ contact.userName }}</strong>
+        </div>
         <small class="text-white">></small>
       </div>
     </button>

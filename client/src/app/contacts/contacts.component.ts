@@ -47,7 +47,11 @@ export class ContactsComponent implements OnInit {
     });
   }
 
-  addContact() {
+  async addContact() {
+    if (!this.user) return;
+
+    this.user = await this.accountService.getAuthenticatedUser(this.user);
+
     this.contactService.addContact(this.contactToAdd).subscribe({
       next: (_) => {
         location.reload();
@@ -60,13 +64,21 @@ export class ContactsComponent implements OnInit {
     });
   }
 
-  removeContact(contactId: number) {
+  async removeContact(contactId: number) {
+    if (!this.user) return;
+
+    this.user = await this.accountService.getAuthenticatedUser(this.user);
+
     this.contactService.removeContact(contactId).subscribe({
       next: (_) => location.reload(),
     });
   }
 
-  message(contactId: number) {
+  async message(contactId: number) {
+    if (!this.user) return;
+
+    this.user = await this.accountService.getAuthenticatedUser(this.user);
+
     this.messageService.setContactForMessageThread(contactId);
     this.router.navigate(['/chat']);
   }

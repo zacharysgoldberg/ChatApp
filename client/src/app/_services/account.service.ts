@@ -2,7 +2,13 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { LoginModel } from '../_models/login.model';
 import { UserModel } from '../_models/user.model';
 import { RegisterModel } from '../_models/register.model';
-import { BehaviorSubject, Observable, Subject, map } from 'rxjs';
+import {
+  BehaviorSubject,
+  Observable,
+  Subject,
+  firstValueFrom,
+  map,
+} from 'rxjs';
 import { Injectable } from '@angular/core';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { environment } from 'src/environments/environment';
@@ -103,31 +109,28 @@ export class AccountService {
       refreshToken: refreshToken,
     });
 
-    let isRefreshSuccess: boolean;
+    try {
+      const refreshRes = await firstValueFrom(
+        this.http.post<UserModel>(
+          this.apiUrl + 'account/refresh-token',
+          credentials,
+          {
+            headers: new HttpHeaders({
+              'Content-Type': 'application/json',
+            }),
+          }
+        )
+      );
 
-    const refreshRes = await new Promise<UserModel>((resolve, reject) => {
-      this.http
-        .post<UserModel>(this.apiUrl + 'account/refresh-token', credentials, {
-          headers: new HttpHeaders({
-            'Content-Type': 'application/json',
-          }),
-        })
-        .subscribe({
-          next: (res: UserModel) => resolve(res),
-          error: (_) => {
-            reject;
-            isRefreshSuccess = false;
-          },
-        });
-    });
+      user.accessToken = refreshRes.accessToken;
+      user.refreshToken = refreshRes.refreshToken;
+      localStorage.setItem('user', JSON.stringify(user));
 
-    user.accessToken = refreshRes.accessToken;
-    user.refreshToken = refreshRes.refreshToken;
-
-    localStorage.setItem('user', JSON.stringify(user));
-    isRefreshSuccess = true;
-
-    return isRefreshSuccess;
+      return true; // Refresh succeeded
+    } catch (error) {
+      console.error('Token refresh failed:', error);
+      return false; // Refresh failed
+    }
   }
 
   async getAuthenticatedUser(currentUser: UserModel): Promise<UserModel> {
@@ -145,6 +148,7 @@ export class AccountService {
       if (!userString) return currentUser;
 
       const newUser: UserModel = JSON.parse(userString!);
+      this.setCurrentUserSource(newUser);
       return newUser;
     }
 

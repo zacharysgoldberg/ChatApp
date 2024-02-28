@@ -94,17 +94,4 @@ public class MessagesController : BaseApiController
 
 		return Ok(await _messageRepository.GetContactsWithMessageThreadAsync(user.Id));
 	}
-
-	[Authorize(Roles = "Admin,Member")]
-	[HttpGet("{recipientId}")]
-	public async Task<ActionResult<IEnumerable<MessageDTO>>> GetMessageThread(int recipientId)
-	{
-		string usernameOrEmail = User.GetUsernameOrEmail();
-		MemberDTO user = await _userRepository.GetMemberAsync(usernameOrEmail);
-
-		if (user == null)
-			return NotFound();
-
-		return Ok(await _messageRepository.GetMessageThreadAsync(user.Id, recipientId));
-	}
 }

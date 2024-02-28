@@ -7,7 +7,11 @@ import { ContactModel } from '../_models/contact.model';
 import { ContactService } from './contact.service';
 import { CreateGroupMessageModel } from '../_models/createGroupMessage.model';
 import { GroupMessageModel } from '../_models/groupMessage.model';
-import { HubConnection, HubConnectionBuilder } from '@microsoft/signalr';
+import {
+  HubConnection,
+  HubConnectionBuilder,
+  HubConnectionState,
+} from '@microsoft/signalr';
 import { UserModel } from '../_models/user.model';
 
 @Injectable({
@@ -17,6 +21,8 @@ export class MessageService {
   apiUrl = environment.apiUrl;
   hubUrl = environment.hubUrl;
   private hubConnection?: HubConnection;
+
+  private activeConnections: { [id: string]: boolean } = {};
 
   contact?: ContactModel;
   contactsWithMessageThreads: ContactModel[] = [];
@@ -31,7 +37,26 @@ export class MessageService {
     private contactService: ContactService
   ) {}
 
+  /*
+    If a hub connection is not established for the contact ID, it stops the existing hub connection.
+    If a hub connection is established, it does nothing, allowing the existing connection to continue.
+  */
+  isHubConnectionEstablished(id: string): boolean {
+    if (
+      !this.activeConnections[id] &&
+      this.hubConnection != null &&
+      this.hubConnection.state === HubConnectionState.Connected
+    )
+      return false;
+    return true;
+  }
+
   async createHubConnection(user: UserModel, recipientId: number) {
+    if (this.activeConnections[recipientId]) {
+      console.log(`Already connected to contact id: ${recipientId}`);
+      return;
+    }
+
     this.hubConnection = new HubConnectionBuilder()
       .withUrl(this.hubUrl + 'message?recipientId=' + recipientId, {
         accessTokenFactory: () => user.accessToken,
@@ -40,6 +65,8 @@ export class MessageService {
       .build();
 
     await this.hubConnection.start().catch((error) => console.log(error));
+
+    this.activeConnections[recipientId.toString()] = true;
 
     this.setContactForMessageThread(recipientId);
 
@@ -57,7 +84,28 @@ export class MessageService {
   }
 
   stopHubConnection() {
-    if (this.hubConnection) this.hubConnection.stop();
+    if (this.hubConnection) {
+      this.hubConnection.stop();
+      // Extract recipient/channel id from the hub URL
+      const id = this.getIdFromHubUrl(this.hubConnection.baseUrl);
+
+      // Remove the ID from the active connections
+      if (id !== null) {
+        delete this.activeConnections[id];
+      }
+    }
+  }
+
+  private getIdFromHubUrl(url: string): number | string | null {
+    const urlParams = new URLSearchParams(url.split('?')[1]);
+    let id: number | string | null = null;
+
+    if (urlParams.has('recipientId')) {
+      id = parseInt(urlParams.get('recipientId')!, 10);
+    } else if (urlParams.has('channelId')) {
+      id = urlParams.get('channelId')!;
+    }
+    return id;
   }
 
   async createMessage(recipientId: number, content: string) {
@@ -69,14 +117,14 @@ export class MessageService {
       .catch((error) => console.log(error));
   }
 
+  getMessageThread(): Observable<MessageModel[]> {
+    return this.messageThread$;
+  }
+
   setContactForMessageThread(recipientId: number) {
     this.contactService.getContact(recipientId).subscribe({
       next: (contact) => (this.contact = contact),
     });
-  }
-
-  getMessageThread(): Observable<MessageModel[]> {
-    return this.messageThread$;
   }
 
   getContact() {
@@ -97,14 +145,6 @@ export class MessageService {
         })
       );
   }
-
-  // getMessageThread(recipientId: number) {
-  //   this.setContactForMessageThread(recipientId);
-
-  //   return this.http.get<MessageModel[]>(
-  //     this.apiUrl + 'messages/' + recipientId
-  //   );
-  // }
 
   createGroupMessageChannel(createGroupMessageModel: CreateGroupMessageModel) {
     return this.http.post<GroupMessageModel[]>(

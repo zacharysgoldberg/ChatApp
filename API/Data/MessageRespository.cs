@@ -72,45 +72,6 @@ public class MessageRespository : IMessageRepository
 		return await SaveAllAsync();
 	}
 
-	public async Task<IEnumerable<MessageDTO>> GetMessageThreadAsync(int userId, int recipientId)
-	{
-		var usersInfo = await _context.Users
-			.Where(u => u.Id == userId || u.Id == recipientId)
-			.Select(u => new
-			{
-				Id = u.Id,
-				UserName = u.UserName,
-				PhotoUrl = u.Photo.Url
-			})
-			.ToListAsync();
-
-		var messages = await _context.Messages
-			.Include(m => m.Sender)
-				.ThenInclude(u => u.Photo)
-			.Include(m => m.Recipient)
-				.ThenInclude(u => u.Photo)
-			.Where(m =>
-				(m.RecipientId == userId && m.SenderId == recipientId) ||
-				(m.RecipientId == recipientId && m.SenderId == userId))
-			.OrderBy(m => m.CreatedAt)
-			.ToListAsync();
-
-		var messageDTOs = messages.Select(message => new MessageDTO
-		{
-			Id = message.Id,
-			SenderId = message.SenderId,
-			SenderUsername = usersInfo.FirstOrDefault(u => u.Id == message.SenderId).UserName,
-			SenderPhotoUrl = usersInfo.FirstOrDefault(u => u.Id == message.SenderId)?.PhotoUrl,
-			RecipientId = message.RecipientId,
-			RecipientUsername = usersInfo.FirstOrDefault(u => u.Id == message.RecipientId).UserName,
-			RecipientPhotoUrl = usersInfo.FirstOrDefault(u => u.Id == message.RecipientId)?.PhotoUrl,
-			Content = message.Content,
-			CreatedAt = message.CreatedAt
-		}).ToList();
-
-		return messageDTOs;
-	}
-
 	public async Task<IEnumerable<ContactDTO>> GetContactsWithMessageThreadAsync(int userId)
 	{
 		IEnumerable<int> usersIds = await _context.Messages
