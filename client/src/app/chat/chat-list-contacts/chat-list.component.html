@@ -92,8 +92,9 @@
                 [contact]="contact" [messageThread]="messageThread"></app-chat-message-thread>
 
               <!-- Group Message Channel Component -->
-              <app-chat-group-message-channel *ngIf="groupMessageChannelEnabled" [contacts]="contacts"
-                [groupMessageChannel]="groupMessageChannel"></app-chat-group-message-channel>
+              <app-chat-group-message-channel
+                *ngIf="groupMessageChannelEnabled && (groupMessageChannel$ | async) as groupMessageChannel"
+                [contacts]="contacts" [groupMessageChannel]="groupMessageChannel"></app-chat-group-message-channel>
 
             </div>
           </div>

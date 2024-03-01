@@ -40,15 +40,18 @@ export class ChatMessageThreadComponent implements OnInit, OnDestroy {
             this.contact.id.toString()
           )
         )
-          this.messageService.stopHubConnection();
+          this.messageService.stopMessageHubConnection();
         else
-          this.messageService.createHubConnection(this.user, this.contact.id);
-      } else this.messageService.stopHubConnection();
+          this.messageService.createMessageHubConnection(
+            this.user,
+            this.contact.id
+          );
+      } else this.messageService.stopMessageHubConnection();
     }
   }
 
   ngOnDestroy(): void {
-    this.messageService.stopHubConnection();
+    this.messageService.stopMessageHubConnection();
   }
 
   async sendMessage() {

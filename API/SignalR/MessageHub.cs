@@ -13,17 +13,14 @@ namespace API.SignalR;
 public class MessageHub : Hub
 {
 	private readonly IMessageRepository _messageRepository;
-	private readonly IGroupMessageRepository _groupMessageRepository;
 	private readonly IUserRepository _userRepository;
 	private readonly IMapper _mapper;
-	IHubContext<PresenceHub> _presenceHub;
+	private readonly IHubContext<PresenceHub> _presenceHub;
 
-	public MessageHub(IMessageRepository messageRepository,
-		IGroupMessageRepository groupMessageRepository, IUserRepository userRepository,
+	public MessageHub(IMessageRepository messageRepository, IUserRepository userRepository,
 		IMapper mapper, IHubContext<PresenceHub> presenceHub)
 	{
 		_messageRepository = messageRepository;
-		_groupMessageRepository = groupMessageRepository;
 		_userRepository = userRepository;
 		_mapper = mapper;
 		_presenceHub = presenceHub;
@@ -31,7 +28,7 @@ public class MessageHub : Hub
 
 	public override async Task OnConnectedAsync()
 	{
-		var httpContext = Context.GetHttpContext();
+		HttpContext httpContext = Context.GetHttpContext();
 		bool success = int.TryParse(httpContext.Request.Query["recipientId"], out int recipientId);
 
 		if (!success)
@@ -44,7 +41,7 @@ public class MessageHub : Hub
 		if (user == null || recipient == null)
 			throw new HubException("Not found");
 
-		var groupName = GetGroupName(Context.User.GetUsernameOrEmail(), recipient.UserName);
+		string groupName = GetGroupName(Context.User.GetUsernameOrEmail(), recipient.UserName);
 		await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
 
 		IEnumerable<MessageDTO> messages = await _messageRepository.CreateMessageThreadAsync
@@ -77,12 +74,12 @@ public class MessageHub : Hub
 			Content = createMessageDTO.Content
 		};
 
-		var connections = await PresenceTracker.GetConnectionsForUser(recipient.UserName);
-		if (connections != null)
-		{
-			await _presenceHub.Clients.Clients(connections).SendAsync("NewMessageReceived",
-				new { id = recipient.Id, username = sender.UserName });
-		}
+		// var connections = await PresenceTracker.GetConnectionsForUser(recipient.UserName);
+		// if (connections != null)
+		// {
+		// 	await _presenceHub.Clients.Clients(connections).SendAsync("NewMessageReceived",
+		// 		new { id = recipient.Id, username = sender.UserName });
+		// }
 
 		if (await _messageRepository.CreateMessageAsync(message))
 		{
@@ -92,8 +89,8 @@ public class MessageHub : Hub
 			if (!updateUserResult.Succeeded)
 				throw new HubException("Failed to update user");
 
-			var group = GetGroupName(sender.UserName, recipient.UserName);
-			await Clients.Group(group).SendAsync("NewMessage", _mapper.Map<MessageDTO>(message));
+			string groupName = GetGroupName(sender.UserName, recipient.UserName);
+			await Clients.Group(groupName).SendAsync("NewMessage", _mapper.Map<MessageDTO>(message));
 		}
 		else
 			throw new HubException("Failed to send message");

@@ -37,6 +37,7 @@ app.UseHttpsRedirection();
 app.MapControllers();
 app.MapHub<PresenceHub>("hubs/presence");
 app.MapHub<MessageHub>("hubs/message");
+app.MapHub<GroupMessageHub>("hubs/group-message");
 
 // Seed database
 using var scope = app.Services.CreateScope();

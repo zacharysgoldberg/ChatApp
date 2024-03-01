@@ -14,7 +14,7 @@ import { take } from 'rxjs';
   styleUrls: ['./chat-create-channel.component.css'],
 })
 export class ChatCreateChannelComponent implements OnInit {
-  user: UserModel | undefined;
+  user?: UserModel;
   contacts: ContactModel[] = []; // List of user's contacts
   addedContacts: ContactModel[] = []; // List of contacts added to the channel
   createGroupMessageModel: CreateGroupMessageModel = {
@@ -41,7 +41,11 @@ export class ChatCreateChannelComponent implements OnInit {
     });
   }
 
-  loadContacts() {
+  async loadContacts() {
+    if (!this.user) return;
+
+    this.user = await this.accountService.getAuthenticatedUser(this.user);
+
     this.contactService.getContacts().subscribe({
       next: (contacts) => (this.contacts = contacts),
     });
@@ -80,9 +84,9 @@ export class ChatCreateChannelComponent implements OnInit {
 
     this.user = await this.accountService.getAuthenticatedUser(this.user);
 
-    for (let contact of this.addedContacts) {
-      this.createGroupMessageModel?.contactIds.push(contact.id);
-    }
+    this.createGroupMessageModel.contactIds = this.addedContacts.map(
+      (contact) => contact.id
+    );
 
     if (
       this.createGroupMessageModel.contactIds.length > 0 &&

@@ -20,7 +20,8 @@ import { UserModel } from '../_models/user.model';
 export class MessageService {
   apiUrl = environment.apiUrl;
   hubUrl = environment.hubUrl;
-  private hubConnection?: HubConnection;
+  private messageHubConnection?: HubConnection;
+  private groupMessageHubConnection?: HubConnection;
 
   private activeConnections: { [id: string]: boolean } = {};
 
@@ -31,6 +32,8 @@ export class MessageService {
 
   groupMessageChannelsForUser: GroupMessageModel[] = [];
   contactsForGroupMessageChannel: ContactModel[] = [];
+  private groupMessageChannelSrc = new BehaviorSubject<GroupMessageModel[]>([]);
+  groupMessageChannel$ = this.groupMessageChannelSrc.asObservable();
 
   constructor(
     private http: HttpClient,
@@ -44,37 +47,39 @@ export class MessageService {
   isHubConnectionEstablished(id: string): boolean {
     if (
       !this.activeConnections[id] &&
-      this.hubConnection != null &&
-      this.hubConnection.state === HubConnectionState.Connected
+      this.messageHubConnection != null &&
+      this.messageHubConnection.state === HubConnectionState.Connected
     )
       return false;
     return true;
   }
 
-  async createHubConnection(user: UserModel, recipientId: number) {
+  async createMessageHubConnection(user: UserModel, recipientId: number) {
     if (this.activeConnections[recipientId]) {
       console.log(`Already connected to contact id: ${recipientId}`);
       return;
     }
 
-    this.hubConnection = new HubConnectionBuilder()
+    this.messageHubConnection = new HubConnectionBuilder()
       .withUrl(this.hubUrl + 'message?recipientId=' + recipientId, {
         accessTokenFactory: () => user.accessToken,
       })
       .withAutomaticReconnect()
       .build();
 
-    await this.hubConnection.start().catch((error) => console.log(error));
+    await this.messageHubConnection
+      .start()
+      .catch((error) => console.log(error));
 
     this.activeConnections[recipientId.toString()] = true;
 
     this.setContactForMessageThread(recipientId);
 
-    this.hubConnection.on('ReceiveMessageThread', (messages) => {
+    this.messageHubConnection.on('ReceiveMessageThread', (messages) => {
       this.messageThreadSource.next(messages);
     });
 
-    this.hubConnection.on('NewMessage', (message) => {
+    this.messageHubConnection.on('NewMessage', (message) => {
       this.messageThread$.pipe(take(1)).subscribe({
         next: (messages) => {
           this.messageThreadSource.next([...messages, message]);
@@ -83,11 +88,11 @@ export class MessageService {
     });
   }
 
-  stopHubConnection() {
-    if (this.hubConnection) {
-      this.hubConnection.stop();
+  stopMessageHubConnection() {
+    if (this.messageHubConnection) {
+      this.messageHubConnection.stop();
       // Extract recipient/channel id from the hub URL
-      const id = this.getIdFromHubUrl(this.hubConnection.baseUrl);
+      const id = this.getIdFromHubUrl(this.messageHubConnection.baseUrl);
 
       // Remove the ID from the active connections
       if (id !== null) {
@@ -109,7 +114,7 @@ export class MessageService {
   }
 
   async createMessage(recipientId: number, content: string) {
-    return this.hubConnection
+    return this.messageHubConnection
       ?.invoke('SendMessage', {
         recipientId: recipientId,
         content: content,
@@ -146,6 +151,71 @@ export class MessageService {
       );
   }
 
+  async createGroupMessageHubConnection(
+    user: UserModel,
+    createGroupMessage: CreateGroupMessageModel
+  ) {
+    const channelId = createGroupMessage?.channelId;
+    const channelName = createGroupMessage.channelName;
+    const contactIds = createGroupMessage.contactIds;
+
+    if (!channelId) return;
+
+    let hubUrlWithParams =
+      this.hubUrl +
+      `group-message?channelId=${channelId}&channelName=${channelName}&contactIds=${contactIds?.join(
+        ','
+      )}`;
+
+    if (this.activeConnections[channelId]) {
+      console.log(`Already connected to channel id: ${channelId}`);
+      return;
+    }
+
+    this.groupMessageHubConnection = new HubConnectionBuilder()
+      .withUrl(hubUrlWithParams, {
+        accessTokenFactory: () => user.accessToken,
+      })
+      .withAutomaticReconnect()
+      .build();
+
+    await this.groupMessageHubConnection
+      .start()
+      .catch((error) => console.log(error));
+
+    console.log(this.groupMessageHubConnection);
+
+    this.activeConnections[channelId] = true;
+
+    this.groupMessageHubConnection.on(
+      'ReceiveGroupMessageChannel',
+      (groupMessages) => {
+        this.groupMessageChannelSrc.next(groupMessages);
+      }
+    );
+
+    this.groupMessageHubConnection.on('NewGroupMessage', (groupMessage) => {
+      this.groupMessageChannel$.pipe(take(1)).subscribe({
+        next: (groupMessages) => {
+          this.groupMessageChannelSrc.next([...groupMessages, groupMessage]);
+        },
+      });
+    });
+  }
+
+  stopGroupMessageHubConnection() {
+    if (this.groupMessageHubConnection) {
+      this.groupMessageHubConnection.stop();
+      // Extract recipient/channel id from the hub URL
+      const id = this.getIdFromHubUrl(this.groupMessageHubConnection.baseUrl);
+
+      // Remove the ID from the active connections
+      if (id !== null) {
+        delete this.activeConnections[id];
+      }
+    }
+  }
+
   createGroupMessageChannel(createGroupMessageModel: CreateGroupMessageModel) {
     return this.http.post<GroupMessageModel[]>(
       this.apiUrl + 'groupmessages/channel',
@@ -153,15 +223,21 @@ export class MessageService {
     );
   }
 
-  createGroupMessage(channelId: string, channelName: string, content: string) {
-    return this.http.post<GroupMessageModel>(this.apiUrl + 'groupmessages', {
-      channelId: channelId,
-      channelName: channelName,
-      content: content,
-    });
+  async createGroupMessage(
+    channelId: string,
+    channelName: string,
+    content: string
+  ) {
+    return this.groupMessageHubConnection
+      ?.invoke('SendGroupMessage', {
+        channelId: channelId,
+        channelName: channelName,
+        content: content,
+      })
+      .catch((error) => console.log(error));
   }
 
-  getGroupMessageChannelsForUser() {
+  getGroupMessageChannelNames() {
     if (this.groupMessageChannelsForUser.length > 0)
       return of(this.groupMessageChannelsForUser);
 
@@ -175,10 +251,8 @@ export class MessageService {
       );
   }
 
-  getGroupMessageChannel(channelId: string) {
-    return this.http.get<GroupMessageModel[]>(
-      this.apiUrl + `groupmessages/${channelId}`
-    );
+  getGroupMessageChannel(): Observable<GroupMessageModel[]> {
+    return this.groupMessageChannel$;
   }
 
   getContactsForGroupMessageChannel(channelId: string) {

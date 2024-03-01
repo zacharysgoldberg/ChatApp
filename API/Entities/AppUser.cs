@@ -7,7 +7,7 @@ namespace API.Entities
 	{
 		public string RefreshToken { get; set; }
 		public DateTime RefreshTokenExpiryTime { get; set; }
-		public DateTime MemberSince { get; set; } = DateTime.UtcNow;
+		public DateTime Created { get; set; } = DateTime.UtcNow; // replace with MemeberSince
 		public DateTime LastActive { get; set; } = DateTime.UtcNow;
 		public Photo Photo { get; set; }
 		// public ICollection<UserContact> UserContacts { get; set; }
@@ -15,8 +15,8 @@ namespace API.Entities
 		public ICollection<Message> MessagesSent { get; set; }
 		public ICollection<Message> MessagesReceived { get; set; }
 		public ICollection<GroupMessage> GroupMessages { get; set; }
-		public ICollection<Notification> NotificationsSent { get; set; } = new List<Notification>();
-		public ICollection<Notification> NotificationsReceived { get; set; } = new List<Notification>();
+		// public ICollection<Notification> NotificationsSent { get; set; } = new List<Notification>();
+		// public ICollection<Notification> NotificationsReceived { get; set; } = new List<Notification>();
 	}
 }
 

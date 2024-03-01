@@ -76,6 +76,19 @@ public class GroupMessagesController : BaseApiController
 	}
 
 	[Authorize(Roles = "Admin,Member")]
+	[HttpGet]
+	public async Task<ActionResult<IEnumerable<GroupMessageDTO>>> GetGroupMessageChannelNames()
+	{
+		string usernameOrEmail = User.GetUsernameOrEmail();
+		MemberDTO user = await _userRepository.GetMemberAsync(usernameOrEmail);
+
+		if (user == null)
+			return NotFound();
+
+		return Ok(await _groupMessageRepository.GetGroupMessageChannelNamesAsync(user.Id));
+	}
+
+	[Authorize(Roles = "Admin,Member")]
 	[HttpGet("{channelId}")]
 	public async Task<ActionResult<IEnumerable<GroupMessageDTO>>> GetGroupMessageChannel(Guid channelId)
 	{
@@ -86,19 +99,6 @@ public class GroupMessagesController : BaseApiController
 			return NotFound();
 
 		return Ok(await _groupMessageRepository.GetGroupMessageChannelAsync(channelId));
-	}
-
-	[Authorize(Roles = "Admin,Member")]
-	[HttpGet]
-	public async Task<ActionResult<IEnumerable<GroupMessageDTO>>> GetGroupMessageChannelsForUser()
-	{
-		string usernameOrEmail = User.GetUsernameOrEmail();
-		MemberDTO user = await _userRepository.GetMemberAsync(usernameOrEmail);
-
-		if (user == null)
-			return NotFound();
-
-		return Ok(await _groupMessageRepository.GetGroupMessageChannelsForUserAsync(user.Id));
 	}
 
 	[Authorize(Roles = "Admin,Member")]

@@ -116,7 +116,7 @@ namespace API.Data
 			return groupMessageDTOs;
 		}
 
-		public async Task<IEnumerable<GroupMessageDTO>> GetGroupMessageChannelsForUserAsync
+		public async Task<IEnumerable<GroupMessageDTO>> GetGroupMessageChannelNamesAsync
 			(int userId)
 		{
 			// Retrieve group message channels where the user is a member
@@ -148,7 +148,6 @@ namespace API.Data
 
 			return contacts;
 		}
-
 
 		public async Task<bool> DeleteGroupMessageAsync(GroupMessage groupMessage)
 		{

@@ -27,7 +27,7 @@ export class ChatListComponent implements OnInit {
   groupMessageChannelEnabled: boolean = false;
   createNewChannelMode: boolean = false;
   @Output() messageThread$: Observable<MessageModel[]> | undefined;
-  @Output() groupMessageChannel: GroupMessageModel[] = [];
+  @Output() groupMessageChannel$: Observable<GroupMessageModel[]> | undefined;
   @Output() contact?: ContactModel;
   @Output() contacts: ContactModel[] = [];
 
@@ -59,12 +59,15 @@ export class ChatListComponent implements OnInit {
     this.user = await this.accountService.getAuthenticatedUser(this.user);
 
     if (!this.messageService.isHubConnectionEstablished(contact.id.toString()))
-      this.messageService.stopHubConnection();
+      this.messageService.stopMessageHubConnection();
 
     this.contact = contact;
 
     if (this.user && this.contact) {
-      await this.messageService.createHubConnection(this.user, this.contact.id);
+      await this.messageService.createMessageHubConnection(
+        this.user,
+        this.contact.id
+      );
       this.messageService.getMessageThread().subscribe((messageThread) => {
         this.messageThread$ = of(messageThread); // Update messageThread$ when thread is received
       });
@@ -82,16 +85,37 @@ export class ChatListComponent implements OnInit {
     this.user = await this.accountService.getAuthenticatedUser(this.user);
 
     this.messageService.getContactsForGroupMessageChannel(channelId).subscribe({
-      next: (contacts) => (this.contacts = contacts),
-    });
+      next: (contacts) => {
+        this.contacts = contacts;
 
-    this.messageService.getGroupMessageChannel(channelId).subscribe({
-      next: (groupMessageChannel) =>
-        (this.groupMessageChannel = groupMessageChannel),
-    });
+        if (!this.messageService.isHubConnectionEstablished(channelId))
+          this.messageService.stopGroupMessageHubConnection();
 
-    this.messageThreadEnabled = false;
-    this.groupMessageChannelEnabled = true;
+        if (this.user && this.contacts.length > 0) {
+          this.messageService.createGroupMessageHubConnection(this.user, {
+            channelId: channelId,
+            channelName: '',
+            contactIds: this.contacts.map((contact) => contact.id),
+          });
+
+          this.messageService
+            .getGroupMessageChannel()
+            .subscribe((groupMessageChannel) => {
+              this.groupMessageChannel$ = of(groupMessageChannel);
+            });
+        }
+
+        this.groupMessageChannel$ =
+          this.messageService.getGroupMessageChannel();
+
+        this.messageThreadEnabled = false;
+        this.groupMessageChannelEnabled = true;
+      },
+      error: (error) => {
+        console.error('Error fetching contacts:', error);
+        // Handle error as needed
+      },
+    });
   }
 
   sortContactAndChannels() {
@@ -108,7 +132,7 @@ export class ChatListComponent implements OnInit {
       })
     );
 
-    const channels$ = this.messageService.getGroupMessageChannelsForUser().pipe(
+    const channels$ = this.messageService.getGroupMessageChannelNames().pipe(
       map((channels) => {
         // Sort the channels based on the latest message sent timestamp
         return channels.sort((a, b) => {
