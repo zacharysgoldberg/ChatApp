@@ -36,7 +36,7 @@ export class ChatMessageThreadComponent implements OnInit, OnDestroy {
 
       if (this.contact && this.user) {
         if (
-          !this.messageService.isHubConnectionEstablished(
+          this.messageService.isHubConnectionEstablished(
             this.contact.id.toString()
           )
         )

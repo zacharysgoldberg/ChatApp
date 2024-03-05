@@ -30,36 +30,6 @@ export class ChatGroupMessageChannelComponent implements OnInit {
         if (user) this.user = user;
       },
     });
-
-    if (!this.contacts) {
-      this.messageService
-        .getContactsForGroupMessageChannel(
-          this.groupMessageChannel[0].channelId
-        )
-        .subscribe({
-          next: (contacts) => (this.contacts = contacts),
-        });
-
-      if (this.contacts && this.user) {
-        const contactIds: number[] = (this.contacts as ContactModel[]).map(
-          (contact) => contact.id
-        );
-        if (
-          !this.messageService.isHubConnectionEstablished(
-            this.groupMessageChannel[0].channelId
-          )
-        )
-          this.messageService.stopMessageHubConnection();
-        else
-          this.messageService.createGroupMessageHubConnection(this.user, {
-            channelId: this.groupMessageChannel[0].channelId,
-            channelName: this.groupMessageChannel[0].channelName,
-            contactIds: contactIds,
-          });
-      } else this.messageService.stopMessageHubConnection();
-    }
-
-    console.log(this.contacts);
   }
 
   ngOnDestroy(): void {
@@ -73,14 +43,11 @@ export class ChatGroupMessageChannelComponent implements OnInit {
 
     if (!this.contacts) return;
 
-    console.log(this.groupMessageChannel);
-
     if (this.groupMessageChannel.length < 1) return;
 
     const channelId = this.groupMessageChannel[0].channelId;
     const channelName = this.groupMessageChannel[0].channelName;
 
-    console.log(channelId, channelName);
     if (channelId && channelName) {
       this.messageService
         .createGroupMessage(channelId, channelName, this.messageContent)

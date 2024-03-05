@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment.development';
 import { ContactModel } from '../_models/contact.model';
 import { UserModel } from '../_models/user.model';
-import { map, of } from 'rxjs';
+import { catchError, map, of, throwError } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -12,8 +12,6 @@ export class ContactService {
   apiUrl = environment.apiUrl;
 
   contacts: ContactModel[] = [];
-
-  user: UserModel | undefined;
   contact: ContactModel | undefined | null;
 
   constructor(private http: HttpClient) {}
@@ -28,14 +26,7 @@ export class ContactService {
   }
 
   getContacts() {
-    if (this.contacts.length > 0) return of(this.contacts);
-
-    return this.http.get<ContactModel[]>(this.apiUrl + 'contacts').pipe(
-      map((contacts) => {
-        this.contacts = contacts;
-        return this.contacts;
-      })
-    );
+    return this.http.get<ContactModel[]>(this.apiUrl + 'contacts');
   }
 
   getContact(contactId: number) {
@@ -47,9 +38,11 @@ export class ContactService {
   }
 
   removeContact(contactId: number) {
-    return this.http.post(
-      this.apiUrl + `contacts/delete/${contactId}`,
-      this.contact
+    return this.http.delete(this.apiUrl + `contacts/delete/${contactId}`).pipe(
+      map(() => {
+        // Remove the contact from the client-side list
+        this.contacts = this.contacts.filter((c) => c.id !== contactId);
+      })
     );
   }
 }

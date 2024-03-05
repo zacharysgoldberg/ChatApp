@@ -12,7 +12,7 @@ public record MemberDTO
 		string? PhoneNumber,
 		string RefreshToken,
 		DateTime RefreshTokenExpiryTime,
-		DateTime Created,
+		DateTime MemberSince,
 		DateTime LastActive,
 		string PhotoUrl,
 		PhotoDTO Photo,

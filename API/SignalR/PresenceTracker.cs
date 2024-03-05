@@ -2,59 +2,59 @@ namespace API.SignalR;
 
 public class PresenceTracker
 {
-	private static readonly Dictionary<string, List<string>> _onlineUsers = new();
+	private static readonly Dictionary<int, List<string>> _onlineUsers = new();
 
-	public Task UserConnected(string username, string connectionId)
+	public Task UserConnected(int userId, string connectionId)
 	{
 		lock (_onlineUsers)
 		{
-			if (_onlineUsers.ContainsKey(username))
+			if (_onlineUsers.ContainsKey(userId))
 			{
-				_onlineUsers[username].Add(connectionId);
+				_onlineUsers[userId].Add(connectionId);
 			}
 			else
 			{
-				_onlineUsers.Add(username, new List<string> { connectionId });
+				_onlineUsers.Add(userId, new List<string> { connectionId });
 			}
 		}
 		return Task.CompletedTask;
 	}
 
-	public Task UserDisconnected(string username, string connectionId)
+	public Task UserDisconnected(int userId, string connectionId)
 	{
 		lock (_onlineUsers)
 		{
-			if (!_onlineUsers.ContainsKey(username))
+			if (!_onlineUsers.ContainsKey(userId))
 				return Task.CompletedTask;
 
-			_onlineUsers[username].Remove(connectionId);
+			_onlineUsers[userId].Remove(connectionId);
 
-			if (_onlineUsers[username].Count == 0)
-				_onlineUsers.Remove(username);
+			if (_onlineUsers[userId].Count == 0)
+				_onlineUsers.Remove(userId);
 		}
 
 		return Task.CompletedTask;
 	}
 
-	public Task<string[]> GetOnlineUsers()
+	public Task<int[]> GetOnlineUsers()
 	{
-		string[] onlineUsers;
+		int[] onlineUserIds;
 
 		lock (_onlineUsers)
 		{
-			onlineUsers = _onlineUsers.OrderBy(k => k.Key).Select(k => k.Key).ToArray();
+			onlineUserIds = _onlineUsers.OrderBy(k => k.Key).Select(k => k.Key).ToArray();
 		}
 
-		return Task.FromResult(onlineUsers);
+		return Task.FromResult(onlineUserIds);
 	}
 
-	public static Task<List<string>> GetConnectionsForUser(string username)
+	public static Task<List<string>> GetConnectionsForUser(int userId)
 	{
 		List<string> connectionIds;
 
 		lock (_onlineUsers)
 		{
-			connectionIds = _onlineUsers.GetValueOrDefault(username);
+			connectionIds = _onlineUsers.GetValueOrDefault(userId);
 		}
 		return Task.FromResult(connectionIds);
 	}

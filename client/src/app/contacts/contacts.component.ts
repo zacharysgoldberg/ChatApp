@@ -4,7 +4,7 @@ import { ContactModel } from 'src/app/_models/contact.model';
 import { ContactService } from 'src/app/_services/contact.service';
 import { AccountService } from '../_services/account.service';
 import { ToastrService } from 'ngx-toastr';
-import { Observable, take } from 'rxjs';
+import { Observable, map, of, take } from 'rxjs';
 import { MessageService } from '../_services/message.service';
 import { PresenceService } from '../_services/presence.service';
 import { UserModel } from '../_models/user.model';
@@ -16,7 +16,7 @@ import { UserModel } from '../_models/user.model';
 })
 export class ContactsComponent implements OnInit {
   user?: UserModel;
-  contacts$: Observable<ContactModel[]> | undefined;
+  contacts$: Observable<ContactModel[]> = of([]);
   contact: ContactModel | undefined;
   contactToAdd: string = '';
 
@@ -54,9 +54,16 @@ export class ContactsComponent implements OnInit {
 
     this.contactService.addContact(this.contactToAdd).subscribe({
       next: (_) => {
-        location.reload();
-      },
+        // Retrieve the updated list of contacts
+        this.contacts$ = this.contactService.getContacts();
 
+        this.contacts$.subscribe((contacts) => {
+          // Find the newly added contact in the list
+          const newlyAddedContact = contacts.find(
+            (contact) => contact.userName === this.contactToAdd
+          );
+        });
+      },
       error: (error) => {
         console.log(error);
         this.toastr.error(error);
@@ -70,7 +77,15 @@ export class ContactsComponent implements OnInit {
     this.user = await this.accountService.getAuthenticatedUser(this.user);
 
     this.contactService.removeContact(contactId).subscribe({
-      next: (_) => location.reload(),
+      next: () => {
+        // Remove the contact from the client-side list
+        this.contacts$ = this.contacts$.pipe(
+          map((contacts) => contacts.filter((c) => c.id !== contactId))
+        );
+      },
+      error: (error) => {
+        console.error(error);
+      },
     });
   }
 
@@ -79,7 +94,7 @@ export class ContactsComponent implements OnInit {
 
     this.user = await this.accountService.getAuthenticatedUser(this.user);
 
-    this.messageService.setContactForMessageThread(contactId);
+    await this.messageService.setContactForMessageThread(contactId);
     this.router.navigate(['/chat']);
   }
 }

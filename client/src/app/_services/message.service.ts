@@ -2,7 +2,15 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { MessageModel } from '../_models/message.model';
-import { BehaviorSubject, Observable, catchError, map, of, take } from 'rxjs';
+import {
+  BehaviorSubject,
+  Observable,
+  catchError,
+  firstValueFrom,
+  map,
+  of,
+  take,
+} from 'rxjs';
 import { ContactModel } from '../_models/contact.model';
 import { ContactService } from './contact.service';
 import { CreateGroupMessageModel } from '../_models/createGroupMessage.model';
@@ -23,15 +31,15 @@ export class MessageService {
   private messageHubConnection?: HubConnection;
   private groupMessageHubConnection?: HubConnection;
 
-  private activeConnections: { [id: string]: boolean } = {};
+  private activeConnections: Set<string> = new Set<string>();
 
   contact?: ContactModel;
   contactsWithMessageThreads: ContactModel[] = [];
   private messageThreadSource = new BehaviorSubject<MessageModel[]>([]);
   messageThread$ = this.messageThreadSource.asObservable();
 
-  groupMessageChannelsForUser: GroupMessageModel[] = [];
-  contactsForGroupMessageChannel: ContactModel[] = [];
+  usersGroupMessageChannels: GroupMessageModel[] = [];
+  groupMessageChannelContacts: ContactModel[] = [];
   private groupMessageChannelSrc = new BehaviorSubject<GroupMessageModel[]>([]);
   groupMessageChannel$ = this.groupMessageChannelSrc.asObservable();
 
@@ -45,17 +53,12 @@ export class MessageService {
     If a hub connection is established, it does nothing, allowing the existing connection to continue.
   */
   isHubConnectionEstablished(id: string): boolean {
-    if (
-      !this.activeConnections[id] &&
-      this.messageHubConnection != null &&
-      this.messageHubConnection.state === HubConnectionState.Connected
-    )
-      return false;
+    if (!this.activeConnections.has(id)) return false;
     return true;
   }
 
   async createMessageHubConnection(user: UserModel, recipientId: number) {
-    if (this.activeConnections[recipientId]) {
+    if (this.activeConnections.has(recipientId.toString())) {
       console.log(`Already connected to contact id: ${recipientId}`);
       return;
     }
@@ -71,7 +74,7 @@ export class MessageService {
       .start()
       .catch((error) => console.log(error));
 
-    this.activeConnections[recipientId.toString()] = true;
+    this.activeConnections.add(recipientId.toString());
 
     this.setContactForMessageThread(recipientId);
 
@@ -96,17 +99,17 @@ export class MessageService {
 
       // Remove the ID from the active connections
       if (id !== null) {
-        delete this.activeConnections[id];
+        this.activeConnections.delete(id);
       }
     }
   }
 
-  private getIdFromHubUrl(url: string): number | string | null {
+  private getIdFromHubUrl(url: string): string | null {
     const urlParams = new URLSearchParams(url.split('?')[1]);
-    let id: number | string | null = null;
+    let id: string | null = null;
 
     if (urlParams.has('recipientId')) {
-      id = parseInt(urlParams.get('recipientId')!, 10);
+      id = urlParams.get('recipientId')!;
     } else if (urlParams.has('channelId')) {
       id = urlParams.get('channelId')!;
     }
@@ -126,10 +129,11 @@ export class MessageService {
     return this.messageThread$;
   }
 
-  setContactForMessageThread(recipientId: number) {
-    this.contactService.getContact(recipientId).subscribe({
-      next: (contact) => (this.contact = contact),
-    });
+  async setContactForMessageThread(recipientId: number) {
+    const contact = await firstValueFrom(
+      this.contactService.getContact(recipientId)
+    );
+    this.contact = contact;
   }
 
   getContact() {
@@ -167,7 +171,7 @@ export class MessageService {
         ','
       )}`;
 
-    if (this.activeConnections[channelId]) {
+    if (this.activeConnections.has(channelId)) {
       console.log(`Already connected to channel id: ${channelId}`);
       return;
     }
@@ -183,9 +187,7 @@ export class MessageService {
       .start()
       .catch((error) => console.log(error));
 
-    console.log(this.groupMessageHubConnection);
-
-    this.activeConnections[channelId] = true;
+    this.activeConnections.add(channelId);
 
     this.groupMessageHubConnection.on(
       'ReceiveGroupMessageChannel',
@@ -211,7 +213,7 @@ export class MessageService {
 
       // Remove the ID from the active connections
       if (id !== null) {
-        delete this.activeConnections[id];
+        this.activeConnections.delete(id);
       }
     }
   }
@@ -238,15 +240,15 @@ export class MessageService {
   }
 
   getGroupMessageChannelNames() {
-    if (this.groupMessageChannelsForUser.length > 0)
-      return of(this.groupMessageChannelsForUser);
+    if (this.usersGroupMessageChannels.length > 0)
+      return of(this.usersGroupMessageChannels);
 
     return this.http
       .get<GroupMessageModel[]>(this.apiUrl + 'groupmessages')
       .pipe(
         map((channels) => {
-          this.groupMessageChannelsForUser = channels;
-          return this.groupMessageChannelsForUser;
+          this.usersGroupMessageChannels = channels;
+          return this.usersGroupMessageChannels;
         })
       );
   }
@@ -255,16 +257,13 @@ export class MessageService {
     return this.groupMessageChannel$;
   }
 
-  getContactsForGroupMessageChannel(channelId: string) {
-    if (this.contactsForGroupMessageChannel.length > 0)
-      return of(this.contactsForGroupMessageChannel);
-
+  getGroupMessageChannelContacts(channelId: string) {
     return this.http
       .get<ContactModel[]>(this.apiUrl + `groupmessages/contacts/${channelId}`)
       .pipe(
         map((contacts) => {
-          this.contactsForGroupMessageChannel = contacts;
-          return this.contactsForGroupMessageChannel;
+          this.groupMessageChannelContacts = contacts;
+          return this.groupMessageChannelContacts;
         })
       );
   }

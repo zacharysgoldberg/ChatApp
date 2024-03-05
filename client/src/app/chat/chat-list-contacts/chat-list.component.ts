@@ -1,14 +1,10 @@
-import { Component, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, OnInit, Output } from '@angular/core';
 import { MessageModel } from '../../_models/message.model';
 import { MessageService } from '../../_services/message.service';
 import { UserModel } from '../../_models/user.model';
 import { AccountService } from '../../_services/account.service';
-import { Observable, combineLatest, map, of, switchMap, take } from 'rxjs';
-import { MemberModel } from '../../_models/member.model';
-import { Pagination } from '../../_models/pagination.mode';
+import { Observable, combineLatest, map, of, take } from 'rxjs';
 import { ContactModel } from '../../_models/contact.model';
-import { UserService } from '../../_services/user.service';
-import { ContactService } from 'src/app/_services/contact.service';
 import { GroupMessageModel } from 'src/app/_models/groupMessage.model';
 
 @Component({
@@ -19,7 +15,7 @@ import { GroupMessageModel } from 'src/app/_models/groupMessage.model';
 export class ChatListComponent implements OnInit {
   user?: UserModel;
   contactsWithMessageThreads$: Observable<ContactModel[]> | undefined;
-  groupMessageChannelsForUser$: Observable<GroupMessageModel[]> | undefined;
+  usersGroupMessageChannels$: Observable<GroupMessageModel[]> | undefined;
   contactsAndChannels$:
     | Observable<(ContactModel | GroupMessageModel)[]>
     | undefined;
@@ -33,7 +29,6 @@ export class ChatListComponent implements OnInit {
 
   constructor(
     public accountService: AccountService,
-    private contactService: ContactService,
     private messageService: MessageService
   ) {}
 
@@ -84,12 +79,13 @@ export class ChatListComponent implements OnInit {
 
     this.user = await this.accountService.getAuthenticatedUser(this.user);
 
-    this.messageService.getContactsForGroupMessageChannel(channelId).subscribe({
-      next: (contacts) => {
-        this.contacts = contacts;
+    if (!this.messageService.isHubConnectionEstablished(channelId))
+      this.messageService.stopGroupMessageHubConnection();
 
-        if (!this.messageService.isHubConnectionEstablished(channelId))
-          this.messageService.stopGroupMessageHubConnection();
+    this.messageService.getGroupMessageChannelContacts(channelId).subscribe({
+      next: (contacts) => {
+        // Set the contacts
+        this.contacts = contacts;
 
         if (this.user && this.contacts.length > 0) {
           this.messageService.createGroupMessageHubConnection(this.user, {
@@ -97,23 +93,19 @@ export class ChatListComponent implements OnInit {
             channelName: '',
             contactIds: this.contacts.map((contact) => contact.id),
           });
-
-          this.messageService
-            .getGroupMessageChannel()
-            .subscribe((groupMessageChannel) => {
-              this.groupMessageChannel$ = of(groupMessageChannel);
-            });
         }
 
-        this.groupMessageChannel$ =
-          this.messageService.getGroupMessageChannel();
+        this.messageService
+          .getGroupMessageChannel()
+          .subscribe((groupMessageChannel) => {
+            this.groupMessageChannel$ = of(groupMessageChannel);
+          });
 
         this.messageThreadEnabled = false;
         this.groupMessageChannelEnabled = true;
       },
       error: (error) => {
         console.error('Error fetching contacts:', error);
-        // Handle error as needed
       },
     });
   }

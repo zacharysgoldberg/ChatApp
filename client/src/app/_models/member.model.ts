@@ -7,7 +7,7 @@ export interface MemberModel {
   email: string;
   refreshToken: string;
   refreshTokenExpiryTime: string;
-  created: Date;
+  memberSince: Date;
   lastActive: Date;
   photoUrl: string;
   contacts: ContactModel[];

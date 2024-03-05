@@ -1,7 +1,12 @@
 export interface NotificationModel {
   id: number;
-  title: string;
-  eventDate: Date;
-  sender: string;
-  message: string;
+  senderId: number;
+  senderUsername: string;
+  recipientId?: number;
+  recipientUsername?: string;
+  messageId?: number;
+  groupMessageId?: number;
+  channelId?: string;
+  createdAt: Date;
+  content: string;
 }

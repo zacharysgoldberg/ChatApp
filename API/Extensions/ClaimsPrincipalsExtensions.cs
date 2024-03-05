@@ -8,4 +8,9 @@ public static class ClaimsPrincipalsExtensions
 	{
 		return user.FindFirst(ClaimTypes.Name)?.Value;
 	}
+
+	public static int GetUserId(this ClaimsPrincipal user)
+	{
+		return int.Parse(user.FindFirst("id").Value);
+	}
 }

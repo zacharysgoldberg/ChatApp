@@ -1,6 +1,7 @@
 using API.DTOs;
 using API.Entities;
 using API.Extensions;
+using API.Helpers;
 using API.Interfaces;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
@@ -14,16 +15,19 @@ public class MessageHub : Hub
 {
 	private readonly IMessageRepository _messageRepository;
 	private readonly IUserRepository _userRepository;
-	private readonly IMapper _mapper;
 	private readonly IHubContext<PresenceHub> _presenceHub;
+	private readonly INotificationRepository _notificationRepository;
+	private readonly IMapper _mapper;
 
 	public MessageHub(IMessageRepository messageRepository, IUserRepository userRepository,
-		IMapper mapper, IHubContext<PresenceHub> presenceHub)
+		IHubContext<PresenceHub> presenceHub, INotificationRepository notificationRepository,
+		IMapper mapper)
 	{
 		_messageRepository = messageRepository;
 		_userRepository = userRepository;
-		_mapper = mapper;
 		_presenceHub = presenceHub;
+		_notificationRepository = notificationRepository;
+		_mapper = mapper;
 	}
 
 	public override async Task OnConnectedAsync()
@@ -74,13 +78,6 @@ public class MessageHub : Hub
 			Content = createMessageDTO.Content
 		};
 
-		// var connections = await PresenceTracker.GetConnectionsForUser(recipient.UserName);
-		// if (connections != null)
-		// {
-		// 	await _presenceHub.Clients.Clients(connections).SendAsync("NewMessageReceived",
-		// 		new { id = recipient.Id, username = sender.UserName });
-		// }
-
 		if (await _messageRepository.CreateMessageAsync(message))
 		{
 			sender.LastActive = DateTime.UtcNow;
@@ -91,6 +88,25 @@ public class MessageHub : Hub
 
 			string groupName = GetGroupName(sender.UserName, recipient.UserName);
 			await Clients.Group(groupName).SendAsync("NewMessage", _mapper.Map<MessageDTO>(message));
+
+			var recipientConnections = await PresenceTracker.GetConnectionsForUser(recipient.Id);
+
+			if (recipientConnections == null || !recipientConnections.Any())
+			{
+				// Recipient is offline, create a notification
+				var notification = new Notification
+				{
+					SenderId = sender.Id,
+					RecipientId = recipient.Id,
+					MessageId = message.Id,
+					Content = message.Content
+				};
+
+				// await _presenceHub.Clients.Clients(recipientConnections).SendAsync("NewMessageReceived",
+				// 				 		new { id = recipient.Id, username = sender.UserName });
+
+				await _notificationRepository.CreateNotificationAsync(notification);
+			}
 		}
 		else
 			throw new HubException("Failed to send message");

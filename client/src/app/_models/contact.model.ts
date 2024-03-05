@@ -4,7 +4,7 @@ export interface ContactModel {
   id: number;
   userName: string;
   email: string;
-  // created: Date;
+  memberSince: Date;
   lastActive: Date;
   photoUrl?: string;
 }

@@ -30,5 +30,9 @@ public class AutoMapperProfiles : Profile
 			.ForMember(dest => dest.SenderUsername, opt => opt.MapFrom(src => src.Sender.UserName))
 			.ForMember(dest => dest.SenderPhotoUrl, opt => opt.MapFrom(src => src.Sender.Photo.Url))
 			.ForMember(dest => dest.Contacts, opt => opt.MapFrom(src => src.Users));
+
+		CreateMap<Notification, NotificationDTO>()
+			.ForMember(dest => dest.SenderUsername, opt => opt.MapFrom(src => src.Sender.UserName))
+			.ForMember(dest => dest.RecipientUsername, opt => opt.MapFrom(src => src.Recipient.UserName));
 	}
 }

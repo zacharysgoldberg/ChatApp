@@ -56,9 +56,8 @@ public class ContactRepository : IContactRepository
 		return contactDTO;
 	}
 
-	public async Task<IEnumerable<ContactDTO>> GetContactsAsync(int userId)
+	public async Task<IEnumerable<ContactDTO>> GetContactsAsync(AppUser user)
 	{
-		AppUser user = await _userRepository.GetUserByIdAsync(userId);
 		ICollection<Contact> contacts = user.Contacts;
 
 		// DebugUtil.PrintDebug(ref contacts);

@@ -95,7 +95,7 @@ export class ChatCreateChannelComponent implements OnInit {
       this.messageService
         .createGroupMessageChannel(this.createGroupMessageModel)
         .subscribe({
-          next: () => location.reload(),
+          next: () => this.cancel(),
 
           error: (error) => console.log(error),
         });

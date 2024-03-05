@@ -27,6 +27,8 @@ public class MessageRespository : IMessageRepository
 		IEnumerable<Message> existingThread = await _context.Messages
 				.Include(m => m.Sender)
 					.ThenInclude(m => m.Photo)
+				.Include(m => m.Recipient)
+					.ThenInclude(m => m.Photo)
 				.Where(m =>
 					(m.RecipientId == senderId && m.SenderId == recipientId) ||
 					(m.RecipientId == recipientId && m.SenderId == senderId))
@@ -36,28 +38,18 @@ public class MessageRespository : IMessageRepository
 		// If an existing thread is found, fetch the messages associated
 		if (existingThread.Any())
 		{
-			var usersInfo = await _context.Users
-					.Where(u => u.Id == senderId || u.Id == recipientId)
-					.Select(u => new
-					{
-						Id = u.Id,
-						UserName = u.UserName,
-						PhotoUrl = u.Photo.Url
-					})
-					.ToListAsync();
-
-			IEnumerable<MessageDTO> messageDTOs = existingThread.Select(message => new MessageDTO
+			IEnumerable<MessageDTO> messageDTOs = existingThread.Select(m => new MessageDTO
 			{
 				// Map message properties to DTO properties
-				Id = message.Id,
-				SenderId = message.SenderId,
-				SenderUsername = usersInfo.FirstOrDefault(u => u.Id == message.SenderId).UserName,
-				SenderPhotoUrl = usersInfo.FirstOrDefault(u => u.Id == message.SenderId)?.PhotoUrl,
-				RecipientId = message.RecipientId,
-				RecipientUsername = usersInfo.FirstOrDefault(u => u.Id == message.RecipientId).UserName,
-				RecipientPhotoUrl = usersInfo.FirstOrDefault(u => u.Id == message.RecipientId)?.PhotoUrl,
-				Content = message.Content,
-				CreatedAt = message.CreatedAt,
+				Id = m.Id,
+				SenderId = m.SenderId,
+				SenderUsername = m.Sender.UserName,
+				SenderPhotoUrl = m.Sender.Photo?.Url,
+				RecipientId = m.RecipientId,
+				RecipientUsername = m.Recipient.UserName,
+				RecipientPhotoUrl = m.Recipient.Photo?.Url,
+				Content = m.Content,
+				CreatedAt = m.CreatedAt,
 			});
 
 			return messageDTOs;

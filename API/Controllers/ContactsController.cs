@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
 
+[Authorize(Roles = "Admin,Member")]
 public class ContactsController : BaseApiController
 {
 	private readonly IUserRepository _userRepository;
@@ -19,28 +20,24 @@ public class ContactsController : BaseApiController
 		_contactRepository = contactRepository;
 	}
 
-	[Authorize(Roles = "Admin,Member")]
 	[HttpGet("{contactId}")] // /api/contacts/2
 	public async Task<ActionResult<ContactDTO>> GetContact(int contactId)
 	{
-		string usernameOrEmail = User.GetUsernameOrEmail();
-		MemberDTO user = await _userRepository.GetMemberAsync(usernameOrEmail);
-		ContactDTO contact = await _contactRepository.GetContactAsync(user.Id, contactId);
+		int userId = User.GetUserId();
+		ContactDTO contact = await _contactRepository.GetContactAsync(userId, contactId);
 
 		return contact == null ? NotFound() : contact;
 	}
 
-	[Authorize(Roles = "Admin,Member")]
 	[HttpGet] // /api/contacts/1
 	public async Task<ActionResult<IEnumerable<ContactDTO>>> GetContacts()
 	{
 		string usernameOrEmail = User.GetUsernameOrEmail();
-		MemberDTO user = await _userRepository.GetMemberAsync(usernameOrEmail);
+		AppUser user = await _userRepository.GetUserAsync(usernameOrEmail);
 
-		return Ok(await _contactRepository.GetContactsAsync(user.Id));
+		return Ok(await _contactRepository.GetContactsAsync(user));
 	}
 
-	[Authorize(Roles = "Admin,Member")]
 	[HttpPost] // /api/contacts
 	public async Task<ActionResult<MemberDTO>> AddContact([FromBody]
 				ContactUsernameDTO contactUsernameDTO)
@@ -64,8 +61,7 @@ public class ContactsController : BaseApiController
 		return contact;
 	}
 
-	[Authorize(Roles = "Admin,Member")]
-	[HttpPost("delete/{contactId}")] // /api/contacts/delete/2
+	[HttpDelete("delete/{contactId}")] // /api/contacts/delete/2
 	public async Task<IActionResult> DeleteContact(int contactId)
 	{
 		string usernameOrEmail = User.GetUsernameOrEmail();

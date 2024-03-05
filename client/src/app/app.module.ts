@@ -8,7 +8,6 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HomeComponent } from './home/home.component';
 import { RegisterComponent } from './register/register.component';
 import { NavbarComponent } from './navbar/navbar.component';
-import { NotificationsComponent } from './notifications/notifications.component';
 import { SharedModule } from './_modules/shared.module';
 import { TestErrorComponent } from './errors/test-error/test-error.component';
 import { ErrorInterceptor } from './_interceptors/error.interceptor';
@@ -47,7 +46,6 @@ export function tokenGetter() {
     HomeComponent,
     RegisterComponent,
     NavbarComponent,
-    NotificationsComponent,
     TestErrorComponent,
     NotFoundComponent,
     ServerErrorComponent,

@@ -1,13 +1,15 @@
 import { AccountService } from '../_services/account.service';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { Component, OnInit } from '@angular/core';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { NotificationModel } from '../_models/notification.model';
-import { map, take } from 'rxjs';
+import { Observable, map, of, take } from 'rxjs';
 import { MemberModel } from '../_models/member.model';
 import { UserService } from '../_services/user.service';
 import { UserModel } from '../_models/user.model';
+import { NotificationService } from '../_services/notification.service';
+import { MessageService } from '../_services/message.service';
 
 @Component({
   selector: 'app-navbar',
@@ -15,19 +17,31 @@ import { UserModel } from '../_models/user.model';
   styleUrls: ['./navbar.component.css'],
 })
 export class NavbarComponent implements OnInit {
+  user?: UserModel;
   member: MemberModel | undefined;
-  notifications: NotificationModel[] = [];
+  notifications$: Observable<NotificationModel[]> = of([]);
   isDropup = true;
   isAdmin = false;
 
   constructor(
     public accountService: AccountService,
     private userService: UserService,
+    private notificationService: NotificationService,
+    private messageService: MessageService,
     private router: Router,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private route: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
+    this.accountService.currentUser$.pipe(take(1)).subscribe({
+      next: (user) => {
+        if (user) this.user = user;
+      },
+    });
+
+    this.notifications$ = this.notificationService.getUserNotifications();
+
     const username = this.accountService.getUsername();
 
     if (!username) return;
@@ -48,5 +62,49 @@ export class NavbarComponent implements OnInit {
     this.router.navigateByUrl('/profile');
   }
 
-  loadNotifications() {}
+  async loadNotification(notificationId: number) {
+    if (!this.user) return;
+
+    this.user = await this.accountService.getAuthenticatedUser(this.user);
+
+    if (this.notifications$) {
+      this.notifications$
+        .pipe(
+          map((notifications) =>
+            notifications.find(
+              (notification) => notification.id === notificationId
+            )
+          )
+        )
+        .subscribe(async (notification) => {
+          if (notification) {
+            const senderId = notification.senderId;
+            await this.messageService.setContactForMessageThread(senderId);
+            this.router.navigate(['../chat'], { relativeTo: this.route });
+          }
+        });
+    }
+  }
+
+  async deleteNotification(notification: NotificationModel) {
+    if (!this.user) return;
+
+    this.user = await this.accountService.getAuthenticatedUser(this.user);
+
+    this.notificationService.deleteNotification(notification.id).subscribe({
+      next: () => {
+        // Remove the deleted notification from the list of notifications
+        this.notifications$ = this.notifications$.pipe(
+          map((notifications) =>
+            notifications.filter((n) => n.id !== notification.id)
+          )
+        );
+        this.toastr.success('Notification deleted successfully.');
+      },
+      error: (error) => {
+        console.error('Error deleting notification:', error);
+        this.toastr.error('Failed to delete notification.');
+      },
+    });
+  }
 }

@@ -8,7 +8,7 @@ public interface IContactRepository
 {
 	Task<bool> AddContactAsync(AppUser user, int contactId);
 	Task<ContactDTO> GetContactAsync(int userId, int contactId);
-	Task<IEnumerable<ContactDTO>> GetContactsAsync(int userId);
+	Task<IEnumerable<ContactDTO>> GetContactsAsync(AppUser user);
 	Task<bool> DeleteContactAsync(AppUser user, int contactId);
 	Task<bool> UserContactExists(int userId, int contactId);
 }

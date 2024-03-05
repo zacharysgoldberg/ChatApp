@@ -9,4 +9,5 @@ public class Message
 	public AppUser Recipient { get; set; }
 	public string Content { get; set; }
 	public DateTime? CreatedAt { get; set; } = DateTime.UtcNow;
+	public ICollection<Notification> Notifications { get; set; } = new List<Notification>();
 }

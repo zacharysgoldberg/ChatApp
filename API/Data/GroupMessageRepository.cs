@@ -18,8 +18,8 @@ namespace API.Data
 			_mapper = mapper;
 		}
 
-		public async Task<IEnumerable<GroupMessageDTO>> CreateGroupMessageChannelAsync(Guid? channelId,
-			string channelName, int senderId, IEnumerable<int> contactIds)
+		public async Task<IEnumerable<GroupMessageDTO>> CreateGroupMessageChannelAsync(string channelName,
+			int senderId, IEnumerable<int> contactIds)
 		{
 			// Check if the group message channel already exists
 			IEnumerable<GroupMessage> existingChannel = await _context.GroupMessages
@@ -27,36 +27,32 @@ namespace API.Data
 						.ThenInclude(gm => gm.Photo)
 					.Include(gm => gm.Users)
 					.Where(gm =>
-							gm.ChannelId == channelId ||
-							(gm.Users.Count() == contactIds.Count() &&
-							 gm.Users.All(u => contactIds.Contains(u.Id))))
+							gm.Users.Count() == contactIds.Count() &&
+							gm.Users.All(u => contactIds.Contains(u.Id)))
 					.OrderBy(gm => gm.CreatedAt)
 					.ToListAsync();
 
-			AppUser sender = await _context.Users.FindAsync(senderId);
-
 			if (existingChannel.Any())
 			{
-				string senderUsername = sender.UserName;
-				string senderPhotoUrl = sender.Photo?.Url;
-
 				IEnumerable<GroupMessageDTO> groupMessageDTOs = existingChannel
-					.Select(groupMessage => new
+					.Select(gm => new
 					GroupMessageDTO
 					{
-						Id = groupMessage.Id,
-						ChannelId = groupMessage.ChannelId,
-						ChannelName = groupMessage.ChannelName,
-						SenderId = groupMessage.SenderId,
-						SenderUsername = senderUsername,
-						SenderPhotoUrl = senderPhotoUrl,
-						Content = groupMessage.Content,
-						CreatedAt = groupMessage.CreatedAt,
-						Contacts = groupMessage.Users?.Select(u => _mapper.Map<ContactDTO>(u)).ToList()
+						Id = gm.Id,
+						ChannelId = gm.ChannelId,
+						ChannelName = gm.ChannelName,
+						SenderId = gm.SenderId,
+						SenderUsername = gm.Sender.UserName,
+						SenderPhotoUrl = gm.Sender.Photo?.Url,
+						Content = gm.Content,
+						CreatedAt = gm.CreatedAt,
+						Contacts = gm.Users?.Select(u => _mapper.Map<ContactDTO>(u)).ToList()
 					});
 
 				return groupMessageDTOs;
 			}
+
+			AppUser sender = await _context.Users.FindAsync(senderId);
 
 			// If the channel/thread doesn't exist, create it and associate contacts
 			var groupMessageChannel = new GroupMessage
@@ -99,18 +95,18 @@ namespace API.Data
 					.OrderBy(gm => gm.CreatedAt)
 					.ToListAsync();
 
-			IEnumerable<GroupMessageDTO> groupMessageDTOs = groupMessages.Select(groupMessage => new
+			IEnumerable<GroupMessageDTO> groupMessageDTOs = groupMessages.Select(gm => new
 			GroupMessageDTO
 			{
-				Id = groupMessage.Id,
-				ChannelId = groupMessage.ChannelId,
-				ChannelName = groupMessage.ChannelName,
-				SenderId = groupMessage.SenderId,
-				SenderUsername = groupMessage.Sender.UserName,
-				SenderPhotoUrl = groupMessage.Sender.Photo?.Url,
-				Content = groupMessage.Content,
-				CreatedAt = groupMessage.CreatedAt,
-				Contacts = groupMessage.Users?.Select(u => _mapper.Map<ContactDTO>(u)).ToList()
+				Id = gm.Id,
+				ChannelId = gm.ChannelId,
+				ChannelName = gm.ChannelName,
+				SenderId = gm.SenderId,
+				SenderUsername = gm.Sender.UserName,
+				SenderPhotoUrl = gm.Sender.Photo?.Url,
+				Content = gm.Content,
+				CreatedAt = gm.CreatedAt,
+				Contacts = gm.Users?.Select(u => _mapper.Map<ContactDTO>(u)).ToList()
 			});
 
 			return groupMessageDTOs;
@@ -136,7 +132,7 @@ namespace API.Data
 			return groupMessageChannels;
 		}
 
-		public async Task<IEnumerable<ContactDTO>> GetContactsForGroupMessageChannelAsync(Guid channelId)
+		public async Task<IEnumerable<ContactDTO>> GetGroupMessageChannelContactsAsync(Guid channelId)
 		{
 			IEnumerable<ContactDTO> contacts = await _context.GroupMessages
 				.Include(gm => gm.Users)

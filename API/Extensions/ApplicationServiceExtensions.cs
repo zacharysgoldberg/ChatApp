@@ -30,6 +30,7 @@ public static class ApplicationServiceExtensions
 		services.AddScoped<IContactRepository, ContactRepository>();
 		services.AddScoped<IMessageRepository, MessageRespository>();
 		services.AddScoped<IGroupMessageRepository, GroupMessageRepository>();
+		services.AddScoped<INotificationRepository, NotificationRepository>();
 
 		services.AddSignalR();
 		services.AddSingleton<PresenceTracker>();

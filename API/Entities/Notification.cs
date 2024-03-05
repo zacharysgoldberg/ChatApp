@@ -7,6 +7,10 @@ public class Notification
 	public AppUser Sender { get; set; }
 	public int? RecipientId { get; set; }
 	public AppUser Recipient { get; set; }
-	public Guid? ChannelId { get; set; }
-	public GroupMessage Channel { get; set; }
+	public int? MessageId { get; set; }
+	public Message Message { get; set; }
+	public int? GroupMessageId { get; set; }
+	public GroupMessage GroupMessage { get; set; }
+	public DateTime? CreatedAt { get; set; } = DateTime.UtcNow;
+	public string Content { get; set; }
 }

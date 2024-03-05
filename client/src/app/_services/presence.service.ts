@@ -13,7 +13,7 @@ import { MessageService } from './message.service';
 export class PresenceService {
   hubUrl = environment.hubUrl;
   private hubConnection?: HubConnection;
-  private onlineUsersSource = new BehaviorSubject<string[]>([]);
+  private onlineUsersSource = new BehaviorSubject<number[]>([]);
   onlineUser$ = this.onlineUsersSource.asObservable();
 
   constructor(
@@ -40,8 +40,8 @@ export class PresenceService {
       // this.toastr.warning(username + ' has disconnected');
     });
 
-    this.hubConnection.on('GetOnlineUsers', (usernames) => {
-      this.onlineUsersSource.next(usernames);
+    this.hubConnection.on('GetOnlineUsers', (userIds) => {
+      this.onlineUsersSource.next(userIds);
     });
 
     this.hubConnection.on('NewMessageReceived', ({ id, username }) => {
