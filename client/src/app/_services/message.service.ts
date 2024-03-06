@@ -38,6 +38,7 @@ export class MessageService {
   private messageThreadSource = new BehaviorSubject<MessageModel[]>([]);
   messageThread$ = this.messageThreadSource.asObservable();
 
+  channel?: GroupMessageModel;
   usersGroupMessageChannels: GroupMessageModel[] = [];
   groupMessageChannelContacts: ContactModel[] = [];
   private groupMessageChannelSrc = new BehaviorSubject<GroupMessageModel[]>([]);
@@ -225,17 +226,9 @@ export class MessageService {
     );
   }
 
-  async createGroupMessage(
-    channelId: string,
-    channelName: string,
-    content: string
-  ) {
+  async createGroupMessage(createGroupMessage: CreateGroupMessageModel) {
     return this.groupMessageHubConnection
-      ?.invoke('SendGroupMessage', {
-        channelId: channelId,
-        channelName: channelName,
-        content: content,
-      })
+      ?.invoke('SendGroupMessage', createGroupMessage)
       .catch((error) => console.log(error));
   }
 

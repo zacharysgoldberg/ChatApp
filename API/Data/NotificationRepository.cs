@@ -42,12 +42,13 @@ public class NotificationRepository : INotificationRepository
 		return _mapper.Map<NotificationDTO>(await _context.Notifications.FindAsync(notificationId));
 	}
 
-	public async Task<IEnumerable<NotificationDTO>> GetUserNotifications(AppUser user)
+	public async Task<IEnumerable<NotificationDTO>> GetUserNotifications(int userId)
 	{
 		IEnumerable<Notification> notifications = await _context.Notifications
 				.Include(n => n.Sender)
 				.Include(n => n.Recipient)
-				.Where(n => n.RecipientId == user.Id)
+				.Include(n => n.GroupMessage)
+				.Where(n => n.RecipientId == userId)
 				.ToListAsync();
 
 		var notificaitonDTOs = notifications.Select(n => new NotificationDTO

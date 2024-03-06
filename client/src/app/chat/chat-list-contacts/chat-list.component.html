@@ -1,4 +1,4 @@
-<app-navbar></app-navbar>
+<app-navbar (notificationLoaded)="notificationLoaded($event)"></app-navbar>
 
 <!-- Divider start -->
 <div class="divider bg-primary"></div>
@@ -34,13 +34,13 @@
 
                 <!-- Add Multiple Contacts for Group Message start -->
                 <div class="d-flex justify-content-center">
-                  <strong class="text-white">Create Channel</strong>
+                  <strong class="text-white">New Channel</strong>
                   <button class="btn btn-secondary mt-2 float-end mx-4" (click)="toggleCreateNewChannelMode()">
                     <i class="fa fa-pencil"></i>
                   </button>
                 </div>
 
-                <app-chat-create-channel *ngIf="createNewChannelMode"
+                <app-chat-create-channel *ngIf="createNewChannelMode" (channelCreated)="loadCreatedChannel($event)"
                   (cancelEdit)="cancelCreateNewChannelMode($event)"></app-chat-create-channel>
                 <!-- Add Multiple Contacts for Group Message end -->
 

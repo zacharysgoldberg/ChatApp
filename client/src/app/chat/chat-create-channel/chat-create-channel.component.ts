@@ -21,6 +21,7 @@ export class ChatCreateChannelComponent implements OnInit {
     channelName: '',
     contactIds: [],
   };
+  @Output() channelCreated = new EventEmitter<string>();
   @Output() cancelEdit = new EventEmitter();
 
   constructor(
@@ -43,7 +44,6 @@ export class ChatCreateChannelComponent implements OnInit {
 
   async loadContacts() {
     if (!this.user) return;
-
     this.user = await this.accountService.getAuthenticatedUser(this.user);
 
     this.contactService.getContacts().subscribe({
@@ -81,12 +81,13 @@ export class ChatCreateChannelComponent implements OnInit {
       this.cancel();
       return;
     }
-
     this.user = await this.accountService.getAuthenticatedUser(this.user);
 
-    this.createGroupMessageModel.contactIds = this.addedContacts.map(
+    const contactIds: number[] = this.addedContacts.map(
       (contact) => contact.id
     );
+
+    this.createGroupMessageModel.contactIds = contactIds;
 
     if (
       this.createGroupMessageModel.contactIds.length > 0 &&
@@ -95,8 +96,10 @@ export class ChatCreateChannelComponent implements OnInit {
       this.messageService
         .createGroupMessageChannel(this.createGroupMessageModel)
         .subscribe({
-          next: () => this.cancel(),
-
+          next: (channel) => {
+            if (channel) this.channelCreated.emit(channel[0].channelId);
+            this.cancel();
+          },
           error: (error) => console.log(error),
         });
     }

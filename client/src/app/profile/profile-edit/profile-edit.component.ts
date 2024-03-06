@@ -25,6 +25,7 @@ export class ProfileEditComponent implements OnInit {
     userName: '',
     email: '',
     photoUrl: '',
+    phoneNumber: '',
   };
   @Output() cancelEdit = new EventEmitter();
 
@@ -52,7 +53,6 @@ export class ProfileEditComponent implements OnInit {
       this.cancel();
       return;
     }
-
     this.user = await this.accountService.getAuthenticatedUser(this.user);
 
     let request: Observable<Object>;
@@ -73,7 +73,7 @@ export class ProfileEditComponent implements OnInit {
           request = this.userService.updateEmail(this.memberUpdate);
           this.submitSoftUpdate(request);
           break;
-        case 'Phone':
+        case 'Phone Number':
           request = this.userService.updatePhone(this.memberUpdate);
           this.submitSoftUpdate(request);
           break;
@@ -82,6 +82,7 @@ export class ProfileEditComponent implements OnInit {
           break;
       }
     }
+    location.reload();
   }
 
   submitHardUpate(hardRequest: Observable<Object>) {
@@ -102,6 +103,7 @@ export class ProfileEditComponent implements OnInit {
       next: (response: any) => {
         console.log(response);
         this.cancel();
+        location.reload();
         this.router.navigateByUrl('/profile');
       },
       error: (err: any) => {

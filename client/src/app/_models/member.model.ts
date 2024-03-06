@@ -10,5 +10,6 @@ export interface MemberModel {
   memberSince: Date;
   lastActive: Date;
   photoUrl: string;
+  phoneNumber: string;
   contacts: ContactModel[];
 }

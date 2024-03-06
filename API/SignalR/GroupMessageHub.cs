@@ -13,14 +13,17 @@ public class GroupMessageHub : Hub
 {
 	private readonly IGroupMessageRepository _groupMessageRepository;
 	private readonly IUserRepository _userRepository;
+	private readonly INotificationRepository _notificationRepository;
 	private readonly IMapper _mapper;
 	private readonly IHubContext<PresenceHub> _presenceHub;
 
 	public GroupMessageHub(IGroupMessageRepository groupMessageRepository,
-		IUserRepository userRepository, IMapper mapper, IHubContext<PresenceHub> presenceHub)
+		IUserRepository userRepository, INotificationRepository notificationRepository, IMapper mapper,
+		IHubContext<PresenceHub> presenceHub)
 	{
 		_groupMessageRepository = groupMessageRepository;
 		_userRepository = userRepository;
+		_notificationRepository = notificationRepository;
 		_mapper = mapper;
 		_presenceHub = presenceHub;
 	}
@@ -75,8 +78,32 @@ public class GroupMessageHub : Hub
 		};
 
 		if (await _groupMessageRepository.CreateGroupMessageAsync(groupMessage))
+		{
 			await Clients.Group(createGroupMessageDTO.ChannelId.ToString())
 				.SendAsync("NewGroupMessage", _mapper.Map<GroupMessageDTO>(groupMessage));
+
+			foreach (int contactId in createGroupMessageDTO.ContactIds)
+			{
+				var recipientConnections = await PresenceTracker.GetConnectionsForUser(contactId);
+
+				if (recipientConnections == null || !recipientConnections.Any())
+				{
+					// Recipient is offline, create a notification
+					var notification = new Notification
+					{
+						SenderId = sender.Id,
+						RecipientId = contactId,
+						GroupMessageId = groupMessage.Id,
+						Content = groupMessage.Content
+					};
+
+					// await _presenceHub.Clients.Clients(recipientConnections).SendAsync("NewMessageReceived",
+					// 				 		new { id = recipient.Id, username = sender.UserName });
+
+					await _notificationRepository.CreateNotificationAsync(notification);
+				}
+			}
+		}
 		else
 			throw new HubException("Failed to send group message");
 	}

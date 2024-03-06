@@ -64,6 +64,7 @@ export class PhotoEditComponent implements OnInit {
         }
       }
       this.cancel();
+      location.reload();
     };
   }
 
@@ -73,7 +74,6 @@ export class PhotoEditComponent implements OnInit {
       this.cancel();
       return;
     }
-
     this.user = await this.accountService.getAuthenticatedUser(this.user);
 
     if (!this.uploader) return;
@@ -101,6 +101,7 @@ export class PhotoEditComponent implements OnInit {
       next: (response) => {
         console.log(response);
         this.cancel();
+        location.reload();
       },
 
       error: (error) => console.log(error),

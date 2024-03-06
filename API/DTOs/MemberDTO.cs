@@ -1,4 +1,5 @@
 ﻿
+using System.ComponentModel.DataAnnotations;
 using API.Entities;
 
 namespace API.DTOs;
@@ -9,6 +10,7 @@ public record MemberDTO
 
 		string UserName,
 		string Email,
+		[DataType(DataType.PhoneNumber)]
 		string? PhoneNumber,
 		string RefreshToken,
 		DateTime RefreshTokenExpiryTime,

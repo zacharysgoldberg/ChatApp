@@ -1,5 +1,6 @@
 using API.DTOs;
 using API.Entities;
+using API.Extensions;
 using API.Interfaces;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
@@ -39,10 +40,10 @@ namespace API.Controllers
 		[HttpGet]
 		public async Task<ActionResult<IEnumerable<NotificationDTO>>> GetUserNotifications()
 		{
-			int userId = int.Parse(User.FindFirst("id").Value);
-			AppUser user = await _userRepository.GetUserByIdAsync(userId);
+			int userId = User.GetUserId();
 
-			IEnumerable<NotificationDTO> notifications = await _notificationRepository.GetUserNotifications(user);
+			IEnumerable<NotificationDTO> notifications =
+				await _notificationRepository.GetUserNotifications(userId);
 
 			return Ok(notifications);
 		}

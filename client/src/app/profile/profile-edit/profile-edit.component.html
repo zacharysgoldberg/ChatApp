@@ -10,7 +10,8 @@
         [(ngModel)]="memberUpdate.userName">
       <input *ngIf="editField == 'Email'" type="email" class="form-control bg-dark text-white"
         [(ngModel)]="memberUpdate.email">
-      <input *ngIf="editField == 'Phone Number'" type="tel" class="form-control bg-dark text-white">
+      <input *ngIf="editField == 'Phone Number'" type="text" class="form-control bg-dark text-white"
+        [(ngModel)]="memberUpdate.phoneNumber" mask="(000)-000-0000" placeholder="(###)-###-####">
       <div class="modal-footer">
         <button type="button" class="btn btn-primary" (click)="save(editField)">Save</button>
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" (click)="cancel()">Close</button>

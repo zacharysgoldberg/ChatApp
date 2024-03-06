@@ -6,6 +6,7 @@ import { AccountService } from '../../_services/account.service';
 import { Observable, combineLatest, map, of, take } from 'rxjs';
 import { ContactModel } from '../../_models/contact.model';
 import { GroupMessageModel } from 'src/app/_models/groupMessage.model';
+import { ContactService } from 'src/app/_services/contact.service';
 
 @Component({
   selector: 'app-chat',
@@ -29,7 +30,8 @@ export class ChatListComponent implements OnInit {
 
   constructor(
     public accountService: AccountService,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private contactService: ContactService
   ) {}
 
   ngOnInit(): void {
@@ -48,9 +50,25 @@ export class ChatListComponent implements OnInit {
     }
   }
 
+  notificationLoaded(id: number | string) {
+    if (typeof id === 'number') {
+      // Notification is for a one-to-one message thread
+      this.contactService.getContact(id).subscribe({
+        next: (contact) => this.selectContact(contact),
+      });
+    } else {
+      // Notification is for a group message channel
+      console.log(id);
+      this.selectChannel(id);
+    }
+  }
+
+  loadCreatedChannel(channelId: string) {
+    this.selectChannel(channelId);
+  }
+
   async selectContact(contact: ContactModel) {
     if (!this.user) return;
-
     this.user = await this.accountService.getAuthenticatedUser(this.user);
 
     if (!this.messageService.isHubConnectionEstablished(contact.id.toString()))
@@ -76,7 +94,6 @@ export class ChatListComponent implements OnInit {
 
   async selectChannel(channelId: string) {
     if (!this.user) return;
-
     this.user = await this.accountService.getAuthenticatedUser(this.user);
 
     if (!this.messageService.isHubConnectionEstablished(channelId))

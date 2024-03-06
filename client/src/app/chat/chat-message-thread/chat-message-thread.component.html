@@ -30,7 +30,7 @@
   <div class="chat-form my-2">
     <form #messageForm="ngForm" autocomplete="off" class="form-group" (ngSubmit)="sendMessage()">
       <textarea name="messageContent" class="form-control bg-dark text-white" type="text"
-        placeholder="Type a message..." [(ngModel)]="messageContent"></textarea>
+        placeholder="Type a message..." [(ngModel)]="messageContent" (keydown.enter)="onEnterPress($event)"></textarea>
       <button [disabled]="!messageContent || messageContent.length === 0" type="submit" class="btn btn-primary mt-2">
         <li class="fa fa-send"></li>
       </button>

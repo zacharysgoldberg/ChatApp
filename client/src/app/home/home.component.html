@@ -1,10 +1,59 @@
 <app-navbar></app-navbar>
 
-<div class="divider bg-primary"></div>
+<div class="home container bg-dark">
+  <h1 class="text-white">Welcome to Chat App, {{ user?.username }}!</h1>
 
-<div class="home container py-5 bg-dark" *ngIf="(accountService.currentUser$ | async)">
-  <div>
-    Home
-    <hr style="color:white">
+  <div class="row">
+    <div class="col-md-6">
+      <!-- <div class="card bg-primary">
+        <div class="card-body">
+          <h5 class="card-title text-black">Your Profile</h5>
+          <p class="text-black">Username: {{ member?.userName }}</p>
+          <p class="text-black">Email: {{ member?.email }}</p>
+          <button class="btn btn-dark">Edit Profile</button>
+        </div>
+      </div> -->
+
+      <!-- Quick Actions -->
+      <div class="card mt-4 bg-primary">
+        <div class="card-body">
+          <h5 class="card-title text-white">Quick Actions</h5>
+          <!-- Buttons for quick actions -->
+          <button class="btn btn-secondary mx-4">New Chat</button>
+          <button class="btn btn-secondary">View Contacts</button>
+          <!-- Add more quick actions as needed -->
+        </div>
+      </div>
+
+      <!-- Recent Chats -->
+      <div class="card mt-4 bg-primary">
+        <div class="card-body">
+          <h5 class="card-title text-white">Recent Chats</h5>
+          <!-- List recent chats with links to chat rooms -->
+          <ul class="list-group">
+            <li class="list-group-item bg-dark text-white">Chat 1</li>
+            <li class="list-group-item bg-dark text-white">Chat 2</li>
+            <!-- Add more recent chats dynamically -->
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <!-- Notifications -->
+      <div class="card mt-4 bg-primary">
+        <div class="card-body">
+          <h5 class="card-title text-white">Notifications</h5>
+          <!-- Display recent notifications -->
+          <ul class="list-group">
+            <li class="list-group-item bg-dark text-white">Notification 1</li>
+            <li class="list-group-item bg-dark text-white">Notification 2</li>
+            <!-- Add more notifications dynamically -->
+          </ul>
+        </div>
+      </div>
+
+
+    </div>
   </div>
 </div>

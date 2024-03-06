@@ -1,10 +1,10 @@
 import { AccountService } from '../_services/account.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { Component, OnInit } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { NotificationModel } from '../_models/notification.model';
-import { Observable, map, of, take } from 'rxjs';
+import { Observable, map, of, switchMap, take } from 'rxjs';
 import { MemberModel } from '../_models/member.model';
 import { UserService } from '../_services/user.service';
 import { UserModel } from '../_models/user.model';
@@ -22,6 +22,8 @@ export class NavbarComponent implements OnInit {
   notifications$: Observable<NotificationModel[]> = of([]);
   isDropup = true;
   isAdmin = false;
+  @Output() notificationLoaded: EventEmitter<number | string> =
+    new EventEmitter<number | string>();
 
   constructor(
     public accountService: AccountService,
@@ -29,8 +31,7 @@ export class NavbarComponent implements OnInit {
     private notificationService: NotificationService,
     private messageService: MessageService,
     private router: Router,
-    private toastr: ToastrService,
-    private route: ActivatedRoute
+    private toastr: ToastrService
   ) {}
 
   ngOnInit(): void {
@@ -64,7 +65,6 @@ export class NavbarComponent implements OnInit {
 
   async loadNotification(notificationId: number) {
     if (!this.user) return;
-
     this.user = await this.accountService.getAuthenticatedUser(this.user);
 
     if (this.notifications$) {
@@ -78,9 +78,14 @@ export class NavbarComponent implements OnInit {
         )
         .subscribe(async (notification) => {
           if (notification) {
-            const senderId = notification.senderId;
-            await this.messageService.setContactForMessageThread(senderId);
-            this.router.navigate(['../chat'], { relativeTo: this.route });
+            if (notification.channelId) {
+              this.notificationLoaded.emit(notification.channelId);
+            } else {
+              const senderId = notification.senderId;
+              await this.messageService.setContactForMessageThread(senderId);
+              this.notificationLoaded.emit(senderId);
+            }
+            this.router.navigate(['../chat']);
           }
         });
     }
@@ -88,7 +93,6 @@ export class NavbarComponent implements OnInit {
 
   async deleteNotification(notification: NotificationModel) {
     if (!this.user) return;
-
     this.user = await this.accountService.getAuthenticatedUser(this.user);
 
     this.notificationService.deleteNotification(notification.id).subscribe({

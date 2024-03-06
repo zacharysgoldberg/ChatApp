@@ -31,17 +31,13 @@ public class GroupMessagesController : BaseApiController
 	public async Task<ActionResult<IEnumerable<GroupMessageDTO>>> CreateGroupMessageChannel
 		(CreateGroupMessageDTO createGroupMessageDTO)
 	{
-		string usernameOrEmail = User.GetUsernameOrEmail();
-		MemberDTO sender = await _userRepository.GetMemberAsync(usernameOrEmail);
+		int senderId = User.GetUserId();
 
-		if (sender == null)
-			return NotFound();
-
-		createGroupMessageDTO.ContactIds.Add(sender.Id);
+		createGroupMessageDTO.ContactIds.Add(senderId);
 
 		IEnumerable<GroupMessageDTO> groupMessageChannel = await
 			_groupMessageRepository.CreateGroupMessageChannelAsync(createGroupMessageDTO.ChannelName,
-				sender.Id, createGroupMessageDTO.ContactIds);
+				senderId, createGroupMessageDTO.ContactIds);
 
 		return Ok(groupMessageChannel);
 	}
@@ -54,17 +50,13 @@ public class GroupMessagesController : BaseApiController
 		if (createGroupMessageDTO.ChannelId == null)
 			return BadRequest("ChannelId is required");
 
-		string usernameOrEmail = User.GetUsernameOrEmail();
-		MemberDTO sender = await _userRepository.GetMemberAsync(usernameOrEmail);
-
-		if (sender == null)
-			return NotFound();
+		int senderId = User.GetUserId();
 
 		var groupMessage = new GroupMessage
 		{
 			ChannelId = createGroupMessageDTO.ChannelId.Value,
 			ChannelName = createGroupMessageDTO.ChannelName,
-			SenderId = sender.Id,
+			SenderId = senderId,
 			Content = createGroupMessageDTO.Content
 		};
 
@@ -78,25 +70,15 @@ public class GroupMessagesController : BaseApiController
 	[HttpGet]
 	public async Task<ActionResult<IEnumerable<GroupMessageDTO>>> GetGroupMessageChannelNames()
 	{
-		string usernameOrEmail = User.GetUsernameOrEmail();
-		MemberDTO user = await _userRepository.GetMemberAsync(usernameOrEmail);
+		int userId = User.GetUserId();
 
-		if (user == null)
-			return NotFound();
-
-		return Ok(await _groupMessageRepository.GetGroupMessageChannelNamesAsync(user.Id));
+		return Ok(await _groupMessageRepository.GetGroupMessageChannelNamesAsync(userId));
 	}
 
 	[Authorize(Roles = "Admin,Member")]
 	[HttpGet("{channelId}")]
 	public async Task<ActionResult<IEnumerable<GroupMessageDTO>>> GetGroupMessageChannel(Guid channelId)
 	{
-		string usernameOrEmail = User.GetUsernameOrEmail();
-		MemberDTO user = await _userRepository.GetMemberAsync(usernameOrEmail);
-
-		if (user == null)
-			return NotFound();
-
 		return Ok(await _groupMessageRepository.GetGroupMessageChannelAsync(channelId));
 	}
 
@@ -105,12 +87,6 @@ public class GroupMessagesController : BaseApiController
 	public async Task<ActionResult<IEnumerable<GroupMessageDTO>>>
 		GetGroupMessageChannelContacts(Guid channelId)
 	{
-		string usernameOrEmail = User.GetUsernameOrEmail();
-		MemberDTO user = await _userRepository.GetMemberAsync(usernameOrEmail);
-
-		if (user == null)
-			return NotFound();
-
 		return Ok(await _groupMessageRepository.GetGroupMessageChannelContactsAsync(channelId));
 	}
 

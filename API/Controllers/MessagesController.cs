@@ -16,7 +16,8 @@ public class MessagesController : BaseApiController
 	private readonly IMessageRepository _messageRepository;
 	private readonly IMapper _mapper;
 
-	public MessagesController(IUserRepository userRepository, IMessageRepository messageRepository, IMapper mapper)
+	public MessagesController(IUserRepository userRepository, IMessageRepository messageRepository,
+		IMapper mapper)
 	{
 		_userRepository = userRepository;
 		_messageRepository = messageRepository;
@@ -28,18 +29,17 @@ public class MessagesController : BaseApiController
 	public async Task<ActionResult<IEnumerable<MessageDTO>>> CreateMessageThread
 		(CreateMessageDTO createMessageDTO)
 	{
-		string usernameOrEmail = User.GetUsernameOrEmail();
-		MemberDTO sender = await _userRepository.GetMemberAsync(usernameOrEmail);
-		bool recipientExists = await _userRepository.UserIdExists(createMessageDTO.RecipientId);
+		int senderId = User.GetUserId();
+		bool recipientExists = await _userRepository.UserExists(createMessageDTO.RecipientId);
 
-		if (sender == null || !recipientExists)
+		if (!recipientExists)
 			return NotFound();
 
-		if (sender.Id == createMessageDTO.RecipientId)
+		if (senderId == createMessageDTO.RecipientId)
 			return BadRequest("Cannot create message thread with self");
 
 		IEnumerable<MessageDTO> messageThread = await
-			_messageRepository.CreateMessageThreadAsync(sender.Id, createMessageDTO.RecipientId);
+			_messageRepository.CreateMessageThreadAsync(senderId, createMessageDTO.RecipientId);
 
 		if (messageThread.Any())
 			return Ok(messageThread);
@@ -86,12 +86,8 @@ public class MessagesController : BaseApiController
 	[HttpGet("contacts")]
 	public async Task<ActionResult<IEnumerable<ContactDTO>>> GetContactsWithMessageThread()
 	{
-		string usernameOrEmail = User.GetUsernameOrEmail();
-		MemberDTO user = await _userRepository.GetMemberAsync(usernameOrEmail);
+		int userId = User.GetUserId();
 
-		if (user == null)
-			return NotFound();
-
-		return Ok(await _messageRepository.GetContactsWithMessageThreadAsync(user.Id));
+		return Ok(await _messageRepository.GetContactsWithMessageThreadAsync(userId));
 	}
 }

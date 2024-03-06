@@ -43,6 +43,13 @@ public class UserRepository : IUserRepository
 										.FirstOrDefaultAsync();
 	}
 
+	public async Task<MemberDTO> GetMemberByPhoneNumberAsync(string phoneNumber)
+	{
+		return await _userManager.Users
+										.Where(u => u.PhoneNumber == phoneNumber)
+										.ProjectTo<MemberDTO>(_mapper.ConfigurationProvider)
+										.FirstOrDefaultAsync();
+	}
 
 	public async Task<MemberDTO> GetMemberByIdAsync(int id)
 	{
@@ -59,7 +66,7 @@ public class UserRepository : IUserRepository
 										.ToListAsync();
 	}
 
-	public async Task<bool> UserIdExists(int id)
+	public async Task<bool> UserExists(int id)
 	{
 		return await _userManager.Users.FirstOrDefaultAsync(user => user.Id == id) != null;
 	}
@@ -71,8 +78,12 @@ public class UserRepository : IUserRepository
 
 	public async Task<bool> UsernameExistsAsync(string username)
 	{
-
 		return await _userManager.FindByNameAsync(username) != null;
+	}
+
+	public async Task<bool> PhoneNumberExistsAsync(string phoneNumber)
+	{
+		return await _userManager.Users.FirstOrDefaultAsync(u => u.PhoneNumber == phoneNumber) != null;
 	}
 
 	public async Task<bool> PasswordMatchesAsync(AppUser user, string password)
@@ -95,7 +106,7 @@ public class UserRepository : IUserRepository
 		return await _userManager.UpdateAsync(user);
 	}
 
-	public async Task<IdentityResult> UpdateUserPasswordAsync(AppUser user, string currentPassword,
+	public async Task<IdentityResult> UpdatePasswordAsync(AppUser user, string currentPassword,
 		string newPassword)
 	{
 		return await _userManager.ChangePasswordAsync(user, currentPassword, newPassword);

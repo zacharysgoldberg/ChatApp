@@ -40,23 +40,28 @@ public class ContactsController : BaseApiController
 
 	[HttpPost] // /api/contacts
 	public async Task<ActionResult<MemberDTO>> AddContact([FromBody]
-				ContactUsernameDTO contactUsernameDTO)
+				AddContactDTO addContactDTO)
 	{
 		string usernameOrEmail = User.GetUsernameOrEmail();
 		AppUser user = await _userRepository.GetUserAsync(usernameOrEmail);
 
 		if (user == null ||
-				contactUsernameDTO.UsernameOrEmail == user.UserName ||
-				contactUsernameDTO.UsernameOrEmail == user.Email)
+				addContactDTO.UsernameOrEmail == user.UserName ||
+				addContactDTO.UsernameOrEmail == user.Email)
 			return BadRequest("You cannot add yourself as a contact");
 
-		MemberDTO contact = await _userRepository.GetMemberAsync(contactUsernameDTO.UsernameOrEmail);
+		MemberDTO contact;
+
+		if (addContactDTO.UsernameOrEmail != null)
+			contact = await _userRepository.GetMemberAsync(addContactDTO.UsernameOrEmail);
+		else
+			contact = await _userRepository.GetMemberByPhoneNumberAsync(addContactDTO.PhoneNumber);
 
 		if (contact == null)
-			return BadRequest($"{contactUsernameDTO.UsernameOrEmail} does not exist");
+			return BadRequest($"{addContactDTO.UsernameOrEmail} does not exist");
 
 		if (!await _contactRepository.AddContactAsync(user, contact.Id))
-			return BadRequest($"Failed to add contact {contactUsernameDTO.UsernameOrEmail}");
+			return BadRequest($"Failed to add contact {addContactDTO.UsernameOrEmail}");
 
 		return contact;
 	}

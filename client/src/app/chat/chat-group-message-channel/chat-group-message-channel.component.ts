@@ -2,6 +2,7 @@ import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { take } from 'rxjs';
 import { ContactModel } from 'src/app/_models/contact.model';
+import { CreateGroupMessageModel } from 'src/app/_models/createGroupMessage.model';
 import { GroupMessageModel } from 'src/app/_models/groupMessage.model';
 import { UserModel } from 'src/app/_models/user.model';
 import { AccountService } from 'src/app/_services/account.service';
@@ -38,7 +39,6 @@ export class ChatGroupMessageChannelComponent implements OnInit {
 
   async sendMessage() {
     if (!this.user) return;
-
     this.user = await this.accountService.getAuthenticatedUser(this.user);
 
     if (!this.contacts) return;
@@ -48,12 +48,29 @@ export class ChatGroupMessageChannelComponent implements OnInit {
     const channelId = this.groupMessageChannel[0].channelId;
     const channelName = this.groupMessageChannel[0].channelName;
 
+    const createGroupMessage: CreateGroupMessageModel = {
+      channelId: channelId,
+      channelName: channelName,
+      content: this.messageContent,
+      contactIds: this.contacts.map((contact) => contact.id),
+    };
+
     if (channelId && channelName) {
-      this.messageService
-        .createGroupMessage(channelId, channelName, this.messageContent)
-        .then(() => {
-          this.messageForm?.reset();
-        });
+      this.messageService.createGroupMessage(createGroupMessage).then(() => {
+        this.messageForm?.reset();
+      });
+    }
+  }
+
+  onEnterPress(event: Event) {
+    // Cast the event to KeyboardEvent
+    const keyboardEvent = event as KeyboardEvent;
+    // Check if the Enter key was pressed and if the Shift key was not pressed (to avoid creating new lines)
+    if (keyboardEvent.key === 'Enter' && !keyboardEvent.shiftKey) {
+      // Prevent the default behavior of the Enter key (which is creating a new line)
+      keyboardEvent.preventDefault();
+      // Call the sendMessage method
+      this.sendMessage();
     }
   }
 }

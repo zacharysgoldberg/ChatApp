@@ -49,7 +49,6 @@ export class ContactsComponent implements OnInit {
 
   async addContact() {
     if (!this.user) return;
-
     this.user = await this.accountService.getAuthenticatedUser(this.user);
 
     this.contactService.addContact(this.contactToAdd).subscribe({
@@ -73,7 +72,6 @@ export class ContactsComponent implements OnInit {
 
   async removeContact(contactId: number) {
     if (!this.user) return;
-
     this.user = await this.accountService.getAuthenticatedUser(this.user);
 
     this.contactService.removeContact(contactId).subscribe({
@@ -91,7 +89,6 @@ export class ContactsComponent implements OnInit {
 
   async message(contactId: number) {
     if (!this.user) return;
-
     this.user = await this.accountService.getAuthenticatedUser(this.user);
 
     await this.messageService.setContactForMessageThread(contactId);

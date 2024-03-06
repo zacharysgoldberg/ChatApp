@@ -113,6 +113,28 @@ public class UsersController : BaseApiController
 	}
 
 	[Authorize(Roles = "Admin,Member")]
+	[HttpPut("update-phone")] // /api/users/update-phone
+	public async Task<ActionResult> UpdatePhoneNumber(MemberUpdateDTO memberUpdateDTO)
+	{
+		string phoneNumber = memberUpdateDTO.PhoneNumber;
+		bool phoneNumberExists = await _userRepository.PhoneNumberExistsAsync(phoneNumber);
+
+		if (phoneNumberExists)
+			return BadRequest($"Phone Number \"{phoneNumber}\" is already in use");
+
+		string usernameOrEmail = User.GetUsernameOrEmail();
+		AppUser user = await _userRepository.GetUserAsync(usernameOrEmail);
+
+		if (user == null)
+			return NotFound();
+
+		user.PhoneNumber = memberUpdateDTO.PhoneNumber;
+		IdentityResult updateUserResult = await _userRepository.UpdateUserAsync(user);
+
+		return !updateUserResult.Succeeded ? BadRequest(updateUserResult.Errors) : NoContent();
+	}
+
+	[Authorize(Roles = "Admin,Member")]
 	[HttpPut("update-password")] // /api/users/reset-password
 	public async Task<ActionResult> UpdatePassword(ChangePasswordDTO changePasswordDTO)
 	{
@@ -122,12 +144,13 @@ public class UsersController : BaseApiController
 		if (user == null)
 			return NotFound();
 
-		IdentityResult updatePasswordResult = await _userRepository.UpdateUserPasswordAsync(user,
+		IdentityResult updatePasswordResult = await _userRepository.UpdatePasswordAsync(user,
 																									changePasswordDTO.CurrentPassword,
 																									changePasswordDTO.NewPassword);
 
 		return !updatePasswordResult.Succeeded ? BadRequest(updatePasswordResult.Errors) : NoContent();
 	}
+
 	// ==================== DELETE Requests ====================
 	[Authorize(Roles = "Admin,Member")]
 	[HttpDelete("delete-photo")]

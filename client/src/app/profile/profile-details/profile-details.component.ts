@@ -34,16 +34,16 @@ export class ProfileDetailsComponent implements OnInit {
   ngOnInit(): void {
     this.accountService.currentUser$.pipe(take(1)).subscribe({
       next: (user) => {
-        if (user) this.user = user;
+        if (user) {
+          this.user = user;
+          this.loadProfile();
+        }
       },
     });
-
-    this.loadProfile();
   }
 
   loadProfile() {
     const username = this.accountService.getUsername();
-
     if (!username) return;
 
     this.userService.getMember(username).subscribe({

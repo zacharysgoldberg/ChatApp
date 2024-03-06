@@ -46,13 +46,13 @@
       <div class="d-flex align-items-center">
         <div style="position: relative; left:3%">
           <strong> Member Since: </strong>
-          <p class="mb-3">{{contact.memberSince | date: 'MM:dd:yyyy'}}</p>
+          <p class="mb-3">{{contact.memberSince | date: 'mm-dd-yyyy'}}</p>
         </div>
       </div>
       <div class="d-flex align-items-center">
         <div style="position: relative; left:3%">
           <strong> Last Active: </strong>
-          <p class="mb-3">{{contact.lastActive | date: 'medium'}}</p>
+          <p class="mb-3">{{contact.lastActive | date: 'short'}}</p>
         </div>
       </div>
       <div class="btn-group row">

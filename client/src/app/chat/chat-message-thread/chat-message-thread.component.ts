@@ -56,7 +56,6 @@ export class ChatMessageThreadComponent implements OnInit, OnDestroy {
 
   async sendMessage() {
     if (!this.user) return;
-
     this.user = await this.accountService.getAuthenticatedUser(this.user);
 
     if (!this.contact) return;
@@ -66,5 +65,17 @@ export class ChatMessageThreadComponent implements OnInit, OnDestroy {
       .then(() => {
         this.messageForm?.reset();
       });
+  }
+
+  onEnterPress(event: Event) {
+    // Cast the event to KeyboardEvent
+    const keyboardEvent = event as KeyboardEvent;
+    // Check if the Enter key was pressed and if the Shift key was not pressed (to avoid creating new lines)
+    if (keyboardEvent.key === 'Enter' && !keyboardEvent.shiftKey) {
+      // Prevent the default behavior of the Enter key (which is creating a new line)
+      keyboardEvent.preventDefault();
+      // Call the sendMessage method
+      this.sendMessage();
+    }
   }
 }

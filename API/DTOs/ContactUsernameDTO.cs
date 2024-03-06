@@ -1,7 +1,11 @@
 
+using System.ComponentModel.DataAnnotations;
+
 namespace API.DTOs;
 
-public record ContactUsernameDTO
+public record AddContactDTO
 (
-    string  UsernameOrEmail
+		string? UsernameOrEmail,
+		[DataType(DataType.PhoneNumber)]
+		string? PhoneNumber
 );

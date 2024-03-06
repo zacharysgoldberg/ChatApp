@@ -5,5 +5,5 @@ export interface MemberUpdateModel {
   userName: string;
   email: string;
   photoUrl: string;
-  // phoneNumber: string;
+  phoneNumber: string;
 }

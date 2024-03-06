@@ -29,6 +29,7 @@ import { AdminPanelComponent } from './admin/admin-panel/admin-panel.component';
 import { ChatMessageThreadComponent } from './chat/chat-message-thread/chat-message-thread.component';
 import { ChatCreateChannelComponent } from './chat/chat-create-channel/chat-create-channel.component';
 import { ChatGroupMessageChannelComponent } from './chat/chat-group-message-channel/chat-group-message-channel.component';
+import { NgxMaskDirective, NgxMaskPipe, provideNgxMask } from 'ngx-mask';
 
 export function tokenGetter() {
   const userString = localStorage.getItem('user');
@@ -76,11 +77,14 @@ export function tokenGetter() {
         disallowedRoutes: [],
       },
     }),
+    NgxMaskDirective,
+    NgxMaskPipe,
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: LoadingInterceptor, multi: true },
+    provideNgxMask(),
   ],
   bootstrap: [AppComponent],
 })
