@@ -14,6 +14,7 @@ import { JwtHelperService } from '@auth0/angular-jwt';
 import { environment } from 'src/environments/environment';
 import { ResetPasswordModel } from '../_models/resetPassword.model';
 import { PresenceService } from './presence.service';
+import { ForgotPasswordModel } from '../_models/forgotPassword.model';
 
 @Injectable({
   providedIn: 'root',
@@ -32,8 +33,8 @@ export class AccountService {
     const userString = localStorage.getItem('user');
 
     if (userString) {
-      // const user: UserModel = JSON.parse(userString);
-      // this.setCurrentUserSource(user);
+      const user: UserModel = JSON.parse(userString);
+      this.setCurrentUserSource(user);
       this.currentUser$ = this.currentUserSource.asObservable();
     }
   }
@@ -66,6 +67,20 @@ export class AccountService {
     this.presenceService.stopHubConnection();
 
     // return this.http.post(this.apiUrl + `account/revoke/${username}`, model);
+  }
+
+  forgotPassword(forgotPasswordModel: ForgotPasswordModel) {
+    return this.http.post<{ token: string }>(
+      this.apiUrl + 'account/forgot-password',
+      forgotPasswordModel
+    );
+  }
+
+  resetPassword(resetPassword: ResetPasswordModel) {
+    return this.http.post<any>(
+      this.apiUrl + 'account/reset-password',
+      resetPassword
+    );
   }
 
   setCurrentUserSource(user: UserModel) {

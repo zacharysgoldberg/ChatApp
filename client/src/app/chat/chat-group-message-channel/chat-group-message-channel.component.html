@@ -17,13 +17,13 @@
       <li *ngFor="let message of groupMessageChannel">
         <div>
           <span class="chat-img float-end">
-            <img class="rounded-circle" width="40px" height="40px" [src]="message.senderPhotoUrl" alt="Sender Image">
+            <img class="rounded-circle" width="40px" height="40px" [src]="message.senderPhotoUrl" alt="">
           </span>
           <strong class="text-white float-end px-2">{{ message.senderUsername }}</strong>
           <div class="chat-body">
             <div class="header">
               <small class="text-muted">
-                <span class="fa fa-clock-o">{{ message.createdAt | date: "short" }}</span>
+                <span class="">{{ message.createdAt | date: "short" }}</span>
               </small>
             </div>
             <p class="text-white">{{ message.content }}</p>
@@ -35,7 +35,8 @@
   <div class="chat-form my-2">
     <form #messageForm="ngForm" autocomplete="off" class="form-group" (ngSubmit)="sendMessage()">
       <textarea name="messageContent" class="form-control bg-dark text-white" type="text"
-        placeholder="Type a message..." [(ngModel)]="messageContent" (keydown.enter)="onEnterPress($event)"></textarea>
+        placeholder="Type a message..." [(ngModel)]="messageContent"
+        (keydown.enter)="onEnterSendMessage($event)"></textarea>
       <button [disabled]="!messageContent || messageContent.length === 0" type="submit" class="btn btn-primary mt-2">
         <li class="fa fa-send"></li>
       </button>

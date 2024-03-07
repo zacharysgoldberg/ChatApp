@@ -21,6 +21,7 @@ export class ChatCreateChannelComponent implements OnInit {
     channelName: '',
     contactIds: [],
   };
+
   @Output() channelCreated = new EventEmitter<string>();
   @Output() cancelEdit = new EventEmitter();
 

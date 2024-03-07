@@ -86,10 +86,9 @@ public class TokenService : ITokenService
 																													 out securityToken);
 
 		JwtSecurityToken jwtSecurityToken = securityToken as JwtSecurityToken;
-		bool isSecurityTokenHmacSha512 = jwtSecurityToken.Header.Alg.Equals(
-																						SecurityAlgorithms.HmacSha512,
-																						StringComparison.InvariantCultureIgnoreCase
-																						);
+		bool isSecurityTokenHmacSha512 = jwtSecurityToken.Header.Alg
+																			.Equals(SecurityAlgorithms.HmacSha512,
+																							StringComparison.InvariantCultureIgnoreCase);
 
 		if (!isSecurityTokenHmacSha512 || jwtSecurityToken == null)
 			throw new SecurityTokenException("Invalid token");

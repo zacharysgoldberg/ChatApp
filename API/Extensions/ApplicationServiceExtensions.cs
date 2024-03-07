@@ -3,6 +3,7 @@ using API.Helpers;
 using API.Interfaces;
 using API.Services;
 using API.SignalR;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.EntityFrameworkCore;
 
 namespace API.Extensions;
@@ -31,6 +32,7 @@ public static class ApplicationServiceExtensions
 		services.AddScoped<IMessageRepository, MessageRespository>();
 		services.AddScoped<IGroupMessageRepository, GroupMessageRepository>();
 		services.AddScoped<INotificationRepository, NotificationRepository>();
+		services.AddScoped<IEmailService, EmailService>();
 
 		services.AddSignalR();
 		services.AddSingleton<PresenceTracker>();
@@ -38,6 +40,16 @@ public static class ApplicationServiceExtensions
 		services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 		services.Configure<CloudinarySettings>(config.GetSection("CloudinarySettings"));
+
+		services.Configure<FormOptions>(opt =>
+		{
+			opt.ValueLengthLimit = int.MaxValue;
+			opt.MultipartBodyLengthLimit = int.MaxValue;
+			opt.MemoryBufferThreshold = int.MaxValue;
+		});
+		var emailConfig = config.GetSection("EmailConfiguration").Get<EmailConfiguration>();
+		services.AddSingleton(emailConfig);
+
 
 		return services;
 	}

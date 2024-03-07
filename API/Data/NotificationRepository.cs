@@ -10,13 +10,11 @@ namespace API.Data;
 public class NotificationRepository : INotificationRepository
 {
 	private readonly DataContext _context;
-	private readonly IUserRepository _userRepository;
 	private readonly IMapper _mapper;
 
-	public NotificationRepository(DataContext context, IUserRepository userRepository, IMapper mapper)
+	public NotificationRepository(DataContext context, IMapper mapper)
 	{
 		_context = context;
-		_userRepository = userRepository;
 		_mapper = mapper;
 	}
 
@@ -49,6 +47,7 @@ public class NotificationRepository : INotificationRepository
 				.Include(n => n.Recipient)
 				.Include(n => n.GroupMessage)
 				.Where(n => n.RecipientId == userId)
+				.OrderByDescending(n => n.CreatedAt)
 				.ToListAsync();
 
 		var notificaitonDTOs = notifications.Select(n => new NotificationDTO

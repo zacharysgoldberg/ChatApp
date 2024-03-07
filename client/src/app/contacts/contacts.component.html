@@ -3,7 +3,7 @@
 <!-- <div class="divider bg-primary"></div> -->
 
 <div class="contact-list py-5 bg-dark" style="width: 380px;" *ngIf="(accountService.currentUser$ | async)">
-  <span class="fs-5 fw-semibold text-white">Contact List</span>
+  <span class="fs-5 fw-semibold text-white">Add Contact</span>
   <div class="input-group mb-3 my-3">
     <input type="text" class="form-control text-white bg-dark" placeholder="Username or Email" aria-label="Submit"
       aria-describedby="button-addon2" [(ngModel)]="contactToAdd">
@@ -18,7 +18,7 @@
           <span [class.is-online]="(presenceService.onlineUser$ | async)?.includes(contact.id)">
             <li class="fa fa-user-circle"></li>
           </span>
-          <img class="rounded-circle mx-3" width="40px" height="40px" src="{{contact.photoUrl}}" alt="img of sender">
+          <img class="rounded-circle mx-3" width="40px" height="40px" src="{{contact.photoUrl}}" alt="">
           <strong class="mb-1 mx-1">{{ contact.userName }}</strong>
         </div>
         <small class="text-white">></small>
@@ -46,13 +46,13 @@
       <div class="d-flex align-items-center">
         <div style="position: relative; left:3%">
           <strong> Member Since: </strong>
-          <p class="mb-3">{{contact.memberSince | date: 'mm-dd-yyyy'}}</p>
+          <p class="mb-3">{{contact.memberSince | date: 'medium'}}</p>
         </div>
       </div>
       <div class="d-flex align-items-center">
         <div style="position: relative; left:3%">
           <strong> Last Active: </strong>
-          <p class="mb-3">{{contact.lastActive | date: 'short'}}</p>
+          <p class="mb-3">{{contact.lastActive | date: 'MM/dd/yyyy'}}</p>
         </div>
       </div>
       <div class="btn-group row">

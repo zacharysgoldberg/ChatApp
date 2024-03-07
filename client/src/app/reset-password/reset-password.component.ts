@@ -1,40 +1,42 @@
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
-import { AccountService } from '../_services/account.service';
-import { RegisterModel } from '../_models/register.model';
-import { ToastrService } from 'ngx-toastr';
-import { Router } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
 import {
   AbstractControl,
   FormBuilder,
-  FormControl,
   FormGroup,
-  FormGroupDirective,
   ValidatorFn,
   Validators,
 } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
+import { AccountService } from '../_services/account.service';
 
 @Component({
-  selector: 'app-register',
-  templateUrl: './register.component.html',
-  styleUrls: ['./register.component.css'],
+  selector: 'app-reset-password',
+  templateUrl: './reset-password.component.html',
+  styleUrls: ['./reset-password.component.css'],
 })
-export class RegisterComponent implements OnInit {
-  registerForm: FormGroup = new FormGroup({});
+export class ResetPasswordComponent implements OnInit {
+  resetPasswordForm: FormGroup = new FormGroup({});
   validationErrors: string[] | undefined;
 
   constructor(
     private accountService: AccountService,
+    private route: ActivatedRoute,
     private router: Router,
     private fb: FormBuilder
   ) {}
 
   ngOnInit(): void {
-    this.initializeForm();
+    this.route.queryParams.subscribe((params) => {
+      const email = params['email'];
+      let token = params['token'];
+      token = token.replace(/ /g, '+');
+
+      this.initializeForm(email, token);
+    });
   }
 
-  initializeForm() {
-    this.registerForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
+  initializeForm(email: string | null, token: string | null) {
+    this.resetPasswordForm = this.fb.group({
       password: [
         '',
         [
@@ -48,11 +50,8 @@ export class RegisterComponent implements OnInit {
         '',
         [Validators.required, this.matchValues('password')],
       ],
-    });
-
-    this.registerForm.controls['password'].valueChanges.subscribe({
-      next: () =>
-        this.registerForm.controls['confirmPassword'].updateValueAndValidity(),
+      email: [email || '', Validators.required],
+      token: [token || '', Validators.required],
     });
   }
 
@@ -64,16 +63,19 @@ export class RegisterComponent implements OnInit {
     };
   }
 
-  register() {
-    if (this.registerForm)
-      this.accountService.register(this.registerForm.value).subscribe({
+  resetPassword() {
+    if (this.resetPasswordForm.valid) {
+      const resetPasswordModel = this.resetPasswordForm.value;
+      console.log(resetPasswordModel.token);
+      this.accountService.resetPassword(resetPasswordModel).subscribe({
         next: () => {
-          this.router.navigateByUrl('/home');
+          this.router.navigateByUrl('/');
         },
         error: (error) => {
           this.validationErrors = error;
         },
       });
+    }
     return;
   }
 

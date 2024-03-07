@@ -4,7 +4,7 @@ import { ContactModel } from 'src/app/_models/contact.model';
 import { ContactService } from 'src/app/_services/contact.service';
 import { AccountService } from '../_services/account.service';
 import { ToastrService } from 'ngx-toastr';
-import { Observable, map, of, take } from 'rxjs';
+import { Observable, Subscription, map, of, take } from 'rxjs';
 import { MessageService } from '../_services/message.service';
 import { PresenceService } from '../_services/presence.service';
 import { UserModel } from '../_models/user.model';
@@ -37,6 +37,7 @@ export class ContactsComponent implements OnInit {
     });
 
     this.contacts$ = this.contactService.getContacts();
+
     if (this.contactService.contacts.length > 0)
       return this.loadContact(this.contactService.contacts[0].id);
   }

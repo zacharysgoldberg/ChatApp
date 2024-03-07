@@ -15,14 +15,13 @@ import { ContactService } from 'src/app/_services/contact.service';
 })
 export class ChatListComponent implements OnInit {
   user?: UserModel;
-  contactsWithMessageThreads$: Observable<ContactModel[]> | undefined;
-  usersGroupMessageChannels$: Observable<GroupMessageModel[]> | undefined;
   contactsAndChannels$:
     | Observable<(ContactModel | GroupMessageModel)[]>
     | undefined;
   messageThreadEnabled: boolean = false;
   groupMessageChannelEnabled: boolean = false;
   createNewChannelMode: boolean = false;
+
   @Output() messageThread$: Observable<MessageModel[]> | undefined;
   @Output() groupMessageChannel$: Observable<GroupMessageModel[]> | undefined;
   @Output() contact?: ContactModel;
@@ -39,7 +38,7 @@ export class ChatListComponent implements OnInit {
       next: (user) => {
         if (user) {
           this.user = user;
-          this.sortContactAndChannels();
+          this.sortContactsAndChannels();
         }
       },
     });
@@ -61,10 +60,6 @@ export class ChatListComponent implements OnInit {
       console.log(id);
       this.selectChannel(id);
     }
-  }
-
-  loadCreatedChannel(channelId: string) {
-    this.selectChannel(channelId);
   }
 
   async selectContact(contact: ContactModel) {
@@ -127,47 +122,41 @@ export class ChatListComponent implements OnInit {
     });
   }
 
-  sortContactAndChannels() {
+  sortContactsAndChannels() {
     const contacts$ = this.messageService.getContactsWithMessageThread().pipe(
-      map((contacts) => {
-        // Sort the contacts based on the last message sent/received timestamp
-        return contacts.sort((a, b) => {
-          const timestampA =
-            a.lastActive instanceof Date ? a.lastActive.getTime() : 0;
-          const timestampB =
-            b.lastActive instanceof Date ? b.lastActive.getTime() : 0;
-          return timestampA - timestampB;
-        });
-      })
+      map((contacts) =>
+        contacts.sort((a, b) => {
+          const timeA =
+            (typeof a.lastActive === 'string' &&
+              new Date(a.lastActive).getTime()) ||
+            0;
+          const timeB =
+            (typeof b.lastActive === 'string' &&
+              new Date(b.lastActive).getTime()) ||
+            0;
+          return timeB - timeA;
+        })
+      )
     );
 
     const channels$ = this.messageService.getGroupMessageChannelNames().pipe(
-      map((channels) => {
-        // Sort the channels based on the latest message sent timestamp
-        return channels.sort((a, b) => {
-          const timestampA = a?.createdAt;
-          const timestampB = b?.createdAt;
-          return (
-            (timestampB instanceof Date ? timestampA.getTime() : 0) -
-            (timestampA instanceof Date ? timestampB.getTime() : 0)
-          );
-        });
-      })
+      map((channels) =>
+        channels.sort((a, b) => {
+          const timeA =
+            (typeof a?.createdAt === 'string' &&
+              new Date(a.createdAt).getTime()) ||
+            0;
+          const timeB =
+            (typeof b?.createdAt === 'string' &&
+              new Date(b.createdAt).getTime()) ||
+            0;
+          return timeB - timeA;
+        })
+      )
     );
 
     this.contactsAndChannels$ = combineLatest([contacts$, channels$]).pipe(
-      map(([contacts, channels]) => {
-        // Combine and sort contacts and channels based on the latest activity timestamp
-        const combinedArray = [...contacts, ...channels];
-        return combinedArray.sort((a, b) => {
-          const timestampA = this.getLastActiveTimestamp(a);
-          const timestampB = this.getLastActiveTimestamp(b);
-          return (
-            (timestampA instanceof Date ? timestampA.getTime() : 0) -
-            (timestampB instanceof Date ? timestampB.getTime() : 0)
-          );
-        });
-      })
+      map(([contacts, channels]) => [...contacts, ...channels])
     );
   }
 
@@ -179,6 +168,10 @@ export class ChatListComponent implements OnInit {
       return contactOrChannel?.createdAt;
     // It's a contact (ContactModel)
     else return contactOrChannel?.lastActive;
+  }
+
+  loadCreatedChannel(channelId: string) {
+    this.selectChannel(channelId);
   }
 
   instanceOfGroupMessage(object: any): object is GroupMessageModel {

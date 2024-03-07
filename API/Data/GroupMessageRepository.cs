@@ -27,27 +27,15 @@ namespace API.Data
 						.ThenInclude(gm => gm.Photo)
 					.Include(gm => gm.Users)
 					.Where(gm =>
-							gm.Users.Count() == contactIds.Count() &&
-							gm.Users.All(u => contactIds.Contains(u.Id)))
+							gm.Users.Count() == contactIds.Count()
+							&& gm.Users.All(u => contactIds.Contains(u.Id)))
 					.OrderBy(gm => gm.CreatedAt)
 					.ToListAsync();
 
 			if (existingChannel.Any())
 			{
-				IEnumerable<GroupMessageDTO> groupMessageDTOs = existingChannel
-					.Select(gm => new
-					GroupMessageDTO
-					{
-						Id = gm.Id,
-						ChannelId = gm.ChannelId,
-						ChannelName = gm.ChannelName,
-						SenderId = gm.SenderId,
-						SenderUsername = gm.Sender.UserName,
-						SenderPhotoUrl = gm.Sender.Photo?.Url,
-						Content = gm.Content,
-						CreatedAt = gm.CreatedAt,
-						Contacts = gm.Users?.Select(u => _mapper.Map<ContactDTO>(u)).ToList()
-					});
+				IEnumerable<GroupMessageDTO> groupMessageDTOs =
+					_mapper.Map<IEnumerable<GroupMessage>, IEnumerable<GroupMessageDTO>>(existingChannel);
 
 				return groupMessageDTOs;
 			}
@@ -95,19 +83,8 @@ namespace API.Data
 					.OrderBy(gm => gm.CreatedAt)
 					.ToListAsync();
 
-			IEnumerable<GroupMessageDTO> groupMessageDTOs = groupMessages.Select(gm => new
-			GroupMessageDTO
-			{
-				Id = gm.Id,
-				ChannelId = gm.ChannelId,
-				ChannelName = gm.ChannelName,
-				SenderId = gm.SenderId,
-				SenderUsername = gm.Sender.UserName,
-				SenderPhotoUrl = gm.Sender.Photo?.Url,
-				Content = gm.Content,
-				CreatedAt = gm.CreatedAt,
-				Contacts = gm.Users?.Select(u => _mapper.Map<ContactDTO>(u)).ToList()
-			});
+			IEnumerable<GroupMessageDTO> groupMessageDTOs =
+					_mapper.Map<IEnumerable<GroupMessage>, IEnumerable<GroupMessageDTO>>(groupMessages);
 
 			return groupMessageDTOs;
 		}

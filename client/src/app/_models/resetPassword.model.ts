@@ -1,6 +1,6 @@
 export interface ResetPasswordModel {
-  email: string;
   password: string;
   confirmPassword: string;
+  email: string;
   token: string;
 }

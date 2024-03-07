@@ -24,8 +24,8 @@ public class UserRepository : IUserRepository
 		return await _userManager.Users
 										.Include(u => u.Contacts) // include contacts list
 										.Include(u => u.Photo)
-										.FirstOrDefaultAsync(u => u.UserName == usernameOrEmail ||
-																				u.Email == usernameOrEmail.ToLower());
+										.FirstOrDefaultAsync(u => u.UserName == usernameOrEmail
+																				|| u.Email == usernameOrEmail.ToLower());
 	}
 
 	public async Task<AppUser> GetUserByIdAsync(int id)

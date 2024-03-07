@@ -10,7 +10,7 @@ public class GroupMessage
 	public int SenderId { get; set; }
 	public AppUser Sender { get; set; }
 	public string Content { get; set; }
-	public DateTime? CreatedAt { get; set; } = DateTime.UtcNow;
+	public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 	public ICollection<AppUser> Users { get; set; } = new List<AppUser>();
 	public ICollection<Notification> Notifications { get; set; } = new List<Notification>();
 }

@@ -12,11 +12,14 @@ import { RegisterComponent } from './register/register.component';
 import { ProfileDetailsComponent } from './profile/profile-details/profile-details.component';
 import { AdminPanelComponent } from './admin/admin-panel/admin-panel.component';
 import { AdminGuard } from './_guards/admin.guard';
-import { ChatMessageThreadComponent } from './chat/chat-message-thread/chat-message-thread.component';
+import { ForgotPasswordComponent } from './forgot-password/forgot-password.component';
+import { ResetPasswordComponent } from './reset-password/reset-password.component';
 
 const routes: Routes = [
   { path: '', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
+  { path: 'forgot-password', component: ForgotPasswordComponent },
+  { path: 'reset-password', component: ResetPasswordComponent },
   {
     path: '',
     runGuardsAndResolvers: 'always',

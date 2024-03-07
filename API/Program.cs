@@ -1,8 +1,10 @@
 using API.Data;
+using API.DTOs;
 using API.Entities;
 using API.Extensions;
 using API.Middleware;
 using API.SignalR;
+using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -21,6 +23,8 @@ var app = builder.Build();
 
 // Confugure the HTTP request pipeline
 app.UseMiddleware<ExceptionMiddleware>();
+app.UseHttpsRedirection();
+app.UseStaticFiles();
 
 app.UseCors(builder => builder
 		.AllowAnyHeader()
@@ -29,10 +33,25 @@ app.UseCors(builder => builder
 		.WithOrigins("https://localhost:4200"));
 
 app.UseAuthentication();
-
 app.UseAuthorization();
 
-app.UseHttpsRedirection();
+
+var antiforgery = app.Services.GetRequiredService<IAntiforgery>();
+
+app.Use((context, next) =>
+{
+	var requestPath = context.Request.Path.Value;
+
+	if (string.Equals(requestPath, "/", StringComparison.OrdinalIgnoreCase)
+			|| string.Equals(requestPath, "/index.html", StringComparison.OrdinalIgnoreCase))
+	{
+		var tokenSet = antiforgery.GetAndStoreTokens(context);
+		context.Response.Cookies.Append("XSRF-TOKEN", tokenSet.RequestToken!,
+				new CookieOptions { HttpOnly = false });
+	}
+
+	return next(context);
+});
 
 app.MapControllers();
 app.MapHub<PresenceHub>("hubs/presence");
@@ -48,6 +67,7 @@ try
 	var context = services.GetRequiredService<DataContext>();
 	var userManager = services.GetRequiredService<UserManager<AppUser>>();
 	var roleManager = services.GetRequiredService<RoleManager<IdentityRole<int>>>();
+
 	await context.Database.MigrateAsync();
 	await Seed.SeedUsers(userManager, roleManager);
 }

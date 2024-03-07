@@ -11,6 +11,7 @@ import { Component, OnInit } from '@angular/core';
 })
 export class LoginComponent implements OnInit {
   registerMode = false;
+  forgotPasswordMode = false;
 
   credentials: LoginModel = {
     username: '',
@@ -46,7 +47,7 @@ export class LoginComponent implements OnInit {
     this.registerMode = !this.registerMode;
   }
 
-  cancelRegisterMode(event: boolean) {
-    this.registerMode = event;
+  forgotPasswordToggle() {
+    this.forgotPasswordMode = !this.forgotPasswordMode;
   }
 }

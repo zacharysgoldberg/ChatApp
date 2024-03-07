@@ -30,6 +30,8 @@ import { ChatMessageThreadComponent } from './chat/chat-message-thread/chat-mess
 import { ChatCreateChannelComponent } from './chat/chat-create-channel/chat-create-channel.component';
 import { ChatGroupMessageChannelComponent } from './chat/chat-group-message-channel/chat-group-message-channel.component';
 import { NgxMaskDirective, NgxMaskPipe, provideNgxMask } from 'ngx-mask';
+import { ForgotPasswordComponent } from './forgot-password/forgot-password.component';
+import { ResetPasswordComponent } from './reset-password/reset-password.component';
 
 export function tokenGetter() {
   const userString = localStorage.getItem('user');
@@ -61,6 +63,8 @@ export function tokenGetter() {
     AdminPanelComponent,
     ChatCreateChannelComponent,
     ChatGroupMessageChannelComponent,
+    ForgotPasswordComponent,
+    ResetPasswordComponent,
   ],
   imports: [
     BrowserModule,

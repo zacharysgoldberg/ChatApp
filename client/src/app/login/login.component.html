@@ -20,16 +20,18 @@
                   <label class="form-label" for="typePasswordX">Password</label>
                 </div>
 
-                <p class="small mb-5 pb-lg-2"><a class="text-white-50">Forgot password?</a></p>
+                <p class="small mb-5 pb-lg-2">
+                  <a class="text-white-50" routerLink="/forgot-password" (click)="forgotPasswordToggle()">
+                    Forgot Password?</a>
+                </p>
 
                 <button class="btn btn-outline-success btn-lg px-5" type="submit">Login</button>
               </form>
 
-              <div class="d-flex justify-content-center text-center mt-1 pt-1">
-                <a href="#!" class="text-white">Google<i class="fab fa-facebook-f fa-lg"></i></a>
-                <a href="#!" class="text-white">Microsoft<i class="fab fa-twitter fa-lg px-2"></i></a>
-                <a href="#!" class="text-white">Apple<i class="fab fa-google fa-lg"></i></a>
-              </div>
+            </div>
+            <div class="d-flex justify-content-center text-center mt-1 pt-1" style="margin-bottom: 50px;">
+              <a href="#!" class="text-white"><i class="fa fa-google fa-lg px-3"> </i></a>
+              <a href="#!" class="text-white"><i class="fa fa-windows fa-lg px-3"></i> </a>
             </div>
 
             <div>
@@ -43,7 +45,3 @@
     </div>
   </div>
 </section>
-
-<div *ngIf="registerMode">
-  <app-register (cancelRegister)="cancelRegisterMode($event)"></app-register>
-</div>

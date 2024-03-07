@@ -15,6 +15,7 @@ import { MessageService } from 'src/app/_services/message.service';
 export class ChatMessageThreadComponent implements OnInit, OnDestroy {
   @Input() contact: ContactModel | undefined;
   @Input() messageThread: MessageModel[] = [];
+
   user?: UserModel;
   @ViewChild('messageForm') messageForm?: NgForm;
   messageContent = '';
@@ -67,7 +68,7 @@ export class ChatMessageThreadComponent implements OnInit, OnDestroy {
       });
   }
 
-  onEnterPress(event: Event) {
+  onEnterSendMessage(event: Event) {
     // Cast the event to KeyboardEvent
     const keyboardEvent = event as KeyboardEvent;
     // Check if the Enter key was pressed and if the Shift key was not pressed (to avoid creating new lines)

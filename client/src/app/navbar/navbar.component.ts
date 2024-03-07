@@ -1,6 +1,5 @@
 import { AccountService } from '../_services/account.service';
-import { ActivatedRoute, Router } from '@angular/router';
-import { ToastrService } from 'ngx-toastr';
+import { Router } from '@angular/router';
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { NotificationModel } from '../_models/notification.model';
@@ -22,6 +21,7 @@ export class NavbarComponent implements OnInit {
   notifications$: Observable<NotificationModel[]> = of([]);
   isDropup = true;
   isAdmin = false;
+
   @Output() notificationLoaded: EventEmitter<number | string> =
     new EventEmitter<number | string>();
 
@@ -30,8 +30,7 @@ export class NavbarComponent implements OnInit {
     private userService: UserService,
     private notificationService: NotificationService,
     private messageService: MessageService,
-    private router: Router,
-    private toastr: ToastrService
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -44,7 +43,6 @@ export class NavbarComponent implements OnInit {
     this.notifications$ = this.notificationService.getUserNotifications();
 
     const username = this.accountService.getUsername();
-
     if (!username) return;
 
     this.userService.getMember(username).subscribe({
@@ -57,10 +55,6 @@ export class NavbarComponent implements OnInit {
   logout() {
     this.accountService.logout();
     this.router.navigateByUrl('/');
-  }
-
-  navigateToProfile() {
-    this.router.navigateByUrl('/profile');
   }
 
   async loadNotification(notificationId: number) {
@@ -103,11 +97,9 @@ export class NavbarComponent implements OnInit {
             notifications.filter((n) => n.id !== notification.id)
           )
         );
-        this.toastr.success('Notification deleted successfully.');
       },
       error: (error) => {
         console.error('Error deleting notification:', error);
-        this.toastr.error('Failed to delete notification.');
       },
     });
   }

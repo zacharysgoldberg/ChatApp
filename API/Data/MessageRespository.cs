@@ -30,27 +30,16 @@ public class MessageRespository : IMessageRepository
 				.Include(m => m.Recipient)
 					.ThenInclude(m => m.Photo)
 				.Where(m =>
-					(m.RecipientId == senderId && m.SenderId == recipientId) ||
-					(m.RecipientId == recipientId && m.SenderId == senderId))
+					(m.RecipientId == senderId && m.SenderId == recipientId)
+					|| (m.RecipientId == recipientId && m.SenderId == senderId))
 				.OrderBy(m => m.CreatedAt)
 				.ToListAsync();
 
 		// If an existing thread is found, fetch the messages associated
 		if (existingThread.Any())
 		{
-			IEnumerable<MessageDTO> messageDTOs = existingThread.Select(m => new MessageDTO
-			{
-				// Map message properties to DTO properties
-				Id = m.Id,
-				SenderId = m.SenderId,
-				SenderUsername = m.Sender.UserName,
-				SenderPhotoUrl = m.Sender.Photo?.Url,
-				RecipientId = m.RecipientId,
-				RecipientUsername = m.Recipient.UserName,
-				RecipientPhotoUrl = m.Recipient.Photo?.Url,
-				Content = m.Content,
-				CreatedAt = m.CreatedAt,
-			});
+			IEnumerable<MessageDTO> messageDTOs =
+				_mapper.Map<IEnumerable<Message>, IEnumerable<MessageDTO>>(existingThread);
 
 			return messageDTOs;
 		}

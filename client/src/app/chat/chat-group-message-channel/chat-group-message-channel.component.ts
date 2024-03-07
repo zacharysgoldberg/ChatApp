@@ -16,6 +16,7 @@ import { MessageService } from 'src/app/_services/message.service';
 export class ChatGroupMessageChannelComponent implements OnInit {
   @Input() contacts: ContactModel[] = [];
   @Input() groupMessageChannel: GroupMessageModel[] = [];
+
   user: UserModel | undefined; // for authentication only
   @ViewChild('messageForm') messageForm?: NgForm;
   messageContent = '';
@@ -62,7 +63,7 @@ export class ChatGroupMessageChannelComponent implements OnInit {
     }
   }
 
-  onEnterPress(event: Event) {
+  onEnterSendMessage(event: Event) {
     // Cast the event to KeyboardEvent
     const keyboardEvent = event as KeyboardEvent;
     // Check if the Enter key was pressed and if the Shift key was not pressed (to avoid creating new lines)

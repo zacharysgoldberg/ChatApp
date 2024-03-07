@@ -14,10 +14,12 @@ import { environment } from 'src/environments/environment';
 })
 export class PhotoEditComponent implements OnInit {
   @Input() member: MemberModel | undefined;
+
   user: UserModel | undefined;
   uploader: FileUploader | undefined;
   baseUrl = environment.apiUrl;
   hasBaseDropZoneOver = false;
+
   @Output() cancelEdit = new EventEmitter();
 
   constructor(

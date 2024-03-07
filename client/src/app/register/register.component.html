@@ -7,10 +7,22 @@
             <div class="mb-md-5 mt-md-4 pb-5">
               <h2 class="text-uppercase text-center mb-5">Create an account</h2>
               <form [formGroup]="registerForm" (ngSubmit)="registerForm.valid && register()" autocomplete="off">
-
                 <app-text-input [formControl]="$any(registerForm.controls['email'])" [label]="'Email'"></app-text-input>
                 <app-text-input [formControl]="$any(registerForm.controls['password'])" [label]="'Password'"
                   [type]="'password'"></app-text-input>
+                <!-- Display error messages for password requirements -->
+                <div *ngIf="registerForm.get('password')?.errors && registerForm.get('password')?.touched"
+                  class="text-danger">
+                  <div *ngIf="registerForm.get('password')?.errors?.['required']">Password is required.</div>
+                  <div *ngIf="registerForm.get('password')?.errors?.['minlength']">Password must be at least 6
+                    characters
+                    long.</div>
+                  <div *ngIf="registerForm.get('password')?.errors?.['maxlength']">Password must not exceed 15
+                    characters.</div>
+                  <div *ngIf="registerForm.get('password')?.errors?.['invalidPassword']">Password must contain at
+                    least
+                    one digit, one uppercase letter, one lowercase letter, and one unique character.</div>
+                </div>
                 <app-text-input [formControl]="$any(registerForm.controls['confirmPassword'])"
                   [label]="'Confirm Password'" [type]="'password'"></app-text-input>
 
@@ -28,7 +40,7 @@
 
             <div>
               <p class="">Already have an account?
-                <a routerLink="/" (click)="cancel()" class="text-white"><u>Sign In</u></a>
+                <a routerLink="/" class="text-white"><u>Sign In</u></a>
               </p>
             </div>
           </div>

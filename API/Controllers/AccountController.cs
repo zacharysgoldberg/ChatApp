@@ -14,13 +14,15 @@ public class AccountController : BaseApiController
 	private readonly UserManager<AppUser> _userManager;
 	private readonly IUserRepository _userRepository;
 	private readonly IAuthService _authService;
+	private readonly IEmailService _emailService;
 
 	public AccountController(UserManager<AppUser> userManager, IUserRepository userRepository,
-		IAuthService authService)
+													IAuthService authService, IEmailService emailService)
 	{
 		_userManager = userManager;
 		_userRepository = userRepository;
 		_authService = authService;
+		_emailService = emailService;
 	}
 
 	[HttpPost("register")] // POST /api/account/register?username=dave&password=pwd
@@ -72,47 +74,43 @@ public class AccountController : BaseApiController
 		return updateUserResult.Succeeded ? BadRequest(updateUserResult.Errors) : Ok();
 	}
 
-	// [HttpPost]
-	// [ValidateAntiForgeryToken]
-	// public async Task<IActionResult> ForgotPassword(ForgotPasswordModel forgotPasswordModel)
-	// {
-	//     if (!ModelState.IsValid)
-	//         return View(forgotPasswordModel);
-
-	//     var user = await _userManager.FindByEmailAsync(forgotPasswordModel.Email);
-	//     if (user == null)
-	//         return RedirectToAction(nameof(ForgotPasswordConfirmation));
-
-	//     var token = await _userManager.GeneratePasswordResetTokenAsync(user);
-	//     var callback = Url.Action(nameof(ResetPassword), "Account", new { token, email = user.Email }, Request.Scheme);
-
-	//     var message = new Message(new string[] { user.Email }, "Reset password token", callback, null);
-	//     await _emailSender.SendEmailAsync(message);
-
-	//     return RedirectToAction(nameof(ForgotPasswordConfirmation));
-	// }
-
-	[Authorize(Roles = "Admin,Member")]
-	[HttpPost("reset-password")] // /api/account/reset-password
-	[ValidateAntiForgeryToken]
-	public async Task<ActionResult> ResetPassword(ResetPasswordDTO resetPasswordDTO)
+	[HttpPost("forgot-password")] // /api/account/forgot-password
+	public async Task<IActionResult> ForgotPassword(ForgotPasswordDTO forgotPasswordDTO)
 	{
-		string usernameOrEmail = User.GetUsernameOrEmail();
-		AppUser user = await _userRepository.GetUserAsync(usernameOrEmail);
+		AppUser user = await _userManager.FindByEmailAsync(forgotPasswordDTO.Email);
 
 		if (user == null)
 			return NotFound();
 
-		var resetPassResult = await _userManager.ResetPasswordAsync(user, resetPasswordDTO.Token,
+		var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+
+		DebugUtil.PrintDebug(token);
+
+		var callback = $"https://localhost:4200/reset-password?email={user.Email}&token={token}";
+
+		var message = new EmailMessage(new Dictionary<string, string>() { { user.UserName, user.Email } },
+																	"Reset Password - ChatApp",
+																	callback);
+
+		await _emailService.SendEmailAsync(message);
+
+		return Ok(new { token });
+	}
+
+	[HttpPost("reset-password")] // /api/account/reset-password
+	public async Task<IActionResult> ResetPassword(ResetPasswordDTO resetPasswordDTO)
+	{
+		AppUser user = await _userManager.FindByEmailAsync(resetPasswordDTO.Email);
+
+		if (user == null)
+			return NotFound();
+
+		var resetPassResult = await _userManager.ResetPasswordAsync(user,
+																																resetPasswordDTO.Token,
 																																resetPasswordDTO.Password);
 		if (!resetPassResult.Succeeded)
-		{
-			foreach (var error in resetPassResult.Errors)
-			{
-				ModelState.TryAddModelError(error.Code, error.Description);
-			}
-			return BadRequest();
-		}
-		return NoContent();
+			return BadRequest(resetPassResult.Errors);
+
+		return Ok();
 	}
 }

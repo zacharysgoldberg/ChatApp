@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using API.Data;
+using API.DTOs;
 using API.Entities;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -17,21 +18,23 @@ public static class IdentityServiceExtensions
 						.AddEntityFrameworkStores<DataContext>()
 						.AddDefaultTokenProviders();
 
+		services.Configure<DataProtectionTokenProviderOptions>(opt =>
+			opt.TokenLifespan = TimeSpan.FromHours(2));
+
 		services.Configure<IdentityOptions>(options =>
 				{
-					// Default User settings.
+					// User settings.
 					options.User.AllowedUserNameCharacters =
 									"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@";
 					options.User.RequireUniqueEmail = true;
 
-					// Default Password settings.
+					// Password settings.
 					options.Password.RequireUppercase = true;
 					options.Password.RequireLowercase = true;
 					options.Password.RequireNonAlphanumeric = false;
 					options.Password.RequireDigit = true;
 					options.Password.RequiredUniqueChars = 1;
 					options.Password.RequiredLength = 6;
-
 				});
 
 		services.AddAuthentication(options =>
@@ -75,6 +78,11 @@ public static class IdentityServiceExtensions
 		{
 			opt.AddPolicy("RequireAdminRole", policy => policy.RequireRole("Admin"));
 			opt.AddPolicy("ModeratePhotoRole", policy => policy.RequireRole("Admin", "Moderator"));
+		});
+
+		services.AddAntiforgery(options =>
+		{
+			options.HeaderName = "X-CSRF-TOKEN";
 		});
 
 		return services;

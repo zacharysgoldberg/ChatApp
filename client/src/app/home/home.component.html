@@ -1,59 +1,41 @@
 <app-navbar></app-navbar>
 
-<div class="home container bg-dark">
-  <h1 class="text-white">Welcome to Chat App, {{ user?.username }}!</h1>
-
-  <div class="row">
-    <div class="col-md-6">
-      <!-- <div class="card bg-primary">
-        <div class="card-body">
-          <h5 class="card-title text-black">Your Profile</h5>
-          <p class="text-black">Username: {{ member?.userName }}</p>
-          <p class="text-black">Email: {{ member?.email }}</p>
-          <button class="btn btn-dark">Edit Profile</button>
+<div class="home container bg-dark justify-content-center align-items-center py-5">
+  <!-- Quick Actions -->
+  <div class="card bg-dark text-white mt-5">
+    <div class="card-body text-center">
+      <h5 class="card-title">Quick Actions</h5>
+      <!-- Buttons for quick actions -->
+      <div class="row">
+        <div class="col-lg-6 col-md-6 mb-3">
+          <div class="button-box rounded p-3 bg-primary" routerLink="/chat" style="cursor: pointer;">
+            <li class="btn btn-primary btn-lg">
+              <i class="fa fa-comments "></i> Start Chat
+            </li>
+          </div>
         </div>
-      </div> -->
-
-      <!-- Quick Actions -->
-      <div class="card mt-4 bg-primary">
-        <div class="card-body">
-          <h5 class="card-title text-white">Quick Actions</h5>
-          <!-- Buttons for quick actions -->
-          <button class="btn btn-secondary mx-4">New Chat</button>
-          <button class="btn btn-secondary">View Contacts</button>
-          <!-- Add more quick actions as needed -->
+        <div class="col-lg-6 col-md-6 mb-3">
+          <div class="button-box rounded p-3 bg-primary" routerLink="/contacts" style="cursor: pointer;">
+            <li class="btn btn-primary btn-lg">
+              <i class="fa fa-address-book"></i> View Contacts
+            </li>
+          </div>
         </div>
-      </div>
-
-      <!-- Recent Chats -->
-      <div class="card mt-4 bg-primary">
-        <div class="card-body">
-          <h5 class="card-title text-white">Recent Chats</h5>
-          <!-- List recent chats with links to chat rooms -->
-          <ul class="list-group">
-            <li class="list-group-item bg-dark text-white">Chat 1</li>
-            <li class="list-group-item bg-dark text-white">Chat 2</li>
-            <!-- Add more recent chats dynamically -->
-          </ul>
+        <div class="col-lg-6 col-md-6">
+          <div class="button-box rounded p-3 bg-primary" routerLink="/profile" style="cursor: pointer;">
+            <li class="btn btn-primary btn-lg">
+              <i class="fa fa-user"></i> Account Info
+            </li>
+          </div>
         </div>
-      </div>
-    </div>
-
-    <div class="col-md-6">
-      <!-- Notifications -->
-      <div class="card mt-4 bg-primary">
-        <div class="card-body">
-          <h5 class="card-title text-white">Notifications</h5>
-          <!-- Display recent notifications -->
-          <ul class="list-group">
-            <li class="list-group-item bg-dark text-white">Notification 1</li>
-            <li class="list-group-item bg-dark text-white">Notification 2</li>
-            <!-- Add more notifications dynamically -->
-          </ul>
+        <div class="col-lg-6 col-md-6">
+          <div class="button-box rounded p-3 bg-primary" routerLink="/" style="cursor: pointer;">
+            <li class="btn btn-primary btn-lg">
+              <i class="fa fa-history"></i> Recent Activity
+            </li>
+          </div>
         </div>
       </div>
-
-
     </div>
   </div>
 </div>

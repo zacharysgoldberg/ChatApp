@@ -20,11 +20,11 @@ public class PresenceHub : Hub
 
 	public override async Task OnConnectedAsync()
 	{
-		string usernameOrEmail = Context.User.GetUsernameOrEmail();
-		MemberDTO user = await _userRepository.GetMemberAsync(usernameOrEmail);
+		int userId = Context.User.GetUserId();
+		bool isOnline = await _tracker.UserConnected(userId, Context.ConnectionId);
 
-		await _tracker.UserConnected(user.Id, Context.ConnectionId);
-		await Clients.Others.SendAsync("UserIsOnline", usernameOrEmail);
+		if (isOnline)
+			await Clients.Others.SendAsync("UserIsOnline", userId);
 
 		int[] currentUsers = await _tracker.GetOnlineUsers();
 		await Clients.All.SendAsync("GetOnlineUsers", currentUsers);
@@ -32,14 +32,11 @@ public class PresenceHub : Hub
 
 	public override async Task OnDisconnectedAsync(Exception exception)
 	{
-		string usernameOrEmail = Context.User.GetUsernameOrEmail();
-		MemberDTO user = await _userRepository.GetMemberAsync(usernameOrEmail);
+		int userId = Context.User.GetUserId();
+		bool isOffline = await _tracker.UserDisconnected(userId, Context.ConnectionId);
 
-		await _tracker.UserDisconnected(user.Id, Context.ConnectionId);
-		await Clients.Others.SendAsync("UserIsOffline", usernameOrEmail);
-
-		int[] currentUsers = await _tracker.GetOnlineUsers();
-		await Clients.All.SendAsync("GetOnlineUsers", currentUsers);
+		if (isOffline)
+			await Clients.All.SendAsync("UserIsOffline", userId);
 
 		await base.OnDisconnectedAsync(exception);
 	}

@@ -14,6 +14,7 @@ import { UserService } from 'src/app/_services/user.service';
 })
 export class ProfileEditComponent implements OnInit {
   @Input() editField: string | undefined;
+
   user: UserModel | undefined;
   changePassword: ChangePasswordModel = {
     currentPassword: '',
@@ -27,6 +28,7 @@ export class ProfileEditComponent implements OnInit {
     photoUrl: '',
     phoneNumber: '',
   };
+
   @Output() cancelEdit = new EventEmitter();
 
   constructor(
