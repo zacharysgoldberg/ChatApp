@@ -5,13 +5,13 @@
 <div class="profile py-5 bg-dark">
   Profile
   <hr style="color:white">
-  <div class="card bg-dark" *ngIf="member">
+  <div class="card" *ngIf="member" style="background-color: rgb(31, 31, 31);">
     <div class="col-8">
       <div class="alert alert-warning">
         <p><strong>Information:</strong> Any unsaved changes will be lost</p>
       </div>
     </div>
-    <div class="card-body text-white">
+    <div class="card-body text-white" style="background-color: rgb(31, 31, 31);">
       <!-- Edit photo -->
       <div class="my-3">
         <img *ngIf="member.photoUrl" class="photo" type="button" src="{{ member.photoUrl }}" (click)="editPhotoToggle()"
@@ -54,7 +54,7 @@
       </div>
     </div>
     <!-- Edit password -->
-    <div class="card-body text-white">
+    <div class="card-body text-white" style="background-color: rgb(31, 31, 31);">
       <div class="my-3">
         <button class="btn btn-info" (click)="editProfileModeToggle('Password')"> Change Password </button>
       </div>
@@ -70,7 +70,7 @@
 
   </div>
   <!-- Delete account button -->
-  <div style="position: relative;margin-top: 30%;left: 1%">
+  <div style="position: relative; margin-top: 30%; left: 1%; ">
     <button type="submit" class="btn btn-danger">Delete Account</button>
   </div>
 </div>

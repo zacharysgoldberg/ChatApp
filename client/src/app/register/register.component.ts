@@ -20,6 +20,7 @@ import {
 })
 export class RegisterComponent implements OnInit {
   registerForm: FormGroup = new FormGroup({});
+  termsOfServiceAgreed: boolean = false;
   validationErrors: string[] | undefined;
 
   constructor(
@@ -83,4 +84,8 @@ export class RegisterComponent implements OnInit {
     const valid = passwordRegex.test(control.value);
     return valid ? null : { invalidPassword: true };
   };
+
+  toggleTermsOfServiceAggreement() {
+    this.termsOfServiceAgreed = !this.termsOfServiceAgreed;
+  }
 }

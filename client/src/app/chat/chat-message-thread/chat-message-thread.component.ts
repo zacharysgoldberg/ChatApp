@@ -1,4 +1,11 @@
-import { Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  Input,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { take } from 'rxjs';
 import { ContactModel } from 'src/app/_models/contact.model';
@@ -18,6 +25,7 @@ export class ChatMessageThreadComponent implements OnInit, OnDestroy {
 
   user?: UserModel;
   @ViewChild('messageForm') messageForm?: NgForm;
+  @ViewChild('scrollContainer') scrollContainer!: ElementRef;
   messageContent = '';
 
   constructor(
@@ -66,6 +74,8 @@ export class ChatMessageThreadComponent implements OnInit, OnDestroy {
       .then(() => {
         this.messageForm?.reset();
       });
+
+    this.scrollToBottom();
   }
 
   onEnterSendMessage(event: Event) {
@@ -77,6 +87,15 @@ export class ChatMessageThreadComponent implements OnInit, OnDestroy {
       keyboardEvent.preventDefault();
       // Call the sendMessage method
       this.sendMessage();
+    }
+  }
+
+  scrollToBottom(): void {
+    try {
+      this.scrollContainer.nativeElement.scrollTop =
+        this.scrollContainer.nativeElement.scrollHeight;
+    } catch (err) {
+      console.error(err);
     }
   }
 }

@@ -1,41 +1,50 @@
 <!-- Selected User(s) Info start -->
 <div class="selected-user" *ngIf="contact">
   <span><img *ngIf="contact.photoUrl" src="{{contact.photoUrl}}" class="rounded-circle me-2" width="50"
-      height="50"><span class="name text-white">{{ contact.userName }},</span></span>
+      height="50"><span class="name text-white" style="padding: 1px 1px 1px 5px">{{ contact.userName }},</span></span>
 </div>
 <!-- Selected User(s) Info end-->
 
 <!-- Message Thread UI start -->
-<div class="card bg-dark">
+<div class="card mt-3" style="height: calc(80vh - 50px); overflow-y: auto; background-color: rgb(31, 31, 31);"
+  #scrollContainer>
   <div class="card-body scrollable-message-thread">
     <ul class="chats">
       <li *ngFor="let message of messageThread">
         <div>
           <span class="chat-img float-end">
-            <img class="rounded-circle" width="40px" height="40px" src="{{message.senderPhotoUrl}}" alt="">
+            <img class="rounded-circle" width="40px" height="40px" [src]="message.senderPhotoUrl" alt="">
           </span>
-          <strong class="text-white float-end px-2">{{ message.senderUsername }}</strong>
+          <small class="text-white float-end px-2">{{ message.senderUsername }}</small>
           <div class="chat-body">
             <div class="header">
               <small class="text-muted">
                 <span class="">{{ message.createdAt | date: "short" }}</span>
               </small>
             </div>
-            <p class="text-white">{{message.content}}</p>
+            <div>
+              <p class="bg-dark d-inline-block"
+                style="margin-top: 10px; border-radius: 10px; padding: 10px 15px 10px 15px; max-width: calc(100% - 26px); word-wrap: break-word;"
+                [ngClass]="{'text-success': message.senderUsername === user?.username, 'text-white': message.senderUsername !== user?.username}">
+                {{ message.content }}</p>
+            </div>
           </div>
         </div>
       </li>
     </ul>
   </div>
-  <div class="chat-form my-2">
-    <form #messageForm="ngForm" autocomplete="off" class="form-group" (ngSubmit)="sendMessage()">
-      <textarea name="messageContent" class="form-control bg-dark text-white" type="text"
-        placeholder="Type a message..." [(ngModel)]="messageContent"
-        (keydown.enter)="onEnterSendMessage($event)"></textarea>
-      <button [disabled]="!messageContent || messageContent.length === 0" type="submit" class="btn btn-primary mt-2">
-        <li class="fa fa-send"></li>
-      </button>
-    </form>
-  </div>
 </div>
 <!-- Message Thread UI end -->
+
+<!-- Form/Text area -->
+<div class="chat-form mt-2">
+  <form style="padding: 1px 10px 1px 10px;" #messageForm="ngForm" autocomplete="off" class="form-group"
+    (ngSubmit)="sendMessage()">
+    <textarea name="messageContent" class="form-control text-white" type="text" placeholder="Type a message..."
+      [(ngModel)]="messageContent" (keydown.enter)="onEnterSendMessage($event)"
+      style="background-color: rgb(31, 31, 31);"></textarea>
+    <button [disabled]="!messageContent || messageContent.length === 0" type="submit" class="btn btn-primary mt-2">
+      <li class="fa fa-send"></li>
+    </button>
+  </form>
+</div>

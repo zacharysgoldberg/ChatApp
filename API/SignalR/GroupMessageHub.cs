@@ -60,9 +60,9 @@ public class GroupMessageHub : Hub
 		return base.OnDisconnectedAsync(exception);
 	}
 
-	public async Task SendGroupMessage(CreateGroupMessageDTO createGroupMessageDTO)
+	public async Task SendGroupMessage(CreateChannelDTO createChannelDTO)
 	{
-		if (createGroupMessageDTO.ChannelId == null)
+		if (createChannelDTO.ChannelId == null)
 			throw new HubException("Channel Id is required");
 
 		string usernameOrEmail = Context.User.GetUsernameOrEmail();
@@ -71,18 +71,18 @@ public class GroupMessageHub : Hub
 
 		var groupMessage = new GroupMessage
 		{
-			ChannelId = createGroupMessageDTO.ChannelId.Value,
-			ChannelName = createGroupMessageDTO.ChannelName,
+			ChannelId = createChannelDTO.ChannelId.Value,
+			ChannelName = createChannelDTO.ChannelName,
 			SenderId = sender.Id,
-			Content = createGroupMessageDTO.Content
+			Content = createChannelDTO.Content
 		};
 
 		if (await _groupMessageRepository.CreateGroupMessageAsync(groupMessage))
 		{
-			await Clients.Group(createGroupMessageDTO.ChannelId.ToString())
+			await Clients.Group(createChannelDTO.ChannelId.ToString())
 				.SendAsync("NewGroupMessage", _mapper.Map<GroupMessageDTO>(groupMessage));
 
-			foreach (int contactId in createGroupMessageDTO.ContactIds)
+			foreach (int contactId in createChannelDTO.ContactIds)
 			{
 				var recipientConnections = await PresenceTracker.GetConnectionsForUser(contactId);
 

@@ -1,6 +1,6 @@
-namespace API.DTOs;
+namespace API.Helpers;
 
-public static class UserRolesDTO
+public static class UserRoles
 {
 	public const string Admin = "Admin";
 

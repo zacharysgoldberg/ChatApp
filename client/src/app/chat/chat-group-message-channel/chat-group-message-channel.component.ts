@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { take } from 'rxjs';
 import { ContactModel } from 'src/app/_models/contact.model';
@@ -19,6 +19,7 @@ export class ChatGroupMessageChannelComponent implements OnInit {
 
   user: UserModel | undefined; // for authentication only
   @ViewChild('messageForm') messageForm?: NgForm;
+  @ViewChild('scrollContainer') scrollContainer!: ElementRef;
   messageContent = '';
 
   constructor(
@@ -60,6 +61,8 @@ export class ChatGroupMessageChannelComponent implements OnInit {
       this.messageService.createGroupMessage(createGroupMessage).then(() => {
         this.messageForm?.reset();
       });
+
+      this.scrollToBottom();
     }
   }
 
@@ -72,6 +75,15 @@ export class ChatGroupMessageChannelComponent implements OnInit {
       keyboardEvent.preventDefault();
       // Call the sendMessage method
       this.sendMessage();
+    }
+  }
+
+  scrollToBottom(): void {
+    try {
+      this.scrollContainer.nativeElement.scrollTop =
+        this.scrollContainer.nativeElement.scrollHeight;
+    } catch (err) {
+      console.error(err);
     }
   }
 }

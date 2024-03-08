@@ -2,7 +2,7 @@ using System.Numerics;
 
 namespace API.DTOs
 {
-	public record class CreateGroupMessageDTO
+	public record CreateChannelDTO
 	{
 		public Guid? ChannelId { get; init; }
 		public string? ChannelName { get; init; }

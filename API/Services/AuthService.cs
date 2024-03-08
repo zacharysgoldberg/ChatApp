@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using API.DTOs;
 using API.Entities;
+using API.Helpers;
 using API.Interfaces;
 using Microsoft.AspNetCore.Identity;
 
@@ -39,7 +40,7 @@ public class AuthService : IAuthService
 		if (!await _roleManager.RoleExistsAsync(role))
 			await _roleManager.CreateAsync(new IdentityRole<int>(role));
 
-		if (await _roleManager.RoleExistsAsync(UserRolesDTO.Member))
+		if (await _roleManager.RoleExistsAsync(UserRoles.Member))
 		{
 			IdentityResult addRoleToUserResult = await _userRepository.AddRoleToUserAsync(user, role);
 

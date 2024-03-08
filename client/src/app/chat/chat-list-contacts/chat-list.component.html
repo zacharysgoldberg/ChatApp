@@ -57,7 +57,8 @@
                   </li>
                 </ul> -->
 
-                <ul class="nav nav-pills" *ngFor="let contactOrChannel of contactsAndChannels$ | async">
+                <ul class="nav nav-pills" *ngFor="let contactOrChannel of contactsAndChannels$ | async"
+                  style="overflow-y: auto;">
                   <li *ngIf="!instanceOfGroupMessage(contactOrChannel)" class="nav-item py-1" aria-current="page"
                     data-chat="person1" (click)="selectContact(contactOrChannel)">
                     <a class="nav-link">

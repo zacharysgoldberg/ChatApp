@@ -1,7 +1,7 @@
 <section class="position-sticky bg-primary" *ngIf="(accountService.currentUser$ | async) as user">
   <div class="sidebar d-flex flex-column flex-shrink-0 p-3 text-white bg-dark" data-bs-theme="dark">
     <a class="navbar-brand my-3" routerLinkActive="active">
-      <strong> Chat App </strong>
+      <h3><strong class="text-muted"> ChatApp </strong></h3>
     </a>
     <hr>
     <ul class="nav nav-pills flex-column mb-auto">
@@ -41,7 +41,7 @@
           </a>
 
           <div class="collapse" id="sidemenu">
-            <ul class="nav nav-pills list-group list-group-flush" id="#sidemenu">
+            <ul class="nav nav-pills list-group list-group-flush" id="#sidemenu" style="border-radius:10px">
               <ng-container *ngIf="(notifications$ | async) as notifications; else loading">
                 <li class="list-group-item" *ngFor="let notification of notifications"
                   (click)="loadNotification(notification.id)" style="cursor: pointer;">

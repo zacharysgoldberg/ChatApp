@@ -5,7 +5,7 @@
         <div class="card bg-dark text-white" style="border-radius: 1rem;">
           <div class="card-body p-5 text-center">
             <div class="mb-md-5 mt-md-4 pb-5">
-              <h2 class="text-uppercase text-center mb-5">Create an account</h2>
+              <h2 class="text-uppercase text-center mb-5">Create account</h2>
               <form [formGroup]="registerForm" (ngSubmit)="registerForm.valid && register()" autocomplete="off">
                 <app-text-input [formControl]="$any(registerForm.controls['email'])" [label]="'Email'"></app-text-input>
                 <app-text-input [formControl]="$any(registerForm.controls['password'])" [label]="'Password'"
@@ -27,14 +27,15 @@
                   [label]="'Confirm Password'" [type]="'password'"></app-text-input>
 
                 <div class="form-check d-flex justify-content-center mb-5">
-                  <input class="form-check-input me-2" type="checkbox" value="" id="form2Example3cg" />
+                  <input (click)="toggleTermsOfServiceAggreement()" class="form-check-input me-2" type="checkbox"
+                    value="" id="form2Example3cg" />
                   <label class="form-check-label" for="form2Example3g">
                     I agree all statements in <a href="#!" class="text-white"><u>Terms of service</u></a>
                   </label>
                 </div>
 
-                <button [disabled]="!registerForm.valid" type="button" class="btn btn-lg btn-outline-primary"
-                  type="submit">Register</button>
+                <button [disabled]="!registerForm.valid || !termsOfServiceAgreed" type="button"
+                  class="btn btn-lg btn-outline-primary" type="submit">Register</button>
               </form>
             </div>
 

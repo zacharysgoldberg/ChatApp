@@ -10,6 +10,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 })
 export class ForgotPasswordComponent implements OnInit {
   forgotPasswordForm: FormGroup = new FormGroup({});
+  showAlert: boolean = false;
   validationErrors: string[] | undefined;
 
   @Output() cancelForgotPassword = new EventEmitter();
@@ -36,7 +37,7 @@ export class ForgotPasswordComponent implements OnInit {
 
       this.accountService.forgotPassword(forgotPasswordModel).subscribe({
         next: () => {
-          this.router.navigateByUrl('/');
+          this.showAlert = true;
         },
         error: (error) => {
           this.validationErrors = error;

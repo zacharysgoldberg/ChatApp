@@ -1,0 +1,12 @@
+.sent {
+  justify-content: flex-end;
+}
+
+.received {
+  justify-content: flex-start;
+}
+
+.message-content {
+  padding: 10px;
+  border-radius: 5px;
+}

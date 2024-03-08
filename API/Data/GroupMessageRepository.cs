@@ -48,7 +48,7 @@ namespace API.Data
 				ChannelId = Guid.NewGuid(),
 				ChannelName = channelName,
 				SenderId = senderId,
-				Content = "Initial Group Message" // Set initial group message
+				Content = $"Welcom to {channelName}" // Set initial group message
 			};
 
 			groupMessageChannel.Users.Add(sender); // Add sender to the channel

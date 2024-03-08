@@ -29,15 +29,15 @@ public class GroupMessagesController : BaseApiController
 	[Authorize(Roles = "Admin,Member")]
 	[HttpPost("channel")]
 	public async Task<ActionResult<IEnumerable<GroupMessageDTO>>> CreateGroupMessageChannel
-		(CreateGroupMessageDTO createGroupMessageDTO)
+		(CreateChannelDTO createChannelDTO)
 	{
 		int senderId = User.GetUserId();
 
-		createGroupMessageDTO.ContactIds.Add(senderId);
+		createChannelDTO.ContactIds.Add(senderId);
 
 		IEnumerable<GroupMessageDTO> groupMessageChannel = await
-			_groupMessageRepository.CreateGroupMessageChannelAsync(createGroupMessageDTO.ChannelName,
-				senderId, createGroupMessageDTO.ContactIds);
+			_groupMessageRepository.CreateGroupMessageChannelAsync(createChannelDTO.ChannelName,
+				senderId, createChannelDTO.ContactIds);
 
 		return Ok(groupMessageChannel);
 	}
@@ -45,19 +45,19 @@ public class GroupMessagesController : BaseApiController
 	[Authorize(Roles = "Admin,Member")]
 	[HttpPost]
 	public async Task<ActionResult<GroupMessageDTO>> CreateGroupMessage
-		(CreateGroupMessageDTO createGroupMessageDTO)
+		(CreateChannelDTO createChannelDTO)
 	{
-		if (createGroupMessageDTO.ChannelId == null)
+		if (createChannelDTO.ChannelId == null)
 			return BadRequest("ChannelId is required");
 
 		int senderId = User.GetUserId();
 
 		var groupMessage = new GroupMessage
 		{
-			ChannelId = createGroupMessageDTO.ChannelId.Value,
-			ChannelName = createGroupMessageDTO.ChannelName,
+			ChannelId = createChannelDTO.ChannelId.Value,
+			ChannelName = createChannelDTO.ChannelName,
 			SenderId = senderId,
-			Content = createGroupMessageDTO.Content
+			Content = createChannelDTO.Content
 		};
 
 		if (await _groupMessageRepository.CreateGroupMessageAsync(groupMessage))
