@@ -33,7 +33,8 @@ export class LoginComponent implements OnInit {
         if (user) {
           this.user = await this.accountService.getAuthenticatedUser(user);
 
-          if (this.user) {
+          if (this.accountService.isUserAuthenticated()) {
+            console.log(this.user);
             this.router.navigateByUrl('/home');
           } else this.accountService.logout();
         }

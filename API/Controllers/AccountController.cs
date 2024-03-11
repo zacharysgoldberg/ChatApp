@@ -55,7 +55,7 @@ public class AccountController : BaseApiController
 
 		var (user, error) = await _authService.RefreshToken(userDTO);
 
-		return user == null ? Unauthorized(error) : Ok(user);
+		return user == null ? BadRequest(error) : Ok(user);
 	}
 
 	// Revoke user's Refresh token

@@ -4,6 +4,7 @@ using API.Entities;
 using API.Helpers;
 using API.Interfaces;
 using Microsoft.AspNetCore.Identity;
+using DotNetEnv;
 
 namespace API.Services;
 
@@ -50,14 +51,15 @@ public class AuthService : IAuthService
 
 		string accessToken = await _tokenService.GenerateAccessToken(user);
 		string refreshToken = _tokenService.GenerateRefreshToken();
-		bool castValidRefreshToken = int.TryParse(_config["JWT:RefreshTokenValidityInDays"], out int
-																							refreshTokenValidityInDays);
+		string refreshTokenValidityString = Environment.GetEnvironmentVariable("JWT_REFRESH_TOKEN_VALIDITY");
+		bool castValidRefreshToken = int.TryParse(refreshTokenValidityString, out int
+																							refreshTokenValidityInt);
 
 		if (!castValidRefreshToken)
 			return (null, "Failed to convert refresh token validity into a 32-bit signed integer");
 
 		user.RefreshToken = refreshToken;
-		user.RefreshTokenExpiryTime = DateTime.Now.AddDays(refreshTokenValidityInDays);
+		user.RefreshTokenExpiryTime = DateTime.Now.AddDays(refreshTokenValidityInt);
 		IdentityResult updateUserResult = await _userRepository.UpdateUserAsync(user);
 
 		if (!updateUserResult.Succeeded)
@@ -83,14 +85,15 @@ public class AuthService : IAuthService
 
 		string accessToken = await _tokenService.GenerateAccessToken(user);
 		string refreshToken = _tokenService.GenerateRefreshToken();
-		bool castValidRefreshToken = int.TryParse(_config["JWT:RefreshTokenValidityInDays"], out int
-																							refreshTokenValidityInDays);
+		string refreshTokenValidityString = Environment.GetEnvironmentVariable("JWT_REFRESH_TOKEN_VALIDITY");
+		bool castValidRefreshToken = int.TryParse(refreshTokenValidityString, out int
+																							refreshTokenValidityInt);
 
 		if (!castValidRefreshToken)
 			return (null, "Failed to convert refresh token validity into a 32-bit signed integer");
 
 		user.RefreshToken = refreshToken;
-		user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(refreshTokenValidityInDays);
+		user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(refreshTokenValidityInt);
 		user.LastActive = DateTime.UtcNow;
 		IdentityResult updateUserResult = await _userRepository.UpdateUserAsync(user);
 
@@ -114,7 +117,7 @@ public class AuthService : IAuthService
 
 		if (user == null ||
 				user.RefreshToken != refreshToken ||
-				user.RefreshTokenExpiryTime <= DateTime.Now)
+				user.RefreshTokenExpiryTime <= DateTime.UtcNow)
 			return (null, "Invalid access token or refresh token");
 
 		List<Claim> claims = principal.Claims.ToList();

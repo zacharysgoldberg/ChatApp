@@ -1,11 +1,17 @@
 using API.Data;
 using API.Entities;
 using API.Extensions;
+using API.Helpers;
 using API.Middleware;
 using API.SignalR;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using DotNetEnv;
+
+Env.Load();
+Env.TraversePath().Load();
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +22,26 @@ builder.Services.AddControllers();
 builder.Services.AddApplicationServices(builder.Configuration);
 
 builder.Services.AddIdentityServices(builder.Configuration);
+
+string connectionString = "";
+
+if (builder.Environment.IsDevelopment())
+	connectionString = builder.Configuration.GetConnectionString("SqlConnectionString");
+else
+{
+	string pgHost = Environment.GetEnvironmentVariable("PG_HOST");
+	string pgPort = Environment.GetEnvironmentVariable("PG_PORT");
+	string pgUser = Environment.GetEnvironmentVariable("PG_USER");
+	string pgPassword = Environment.GetEnvironmentVariable("PG_PASSWORD");
+	string pgDb = Environment.GetEnvironmentVariable("PG_DATABASE");
+
+	connectionString = $"Server={pgHost};Port={pgPort};User Id={pgUser};Password={pgPassword};Database={pgDb};";
+}
+
+builder.Services.AddDbContext<DataContext>(opt =>
+{
+	opt.UseNpgsql(connectionString);
+});
 
 // Use Middleware
 WebApplication app = builder.Build();

@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using DotNetEnv;
 
 namespace API.Extensions;
 
@@ -48,12 +49,12 @@ public static class IdentityServiceExtensions
 				options.TokenValidationParameters = new TokenValidationParameters
 				{
 					IssuerSigningKey = new SymmetricSecurityKey(Encoding.
-										UTF8.GetBytes(config["JWT:TokenKey"])),
+										UTF8.GetBytes(Environment.GetEnvironmentVariable("JWT_TOKEN_KEY"))),
 					ValidateIssuerSigningKey = true,
 					ValidateAudience = false,
 					ValidateIssuer = false,
-					ValidIssuer = config["JWT:ValidIssuer"],
-					ValidAudience = config["JWT:ValidAudience"],
+					ValidIssuer = Environment.GetEnvironmentVariable("JWT_VALID_ISSUER"),
+					ValidAudience = Environment.GetEnvironmentVariable("JWT_VALID_AUDIENCE"),
 					ClockSkew = TimeSpan.Zero   // Need this for JWTs to expire
 				};
 

@@ -143,10 +143,7 @@ export class AccountService {
   }
 
   async getAuthenticatedUser(currentUser: UserModel): Promise<UserModel> {
-    if (
-      !this.userAuthenticated() ||
-      this.jwtHelper.isTokenExpired(currentUser.accessToken)
-    ) {
+    if (this.jwtHelper.isTokenExpired(currentUser.accessToken)) {
       const isRefreshSuccess = await this.tryRefreshingTokens(
         currentUser.accessToken
       );
@@ -165,7 +162,7 @@ export class AccountService {
   }
 
   getUsername() {
-    if (this.userAuthenticated()) {
+    if (this.isUserAuthenticated()) {
       const userString = localStorage.getItem('user');
 
       if (!userString) return null;
@@ -177,7 +174,7 @@ export class AccountService {
     return null;
   }
 
-  userAuthenticated(): boolean {
+  isUserAuthenticated(): boolean {
     const userString = localStorage.getItem('user');
 
     if (!userString) return false;
