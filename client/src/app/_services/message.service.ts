@@ -5,7 +5,6 @@ import { MessageModel } from '../_models/message.model';
 import {
   BehaviorSubject,
   Observable,
-  catchError,
   firstValueFrom,
   map,
   of,
@@ -15,11 +14,7 @@ import { ContactModel } from '../_models/contact.model';
 import { ContactService } from './contact.service';
 import { CreateGroupMessageModel } from '../_models/createGroupMessage.model';
 import { GroupMessageModel } from '../_models/groupMessage.model';
-import {
-  HubConnection,
-  HubConnectionBuilder,
-  HubConnectionState,
-} from '@microsoft/signalr';
+import { HubConnection, HubConnectionBuilder } from '@microsoft/signalr';
 import { UserModel } from '../_models/user.model';
 
 @Injectable({

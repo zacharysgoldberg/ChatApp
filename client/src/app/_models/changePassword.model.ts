@@ -1,5 +1,5 @@
 export interface ChangePasswordModel {
   currentPassword: string;
-  password: string;
+  newPassword: string;
   confirmPassword: string;
 }

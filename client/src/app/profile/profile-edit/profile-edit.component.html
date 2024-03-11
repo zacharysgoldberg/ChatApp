@@ -20,26 +20,40 @@
 
     <!-- Edit Password -->
     <div class="modal-content bg-dark text-white" style="width: 400px;" *ngIf="editField == 'Password'">
-      <div class="form-group">
+      <div class="form-group" [formGroup]="changePasswordForm">
         <label class="form-label mt-4"></label>
         <div class="form-floating mb-3 bg-dark">
           Current Password
-          <input type="text" class="form-control bg-dark text-white" placeholder="Password"
-            [(ngModel)]="changePassword.currentPassword">
+          <input class="form-control bg-dark text-white" [type]="'password'"
+            [formControl]="$any(changePasswordForm.controls['currentPassword'])">
         </div>
-        <div class="form-floating mb-3">
+        <div class="form-floating mb-3 bg-dark">
           New Password
-          <input type="password" class="form-control bg-dark text-white" placeholder="Password"
-            [(ngModel)]="changePassword.password">
+          <input class="form-control bg-dark text-white" [type]="'password'"
+            [formControl]="$any(changePasswordForm.controls['newPassword'])">
+          <!-- Display error messages for password requirements -->
+          <div *ngIf="changePasswordForm.get('newPassword')?.errors && changePasswordForm.get('newPassword')?.touched"
+            class="text-danger">
+            <div *ngIf="changePasswordForm.get('newPassword')?.errors?.['required']">Password is required.</div>
+            <div *ngIf="changePasswordForm.get('newPassword')?.errors?.['minlength']">Password must be at least 6
+              characters
+              long.</div>
+            <div *ngIf="changePasswordForm.get('newPassword')?.errors?.['maxlength']">Password must not exceed 15
+              characters.</div>
+            <div *ngIf="changePasswordForm.get('newPassword')?.errors?.['invalidPassword']">Password must contain at
+              least
+              one digit, one uppercase letter, one lowercase letter, and one unique character.</div>
+          </div>
         </div>
         <div class="form-floating">
           Confirm Password
-          <input type="password" class="form-control bg-dark text-white" placeholder="Confirm Password"
-            autocomplete="off" [(ngModel)]="changePassword.confirmPassword">
+          <input class="form-control bg-dark text-white" [type]="'password'"
+            [formControl]="$any(changePasswordForm.controls['confirmPassword'])">
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-primary" (click)="save(editField)">Save</button>
+        <button [disabled]="!changePasswordForm.valid" type="button" class="btn btn-primary"
+          (click)="save(editField)">Save</button>
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" (click)="cancel()">Close</button>
       </div>
     </div>

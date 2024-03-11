@@ -19,7 +19,7 @@ public static class ApplicationServiceExtensions
 		// ADO.NET (SQL authentication) - UseSqlServer
 		services.AddDbContext<DataContext>(opt =>
 		{
-			opt.UseSqlite(connectionString);
+			opt.UseNpgsql(connectionString);
 		});
 
 		services.AddCors();

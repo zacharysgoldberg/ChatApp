@@ -2,13 +2,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { LoginModel } from '../_models/login.model';
 import { UserModel } from '../_models/user.model';
 import { RegisterModel } from '../_models/register.model';
-import {
-  BehaviorSubject,
-  Observable,
-  Subject,
-  firstValueFrom,
-  map,
-} from 'rxjs';
+import { BehaviorSubject, firstValueFrom, map } from 'rxjs';
 import { Injectable } from '@angular/core';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { environment } from 'src/environments/environment';
@@ -150,7 +144,7 @@ export class AccountService {
 
   async getAuthenticatedUser(currentUser: UserModel): Promise<UserModel> {
     if (
-      !this.isUserAuthenticated() ||
+      !this.userAuthenticated() ||
       this.jwtHelper.isTokenExpired(currentUser.accessToken)
     ) {
       const isRefreshSuccess = await this.tryRefreshingTokens(
@@ -171,7 +165,7 @@ export class AccountService {
   }
 
   getUsername() {
-    if (this.isUserAuthenticated()) {
+    if (this.userAuthenticated()) {
       const userString = localStorage.getItem('user');
 
       if (!userString) return null;
@@ -183,7 +177,7 @@ export class AccountService {
     return null;
   }
 
-  isUserAuthenticated(): boolean {
+  userAuthenticated(): boolean {
     const userString = localStorage.getItem('user');
 
     if (!userString) return false;

@@ -66,7 +66,7 @@ export class ContactsComponent implements OnInit {
       },
       error: (error) => {
         console.log(error);
-        this.toastr.error(error);
+        // this.toastr.error(error);
       },
     });
   }

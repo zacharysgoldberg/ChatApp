@@ -1,7 +1,6 @@
 import { AccountService } from '../_services/account.service';
 import { Router } from '@angular/router';
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
-import { JwtHelperService } from '@auth0/angular-jwt';
 import { NotificationModel } from '../_models/notification.model';
 import { Observable, map, of, switchMap, take } from 'rxjs';
 import { MemberModel } from '../_models/member.model';

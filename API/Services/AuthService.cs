@@ -90,7 +90,7 @@ public class AuthService : IAuthService
 			return (null, "Failed to convert refresh token validity into a 32-bit signed integer");
 
 		user.RefreshToken = refreshToken;
-		user.RefreshTokenExpiryTime = DateTime.Now.AddDays(refreshTokenValidityInDays);
+		user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(refreshTokenValidityInDays);
 		user.LastActive = DateTime.UtcNow;
 		IdentityResult updateUserResult = await _userRepository.UpdateUserAsync(user);
 

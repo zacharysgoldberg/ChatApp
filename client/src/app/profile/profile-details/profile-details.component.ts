@@ -1,18 +1,9 @@
-import {
-  ChangeDetectorRef,
-  Component,
-  EventEmitter,
-  Input,
-  OnInit,
-  Output,
-  ViewChild,
-} from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { MemberModel } from '../../_models/member.model';
 import { UserModel } from '../../_models/user.model';
 import { AccountService } from '../../_services/account.service';
 import { take } from 'rxjs';
 import { UserService } from 'src/app/_services/user.service';
-import { PhotoEditComponent } from '../photo-edit/photo-edit.component';
 
 @Component({
   selector: 'app-profile-details',

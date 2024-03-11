@@ -9,10 +9,7 @@ import { HomeComponent } from './home/home.component';
 import { RegisterComponent } from './register/register.component';
 import { NavbarComponent } from './navbar/navbar.component';
 import { SharedModule } from './_modules/shared.module';
-import { TestErrorComponent } from './errors/test-error/test-error.component';
 import { ErrorInterceptor } from './_interceptors/error.interceptor';
-import { NotFoundComponent } from './errors/not-found/not-found.component';
-import { ServerErrorComponent } from './errors/server-error/server-error.component';
 import { JwtInterceptor, JwtModule } from '@auth0/angular-jwt';
 import { AuthGuard } from './_guards/auth.guard';
 import { ContactsComponent } from './contacts/contacts.component';
@@ -49,9 +46,6 @@ export function tokenGetter() {
     HomeComponent,
     RegisterComponent,
     NavbarComponent,
-    TestErrorComponent,
-    NotFoundComponent,
-    ServerErrorComponent,
     ContactsComponent,
     ChatListComponent,
     ChatMessageThreadComponent,

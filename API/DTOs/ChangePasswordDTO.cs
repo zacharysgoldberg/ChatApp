@@ -10,6 +10,6 @@ public record ChangePasswordDTO
 	public string NewPassword { get; init; }
 
 	[DataType(DataType.Password)]
-	[Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
+	[Compare("NewPassword", ErrorMessage = "The password and confirmation password do not match.")]
 	public string ConfirmPassword { get; init; }
 }

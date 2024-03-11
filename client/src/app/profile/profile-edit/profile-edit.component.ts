@@ -1,6 +1,14 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import {
+  AbstractControl,
+  FormBuilder,
+  FormGroup,
+  ValidatorFn,
+  Validators,
+} from '@angular/forms';
 import { Router } from '@angular/router';
-import { Observable, take } from 'rxjs';
+import { ToastrService } from 'ngx-toastr';
+import { Observable, take, throwError } from 'rxjs';
 import { ChangePasswordModel } from 'src/app/_models/changePassword.model';
 import { MemberUpdateModel } from 'src/app/_models/memberUpdate.model';
 import { UserModel } from 'src/app/_models/user.model';
@@ -16,11 +24,8 @@ export class ProfileEditComponent implements OnInit {
   @Input() editField: string | undefined;
 
   user: UserModel | undefined;
-  changePassword: ChangePasswordModel = {
-    currentPassword: '',
-    password: '',
-    confirmPassword: '',
-  };
+  changePasswordForm: FormGroup = new FormGroup({});
+  validationErrors: string[] | undefined;
   memberUpdate: MemberUpdateModel = {
     id: 0,
     userName: '',
@@ -34,7 +39,9 @@ export class ProfileEditComponent implements OnInit {
   constructor(
     private accountService: AccountService,
     private userService: UserService,
-    private router: Router
+    private fb: FormBuilder,
+    private router: Router,
+    private toastr: ToastrService
   ) {}
 
   ngOnInit(): void {
@@ -43,6 +50,8 @@ export class ProfileEditComponent implements OnInit {
         if (user) this.user = user;
       },
     });
+
+    this.initializeForm();
   }
 
   cancel() {
@@ -55,6 +64,8 @@ export class ProfileEditComponent implements OnInit {
       this.cancel();
       return;
     }
+
+    // Await the result of getAuthenticatedUser before proceeding
     this.user = await this.accountService.getAuthenticatedUser(this.user);
 
     let request: Observable<Object>;
@@ -62,9 +73,24 @@ export class ProfileEditComponent implements OnInit {
     if (this.memberUpdate) {
       switch (editField) {
         case 'Password':
-          if (this.changePassword) {
-            request = this.userService.changePassword(this.changePassword);
-            this.submitHardUpate(request);
+          if (this.changePasswordForm.valid) {
+            const changePasswordModel = this.changePasswordForm.value;
+
+            this.userService.changePassword(changePasswordModel).subscribe({
+              next: () => {
+                this.submitHardUpate(request);
+              },
+              error: (error) => {
+                // Throw validation errors
+                if (error.status === 400) {
+                  this.validationErrors = error.error;
+                  return;
+                } else {
+                  // Rethrow other errors
+                  return this.toastr.error(error);
+                }
+              },
+            });
           }
           break;
         case 'Username':
@@ -113,4 +139,38 @@ export class ProfileEditComponent implements OnInit {
       },
     });
   }
+
+  initializeForm() {
+    this.changePasswordForm = this.fb.group({
+      currentPassword: ['', [Validators.required]],
+      newPassword: [
+        '',
+        [
+          Validators.required,
+          Validators.minLength(6),
+          Validators.maxLength(15),
+          this.validatePassword,
+        ],
+      ],
+      confirmPassword: [
+        '',
+        [Validators.required, this.matchValues('newPassword')],
+      ],
+    });
+  }
+
+  matchValues(matchTo: string): ValidatorFn {
+    return (control: AbstractControl) => {
+      return control.value == control.parent?.get(matchTo)?.value
+        ? null
+        : { notMatching: true };
+    };
+  }
+
+  validatePassword: ValidatorFn = (control: AbstractControl) => {
+    const passwordRegex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,15}$/;
+    const valid = passwordRegex.test(control.value);
+    return valid ? null : { invalidPassword: true };
+  };
 }

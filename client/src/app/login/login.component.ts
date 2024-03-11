@@ -3,6 +3,8 @@ import { LoginModel } from '../_models/login.model';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { Component, OnInit } from '@angular/core';
+import { UserModel } from '../_models/user.model';
+import { first, take } from 'rxjs';
 
 @Component({
   selector: 'app-login',
@@ -10,6 +12,7 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./login.component.css'],
 })
 export class LoginComponent implements OnInit {
+  user?: UserModel;
   registerMode = false;
   forgotPasswordMode = false;
 
@@ -25,7 +28,17 @@ export class LoginComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    if (this.accountService.currentUser$) this.router.navigateByUrl('/home');
+    this.accountService.currentUser$.pipe(take(1)).subscribe({
+      next: async (user) => {
+        if (user) {
+          this.user = await this.accountService.getAuthenticatedUser(user);
+
+          if (this.user) {
+            this.router.navigateByUrl('/home');
+          } else this.accountService.logout();
+        }
+      },
+    });
   }
 
   login() {
@@ -33,11 +46,10 @@ export class LoginComponent implements OnInit {
       this.accountService.login(this.credentials).subscribe({
         next: (_) => {
           this.router.navigateByUrl('/home');
-          location.reload();
         },
 
         error: (error) => {
-          this.toastr.error(error.error), console.log(error);
+          console.log(error);
         },
       });
     return;

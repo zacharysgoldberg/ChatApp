@@ -1,5 +1,4 @@
 using API.Data;
-using API.DTOs;
 using API.Entities;
 using API.Extensions;
 using API.Middleware;
@@ -8,7 +7,7 @@ using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
-var builder = WebApplication.CreateBuilder(args);
+WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 // Add startup services to the container.
 
@@ -19,12 +18,11 @@ builder.Services.AddApplicationServices(builder.Configuration);
 builder.Services.AddIdentityServices(builder.Configuration);
 
 // Use Middleware
-var app = builder.Build();
+WebApplication app = builder.Build();
 
 // Confugure the HTTP request pipeline
 app.UseMiddleware<ExceptionMiddleware>();
 app.UseHttpsRedirection();
-app.UseStaticFiles();
 
 app.UseCors(builder => builder
 		.AllowAnyHeader()
@@ -35,17 +33,19 @@ app.UseCors(builder => builder
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.UseDefaultFiles();
+app.UseStaticFiles();
 
-var antiforgery = app.Services.GetRequiredService<IAntiforgery>();
+IAntiforgery antiforgery = app.Services.GetRequiredService<IAntiforgery>();
 
 app.Use((context, next) =>
 {
-	var requestPath = context.Request.Path.Value;
+	string requestPath = context.Request.Path.Value;
 
 	if (string.Equals(requestPath, "/", StringComparison.OrdinalIgnoreCase)
 			|| string.Equals(requestPath, "/index.html", StringComparison.OrdinalIgnoreCase))
 	{
-		var tokenSet = antiforgery.GetAndStoreTokens(context);
+		AntiforgeryTokenSet tokenSet = antiforgery.GetAndStoreTokens(context);
 		context.Response.Cookies.Append("XSRF-TOKEN", tokenSet.RequestToken!,
 				new CookieOptions { HttpOnly = false });
 	}
@@ -59,21 +59,21 @@ app.MapHub<MessageHub>("hubs/message");
 app.MapHub<GroupMessageHub>("hubs/group-message");
 
 // Seed database
-using var scope = app.Services.CreateScope();
-var services = scope.ServiceProvider;
+using IServiceScope scope = app.Services.CreateScope();
+IServiceProvider services = scope.ServiceProvider;
 
 try
 {
-	var context = services.GetRequiredService<DataContext>();
-	var userManager = services.GetRequiredService<UserManager<AppUser>>();
-	var roleManager = services.GetRequiredService<RoleManager<IdentityRole<int>>>();
+	DataContext context = services.GetRequiredService<DataContext>();
+	UserManager<AppUser> userManager = services.GetRequiredService<UserManager<AppUser>>();
+	RoleManager<IdentityRole<int>> roleManager = services.GetRequiredService<RoleManager<IdentityRole<int>>>();
 
 	await context.Database.MigrateAsync();
 	await Seed.SeedUsers(userManager, roleManager);
 }
 catch (Exception ex)
 {
-	var logger = services.GetService<ILogger<Program>>();
+	ILogger<Program> logger = services.GetService<ILogger<Program>>();
 	logger.LogError(ex, "An error occurred during migration");
 }
 

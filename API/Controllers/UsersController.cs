@@ -1,6 +1,7 @@
 ﻿using API.DTOs;
 using API.Entities;
 using API.Extensions;
+using API.Helpers;
 using API.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -135,7 +136,7 @@ public class UsersController : BaseApiController
 	}
 
 	[Authorize(Roles = "Admin,Member")]
-	[HttpPut("update-password")] // /api/users/reset-password
+	[HttpPut("update-password")] // /api/users/update-password
 	public async Task<ActionResult> UpdatePassword(ChangePasswordDTO changePasswordDTO)
 	{
 		string usernameOrEmail = User.GetUsernameOrEmail();
@@ -144,7 +145,8 @@ public class UsersController : BaseApiController
 		if (user == null)
 			return NotFound();
 
-		IdentityResult updatePasswordResult = await _userRepository.UpdatePasswordAsync(user,
+		IdentityResult updatePasswordResult = await _userRepository.UpdatePasswordAsync(
+																									user,
 																									changePasswordDTO.CurrentPassword,
 																									changePasswordDTO.NewPassword);
 

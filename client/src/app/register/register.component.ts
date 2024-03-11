@@ -1,14 +1,10 @@
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { AccountService } from '../_services/account.service';
-import { RegisterModel } from '../_models/register.model';
-import { ToastrService } from 'ngx-toastr';
 import { Router } from '@angular/router';
 import {
   AbstractControl,
   FormBuilder,
-  FormControl,
   FormGroup,
-  FormGroupDirective,
   ValidatorFn,
   Validators,
 } from '@angular/forms';
