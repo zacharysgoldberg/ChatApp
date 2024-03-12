@@ -21,5 +21,9 @@ RUN dotnet publish -c Release -o /app/publish
 FROM mcr.microsoft.com/dotnet/aspnet:7.0
 WORKDIR /API
 COPY --from=publish /app/publish .
+
+# Copy the .env file into the image
+# COPY .env ./
+
 ENTRYPOINT ["dotnet", "API.dll"]
 
