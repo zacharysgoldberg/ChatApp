@@ -1,11 +1,12 @@
 # [Use the SDK image to build the application]
 FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 WORKDIR /API
-# EXPOSE 80
+EXPOSE 80
 
 COPY *.sln ./
 COPY *.csproj ./
 RUN dotnet restore
+
 # [Copy everything else]
 COPY . ./
 WORKDIR /API
@@ -22,8 +23,7 @@ FROM mcr.microsoft.com/dotnet/aspnet:7.0
 WORKDIR /API
 COPY --from=publish /app/publish .
 
-# Copy the .env file into the image
-# COPY .env ./
+# [Copy the .env file into the image]
+COPY .env ./
 
 ENTRYPOINT ["dotnet", "API.dll"]
-
