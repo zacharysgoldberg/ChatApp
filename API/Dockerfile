@@ -1,7 +1,7 @@
 # [Use the SDK image to build the application]
 FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 WORKDIR /API
-EXPOSE 80
+# EXPOSE 80
 
 COPY *.sln ./
 COPY *.csproj ./
