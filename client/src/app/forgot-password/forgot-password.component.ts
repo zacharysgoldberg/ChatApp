@@ -40,7 +40,12 @@ export class ForgotPasswordComponent implements OnInit {
           this.showAlert = true;
         },
         error: (error) => {
-          this.validationErrors = error;
+          if (error.status === 404) {
+            console.log(error.status);
+            this.showAlert = true;
+          } else {
+            this.validationErrors = error;
+          }
         },
       });
     }

@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using DotNetEnv;
+using Microsoft.AspNetCore.Rewrite;
 
 Env.Load();
 Env.TraversePath().Load();
@@ -54,10 +55,15 @@ app.UseCors(builder => builder
 		.AllowAnyHeader()
 		.AllowAnyMethod()
 		.AllowCredentials()
+		.AllowAnyOrigin()
 		.WithOrigins("https://localhost:4200"));
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+// URL rewriting to handle Angular routes (ie. /reset-password)
+app.UseRewriter(new RewriteOptions()
+						.AddRewrite(@"^reset-password.*", "/index.html", skipRemainingRules: true));
 
 app.UseDefaultFiles();
 app.UseStaticFiles();

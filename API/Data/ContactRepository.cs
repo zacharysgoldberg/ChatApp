@@ -60,8 +60,6 @@ public class ContactRepository : IContactRepository
 	{
 		ICollection<Contact> contacts = user.Contacts;
 
-		// DebugUtil.PrintDebug(ref contacts);
-
 		if (contacts == null)
 			return Enumerable.Empty<ContactDTO>();
 

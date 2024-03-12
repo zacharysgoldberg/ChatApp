@@ -84,9 +84,9 @@ public class AccountController : BaseApiController
 
 		var token = await _userManager.GeneratePasswordResetTokenAsync(user);
 
-		DebugUtil.PrintDebug(token);
+		var url = Environment.GetEnvironmentVariable("URL");
 
-		var callback = $"https://localhost:4200/reset-password?email={user.Email}&token={token}";
+		var callback = $"{url}/reset-password?email={user.Email}&token={token}";
 
 		var message = new EmailMessage(new Dictionary<string, string>() { { user.UserName, user.Email } },
 																	"Reset Password - ChatApp",
