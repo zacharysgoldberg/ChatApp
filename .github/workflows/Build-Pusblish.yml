@@ -23,25 +23,25 @@ jobs:
       - name: Test
         run: dotnet test --no-build --verbosity normal
 
-  build-publish:
-    runs-on: ubuntu-latest
+  # build-publish:
+  #   runs-on: ubuntu-latest
 
-    env:
-      # Use docker.io for Docker Hub if empty
-      REGISTRY: ghcr.io
-      # github.repository as <account>/<repo>
-      IMAGE_NAME: ${{ github.repository }}
+  #   env:
+  #     # Use docker.io for Docker Hub if empty
+  #     REGISTRY: ghcr.io
+  #     # github.repository as <account>/<repo>
+  #     IMAGE_NAME: ${{ github.repository }}
 
-    # steps:
-    #   - name: Login to Docker Hub
-    #     uses: docker/login-action@v1
-    #     with:
-    #       username: ${{ secrets.DOCKERHUB_USER }}
-    #       password: ${{ secrets.DOCKERHUB_TOKEN }}
+  #   steps:
+  #     - name: Login to Docker Hub
+  #       uses: docker/login-action@v1
+  #       with:
+  #         username: ${{ secrets.DOCKERHUB_USER }}
+  #         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-    #   - uses: actions/checkout@v3
-    #   - name: Build Docker Image
-    #     working-directory: ./API
-    #     run: docker build . -t ${{ secrets.DOCKERHUB_USER }}/chatapp:latest
-    #   - name: Publish Docker Image
-    #     run: docker image push ${{ secrets.DOCKERHUB_USER }}/chatapp:latest
+  #     - uses: actions/checkout@v3
+  #     - name: Build Docker Image
+  #       working-directory: ./API
+  #       run: docker build . -t ${{ secrets.DOCKERHUB_USER }}/chatapp:latest
+  #     - name: Publish Docker Image
+  #       run: docker image push ${{ secrets.DOCKERHUB_USER }}/chatapp:latest
