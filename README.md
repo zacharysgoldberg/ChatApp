@@ -1,7 +1,7 @@
 # ChatApp
 
 ## Description:
-A real-time chat application designed to facilitate seamless communication between users. It provides a user-friendly interface for exchanging messages, supporting both one-on-one and group conversations. The application prioritizes backend scalability and optimization, ensuring efficient handling of high volumes of concurrent users. Utilizing RESTful and WebSocket APIs, caching mechanisms, and a responsive UI.
+A real-time chat application designed to facilitate seamless communication between users. It provides a user-friendly interface for exchanging messages, supporting both one-on-one and group conversations. The application prioritizes backend scalability and optimization, ensuring efficient handling of high volumes of concurrent users. Utilized RESTful and WebSocket APIs, caching mechanisms, and a modern architecture.
 
 ## Tools Used:
 - ASP.NET Core 7
