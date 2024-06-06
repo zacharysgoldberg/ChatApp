@@ -12,7 +12,8 @@
       <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 col-12"> </div>
     </div>
   </div>
-  <!-- Page header end -->`
+  <!-- Page header end -->
+
   <!-- Content wrapper start -->
   <div class="content-wrapper bg-dark">
     <!-- Row start -->
@@ -33,7 +34,7 @@
                 <!-- Search Message Thread end -->
 
                 <!-- Add Multiple Contacts for Group Message start -->
-                <div class="d-flex justify-content-center">
+                <div class="d-flex justify-content-center mb-5">
                   <strong class="text-white">New Channel</strong>
                   <button class="btn btn-secondary mt-2 float-end mx-4" (click)="toggleCreateNewChannelMode()">
                     <i class="fa fa-pencil"></i>
@@ -56,31 +57,59 @@
                     </a>
                   </li>
                 </ul> -->
-
                 <ul class="nav nav-pills" *ngFor="let contactOrChannel of contactsAndChannels$ | async"
                   style="overflow-y: auto;">
-                  <li *ngIf="!instanceOfGroupMessage(contactOrChannel)" class="nav-item py-1" aria-current="page"
-                    data-chat="person1" (click)="selectContact(contactOrChannel)">
-                    <a class="nav-link">
-                      <span class="status online"></span>
-                      <p class="name-time">
-                        <span class="name text-white">{{ contactOrChannel.userName }}</span>
-                        <span class="time"> {{ getLastActiveTimestamp(contactOrChannel) | date: 'MM-dd-yyyy' }}</span>
-                      </p>
-                    </a>
-                  </li>
 
-                  <li *ngIf="instanceOfGroupMessage(contactOrChannel)" class="nav-item py-1" aria-current="page"
-                    data-chat="person1" (click)="selectChannel(contactOrChannel.channelId)">
-                    <a class="nav-link">
-                      <span class="status online"></span>
-                      <p class="name-time">
-                        <span class="name text-white">{{ contactOrChannel.channelName }}</span>
-                        <span class="time"> {{ getLastActiveTimestamp(contactOrChannel) | date: 'MM-dd-yyyy' }}</span>
-                      </p>
-                    </a>
+                  <li *ngIf="!instanceOfGroupMessage(contactOrChannel)" class="list-group-item">
+                    <div class="d-flex align-items-center justify-content-between">
+                      <!-- User Information -->
+                      <div class="item-info">
+                        <div class="d-flex align-items-center">
+                          <span class="status online me-2"></span>
+                          <a class="nav-link" (click)="selectContact(contactOrChannel)">
+                            <p class="name-time mb-0">
+                              <span class="name text-white">{{ contactOrChannel.userName }}</span>
+                              <span
+                                class="time ms-2">{{ getLastActiveTimestamp(contactOrChannel) | date: 'MM-dd-yyyy' }}</span>
+                            </p>
+                          </a>
+                        </div>
+                      </div>
+                    </div>
                   </li>
+                  <!-- Delete Button -->
+                  <div *ngIf="!instanceOfGroupMessage(contactOrChannel)" class="delete-button col-1">
+                    <button type="button" class="btn btn-danger btn-sm">
+                      <i class="fa fa-trash"></i>
+                    </button>
+                  </div>
+
+                  <li *ngIf="instanceOfGroupMessage(contactOrChannel)" class="list-group-item">
+                    <div class="d-flex align-items-center justify-content-between">
+                      <!-- User Information -->
+                      <div class="item-info">
+                        <div class="d-flex align-items-center">
+                          <span class="status online me-2"></span>
+                          <a class="nav-link" (click)="selectChannel(contactOrChannel.channelId)">
+                            <p class="name-time mb-0">
+                              <span class="name text-white">{{ contactOrChannel.channelName }}</span>
+                              <span
+                                class="time ms-2">{{ getLastActiveTimestamp(contactOrChannel) | date: 'MM-dd-yyyy' }}</span>
+                            </p>
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                  </li>
+                  <!-- Delete Button -->
+                  <div *ngIf="instanceOfGroupMessage(contactOrChannel)" class="delete-button col-1">
+                    <button type="button" class="btn btn-danger btn-sm">
+                      <i class="fa fa-trash"></i>
+                    </button>
+                  </div>
+
                 </ul>
+
               </div>
 
             </div>

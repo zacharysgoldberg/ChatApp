@@ -3,7 +3,7 @@ import { MessageModel } from '../../_models/message.model';
 import { MessageService } from '../../_services/message.service';
 import { UserModel } from '../../_models/user.model';
 import { AccountService } from '../../_services/account.service';
-import { Observable, combineLatest, map, of, take } from 'rxjs';
+import { Observable, Subscription, combineLatest, map, of, take } from 'rxjs';
 import { ContactModel } from '../../_models/contact.model';
 import { GroupMessageModel } from 'src/app/_models/groupMessage.model';
 import { ContactService } from 'src/app/_services/contact.service';
@@ -22,6 +22,8 @@ export class ChatListComponent implements OnInit {
   groupMessageChannelEnabled: boolean = false;
   createNewChannelMode: boolean = false;
 
+  private logoutSubscription: Subscription | undefined;
+
   @Output() messageThread$: Observable<MessageModel[]> | undefined;
   @Output() groupMessageChannel$: Observable<GroupMessageModel[]> | undefined;
   @Output() contact?: ContactModel;
@@ -37,6 +39,7 @@ export class ChatListComponent implements OnInit {
     this.accountService.currentUser$.pipe(take(1)).subscribe({
       next: (user) => {
         if (user) {
+          console.log(user);
           this.user = user;
           this.sortContactsAndChannels();
         }

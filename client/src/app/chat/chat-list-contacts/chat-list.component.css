@@ -405,3 +405,11 @@ ul {
   padding-bottom: 10px;
   border-bottom: 1px dotted grey;
 }
+
+.list-group-item {
+  display: flex;
+}
+
+.delete-button {
+  margin-left: auto; /* Pushes the delete button to the right */
+}

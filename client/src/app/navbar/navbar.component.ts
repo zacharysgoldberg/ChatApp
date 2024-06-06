@@ -2,7 +2,7 @@ import { AccountService } from '../_services/account.service';
 import { Router } from '@angular/router';
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { NotificationModel } from '../_models/notification.model';
-import { Observable, map, of, switchMap, take } from 'rxjs';
+import { Observable, Subscription, map, of, switchMap, take } from 'rxjs';
 import { MemberModel } from '../_models/member.model';
 import { UserService } from '../_services/user.service';
 import { UserModel } from '../_models/user.model';
@@ -20,6 +20,8 @@ export class NavbarComponent implements OnInit {
   notifications$: Observable<NotificationModel[]> = of([]);
   isDropup = true;
   isAdmin = false;
+
+  private logoutSubscription: Subscription | undefined;
 
   @Output() notificationLoaded: EventEmitter<number | string> =
     new EventEmitter<number | string>();

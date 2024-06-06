@@ -5,6 +5,7 @@
 </div>
 <!-- Selected User(s) Info end-->
 
+
 <!-- Message Thread UI start -->
 <div class="card mt-3" style="height: calc(80vh - 50px); overflow-y: auto; background-color: rgb(31, 31, 31);"
   #scrollContainer>
@@ -37,14 +38,14 @@
 <!-- Message Thread UI end -->
 
 <!-- Form/Text area -->
-<div class="chat-form mt-2">
-  <form style="padding: 1px 10px 1px 10px;" #messageForm="ngForm" autocomplete="off" class="form-group"
-    (ngSubmit)="sendMessage()">
-    <textarea name="messageContent" class="form-control text-white" type="text" placeholder="Type a message..."
+<div class="chat-form bg-dark" style="position: relative;">
+  <form style="padding: 1px 10px 1px 10px;" #messageForm="ngForm" autocomplete="off"
+    class="form-group d-flex align-items-center" (ngSubmit)="sendMessage()">
+    <textarea name="messageContent" class="form-control text-white me-2" type="text" placeholder="Type a message..."
       [(ngModel)]="messageContent" (keydown.enter)="onEnterSendMessage($event)"
       style="background-color: rgb(31, 31, 31);"></textarea>
-    <button [disabled]="!messageContent || messageContent.length === 0" type="submit" class="btn btn-primary mt-2">
-      <li class="fa fa-send"></li>
+    <button [disabled]="!messageContent || messageContent.length === 0" type="submit" class="btn btn-primary">
+      <i class="fa fa-send"></i>
     </button>
   </form>
 </div>

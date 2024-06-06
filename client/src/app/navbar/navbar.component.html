@@ -35,10 +35,13 @@
 
         <li class="nav-item my-sm-2 my-2 py-2">
           <a href="#sidemenu" class="nav-link text-white text-center text-sm-start" data-bs-toggle="collapse"
-            data-bs-target="#sidemenu" data-bs-target="#sidemenu" routerLinkActive="active" aria-current="page">
+            data-bs-target="#sidemenu" routerLinkActive="active" aria-current="page">
             <i class="fa fa-bell"></i>
-            <span class="ms-2 d-none d-sm-inline"> Notifications ({{ (notifications$ | async)?.length || 0 }})</span>
+            <span class="ms-2 d-none d-sm-inline" [ngClass]="{'text-danger': (notifications$ | async)!.length >= 1}">
+              Notifications ({{ (notifications$ | async)?.length || 0 }})
+            </span>
           </a>
+
 
           <div class="collapse" id="sidemenu">
             <ul class="nav nav-pills list-group list-group-flush" id="#sidemenu" style="border-radius:10px">
@@ -47,7 +50,7 @@
                   (click)="loadNotification(notification.id)" style="cursor: pointer;">
                   <div class="d-flex justify-content-between align-items-center">
                     <div>
-                      <strong>{{ notification.senderUsername }}</strong>
+                      <strong>{{ notification.senderUsername | slice:0:10 }}{{ notification.senderUsername.length > 10 ? '...' : '' }}</strong>
                     </div>
                     <small>{{ notification.createdAt | date: "mm/dd/yyyy" }}</small>
                     <!-- <small class="text-white">{{ notification.createdAt | date: 'short' }}</small> -->

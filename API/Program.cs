@@ -55,8 +55,8 @@ app.UseCors(builder => builder
 		.AllowAnyHeader()
 		.AllowAnyMethod()
 		.AllowCredentials()
-		// .AllowAnyOrigin()
-		// .WithOrigins("https://localhost:4200")
+		.AllowAnyOrigin()
+		.WithOrigins("https://localhost:4200")
 		);
 
 app.UseAuthentication();
@@ -90,6 +90,7 @@ app.MapControllers();
 app.MapHub<PresenceHub>("hubs/presence");
 app.MapHub<MessageHub>("hubs/message");
 app.MapHub<GroupMessageHub>("hubs/group-message");
+app.MapFallbackToController("Index", "Fallback");
 
 // Seed database
 using IServiceScope scope = app.Services.CreateScope();

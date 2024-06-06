@@ -17,6 +17,8 @@ namespace API.Entities
 		public ICollection<GroupMessage> GroupMessages { get; set; }
 		public ICollection<Notification> NotificationsSent { get; set; } = new List<Notification>();
 		public ICollection<Notification> NotificationsReceived { get; set; } = new List<Notification>();
+		// public ICollection<int> HiddenThreads { get; set; } = new List<int>();
+		// public ICollection<Guid> HiddenChannels { get; set; } = new List<Guid>();
 	}
 }
 

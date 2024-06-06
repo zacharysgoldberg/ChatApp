@@ -9,6 +9,8 @@ import { environment } from 'src/environments/environment';
 import { ResetPasswordModel } from '../_models/resetPassword.model';
 import { PresenceService } from './presence.service';
 import { ForgotPasswordModel } from '../_models/forgotPassword.model';
+import { MessageService } from './message.service';
+import { NotificationService } from './notification.service';
 
 @Injectable({
   providedIn: 'root',
@@ -19,10 +21,15 @@ export class AccountService {
   private currentUserSource = new BehaviorSubject<UserModel | null>(null);
   currentUser$ = this.currentUserSource.asObservable();
 
+  private logoutSubject = new BehaviorSubject<void>(undefined);
+  logout$ = this.logoutSubject.asObservable();
+
   constructor(
     private http: HttpClient,
     private jwtHelper: JwtHelperService,
-    private presenceService: PresenceService
+    private presenceService: PresenceService,
+    private messageService: MessageService,
+    private notificationService: NotificationService
   ) {
     const userString = localStorage.getItem('user');
 
@@ -59,6 +66,9 @@ export class AccountService {
     localStorage.removeItem('user');
     this.currentUserSource.next(null);
     this.presenceService.stopHubConnection();
+    this.messageService.contactsWithMessageThreads = [];
+    this.notificationService.notifications = [];
+    this.logoutSubject.next(); // Emit logout event
 
     // return this.http.post(this.apiUrl + `account/revoke/${username}`, model);
   }
