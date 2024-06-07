@@ -16,6 +16,6 @@ A real-time chat application designed to facilitate seamless communication betwe
 
 ## Disclaimer:
 
-While ChatApp may not boast cutting-edge web design, its focus lies in backend scalability and optimization. The project aims to deliver robust functionality and performance rather than visual flair. However, future updates are planned to enhance the user interface, making it more accessible across various devices, including mobile platforms. Additionally, there are considerations for developing a mobile app using .NET MAUI to further extend the application's reach and versatility.
+While ChatApp may not boast cutting-edge web design, its focus lies in backend scalability and optimization. The project aims to deliver robust functionality and performance rather than visual flair. However, future updates are planned to enhance the user interface, making it more accessible across various devices, including mobile platforms. Additionally, considering the development of a mobile app version using .NET MAUI to further extend the application's reach and versatility.
 
 ### Live Link: [https://chatapp-xm1b.onrender.com](https://chatapp-xm1b.onrender.com)
