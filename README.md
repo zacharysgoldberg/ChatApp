@@ -2,7 +2,7 @@
 
 ## Description:
 
-A real-time chat application designed to facilitate seamless communication between users. It provides a user-friendly interface for exchanging messages, supporting both one-on-one and group conversations. The application prioritizes backend scalability and optimization, ensuring efficient handling of high volumes of concurrent users. Utilizing RESTful and WebSocket APIs, caching mechanisms, and a responsive UI, ChatApp delivers a reliable and responsive chatting experience.
+A real-time chat application designed to facilitate seamless communication between users. It provides a user-friendly interface for exchanging messages, supporting both one-on-one and group conversations. The application prioritizes backend scalability and optimization, ensuring efficient handling of high volumes of concurrent users. Utilizing RESTful and WebSocket APIs, caching mechanisms, and a responsive UI.
 
 ## Tools Used:
 
