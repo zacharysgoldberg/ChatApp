@@ -16,5 +16,5 @@ A real-time chat application designed to facilitate seamless communication betwe
 
 ## Disclaimer:
 
-ChatApp's backend is designed and optimized for security and scalability. The project delivers robust functionality and performance rather than visual flair. However, future updates are planned to enhance the user interface, making it more accessible across various devices, including mobile devices.
+ChatApp's backend is designed and optimized for security and scalability. The project delivers robust functionality and performance rather than visual flair. However, future updates are planned to enhance the user interface, making it more accessible across various devices, including mobile and tablet formats.
 ### Live Link: [https://chatapp-xm1b.onrender.com](https://chatapp-xm1b.onrender.com)
